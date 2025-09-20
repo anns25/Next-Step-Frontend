@@ -188,291 +188,259 @@ const ProfilePage = () => {
 
 
   return (
-    <Box
-      sx={{
-        py: 6,
-        px: { xs: 2, md: 6 },
-        minHeight: "100vh",
-        backgroundImage: "url('/office.jpeg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        position: "relative",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background: "rgba(0,0,0,0.4)",
-          zIndex: 1,
-        },
-      }}
-    >
-      <Box sx={{ position: "relative", zIndex: 2 }}>
-        <Paper
-          elevation={6}
-          sx={{
-            p: { xs: 3, md: 6 },
-            borderRadius: { xs: 2, md: 3 },
-            backdropFilter: "blur(12px)",
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
-            boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
-          }}
-        >
-          {/* ✅ Profile Header */}
-          <Grid container spacing={2} alignItems="center">
-            <Grid size={{ xs: 12, md: 6 }} container spacing={2} alignItems="center">
-              <Grid>
-                <Avatar
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}`}
-                  sx={{ width: 96, height: 96, bgcolor: theme.palette.secondary.main }}
-                >
-                  {user.firstName?.[0] ?? "U"}
-                </Avatar>
-              </Grid>
-              <Grid>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {user.firstName} {user.lastName}
-                </Typography>
-                <Typography variant="body2" color="#3a4b59">
-                  {user.email}
-                </Typography>
-                <Stack direction="row" spacing={1} alignItems="center" mt={1}>
-                  {user.location?.city && (
-                    <Typography variant="body2" color="#3a4b59">
-                      {user.location.city}, {user.location.country}
-                    </Typography>
-                  )}
-                  {user.emailVerified && (
-                    <Chip label="Verified" size="small" color="primary" sx={{ ml: 1 }} />
-                  )}
-                </Stack>
-                <Button
-                  variant="contained"
-                  sx={{ mt: 3, backgroundColor: "#3a4b59", "&:hover": { backgroundColor: "#2f3e4a" } }}
-                  size="small"
-                  startIcon={<Logout />}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </Grid>
-            </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Box display="flex" alignItems="center" justifyContent="flex-end" gap={2}>
-                <Box sx={{ width: "60%", minWidth: 160 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Profile Completion
+    <Box sx={{ position: "relative", zIndex: 2 }}>
+      <Paper
+        elevation={6}
+        sx={{
+          p: { xs: 3, md: 6 },
+          borderRadius: { xs: 2, md: 3 },
+          backdropFilter: "blur(12px)",
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
+          boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
+        }}
+      >
+        {/* ✅ Profile Header */}
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, md: 6 }} container spacing={2} alignItems="center">
+            <Grid>
+              <Avatar
+                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}`}
+                sx={{ width: 96, height: 96, bgcolor: theme.palette.secondary.main }}
+              >
+                {user.firstName?.[0] ?? "U"}
+              </Avatar>
+            </Grid>
+            <Grid>
+              <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                {user.firstName} {user.lastName}
+              </Typography>
+              <Typography variant="body2" color="#3a4b59">
+                {user.email}
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" mt={1}>
+                {user.location?.city && (
+                  <Typography variant="body2" color="#3a4b59">
+                    {user.location.city}, {user.location.country}
                   </Typography>
-                  <Box sx={{ height: 10, background: "#e9eef5", borderRadius: 6, mt: 1, overflow: "hidden" }}>
-                    <Box
-                      sx={{
-                        height: "100%",
-                        width: `${completion}%`,
-                        background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark || "#0b5dc7"})`,
-                      }}
-                    />
-                  </Box>
-                </Box>
-                <Button variant="contained" startIcon={<EditIcon />} onClick={openEdit}>
-                  Edit Profile
-                </Button>
-              </Box>
+                )}
+                {user.emailVerified && (
+                  <Chip label="Verified" size="small" color="primary" sx={{ ml: 1 }} />
+                )}
+              </Stack>
+              <Button
+                variant="contained"
+                sx={{ mt: 3, backgroundColor: "#3a4b59", "&:hover": { backgroundColor: "#2f3e4a" } }}
+                size="small"
+                startIcon={<Logout />}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
             </Grid>
           </Grid>
 
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Box display="flex" alignItems="center" justifyContent="flex-end" gap={2}>
+              <Box sx={{ width: "60%", minWidth: 160 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Profile Completion
+                </Typography>
+                <Box sx={{ height: 10, background: "#e9eef5", borderRadius: 6, mt: 1, overflow: "hidden" }}>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      width: `${completion}%`,
+                      background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark || "#0b5dc7"})`,
+                    }}
+                  />
+                </Box>
+              </Box>
+              <Button variant="contained" startIcon={<EditIcon />} onClick={openEdit}>
+                Edit Profile
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
 
-          <Divider sx={{ my: 4 }} />
 
-          <Grid container spacing={3}>
-            {/* Left column: Overview, Subscriptions, Documents */}
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Stack spacing={3}>
-                {/* Summary Card */}
-                {/* <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    background: "rgba(255,255,255,0.6)",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6)",
-                  }}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    Overview
-                  </Typography>
-                  <Stack spacing={1}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>
-                      <Typography variant="body2" color="text.secondary">
-                        Total Applied
-                      </Typography>
-                      <Typography variant="h6">12</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>
-                      <Typography variant="body2" color="text.secondary">
-                        Interviews Scheduled
-                      </Typography>
-                      <Typography variant="h6">3</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" py={1}>
-                      <Typography variant="body2" color="text.secondary">
-                        Jobs Saved
-                      </Typography>
-                      <Typography variant="h6">2</Typography>
-                    </Box>
-                  </Stack>
-                </Paper> */}
+        <Divider sx={{ my: 4 }} />
 
-                {/* Basic info card */}
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 2, background: "rgba(255,255,255,0.6)" }}>
-                  <Typography variant="h6" gutterBottom>
-                    Basic Information
-                  </Typography>
-                  <Stack spacing={1}>
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        First Name
-                      </Typography>
-                      <Typography>{user.firstName}</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Last Name
-                      </Typography>
-                      <Typography>{user.lastName}</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Work Status
-                      </Typography>
-                      <Typography>{user.workStatus}</Typography>
-                    </Box>
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Resume Headline
-                      </Typography>
-                      <Typography sx={{ maxWidth: 160, textAlign: "right" }}>{user.resumeHeadline}</Typography>
-                    </Box>
+        <Grid container spacing={3}>
+          {/* Left column */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={3}>
+              {/* Basic Info */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Basic Information
+                </Typography>
+                <Stack spacing={1}>
+                  {/* Info rows */}
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      First Name
+                    </Typography>
+                    <Typography>{user.firstName}</Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Last Name
+                    </Typography>
+                    <Typography>{user.lastName}</Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Work Status
+                    </Typography>
+                    <Typography>{user.workStatus}</Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Resume Headline
+                    </Typography>
+                    <Typography sx={{ maxWidth: 160, textAlign: "right" }}>
+                      {user.resumeHeadline}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
 
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Location
-                      </Typography>
-                      <Typography textAlign="right">
-                        {[user.location?.city, user.location?.state, user.location?.country]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </Typography>
-                    </Box>
+              {/* Education */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Education
+                </Typography>
+                {(user.education || []).map((edu, i) => (
+                  <Box key={i} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2">{edu.institution}</Typography>
+                    <Typography variant="body2">
+                      {edu.degree} - {edu.fieldOfStudy}
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                    >
+                      {formatDate(edu.startDate)} – {formatDate(edu.endDate)}
+                    </Typography>
+                  </Box>
+                ))}
+              </Paper>
+            </Stack>
+          </Grid>
 
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">
-                        Skills
-                      </Typography>
+          {/* Right column */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={3}>
+              {/* Experience */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Experience
+                </Typography>
+                <Stack spacing={1}>
+                  {(user.experience || []).map((exp, idx) => (
+                    <Box
+                      key={idx}
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      py={1}
+                    >
                       <Box>
-                        {(user.skills || []).map((s) => (
-                          <Chip key={s} label={s} size="small" sx={{ ml: 0.5, mt: 0.5 }} />
-                        ))}
+                        <Typography variant="subtitle2">{exp.position}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {exp.company}
+                        </Typography>
                       </Box>
-                    </Box>
-                  </Stack>
-                </Paper>
-
-                {/* Education */}
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 2, background: "rgba(255,255,255,0.6)" }}>
-                  <Typography variant="h6" gutterBottom>
-                    Education
-                  </Typography>
-                  {(user.education || []).map((edu, i) => (
-                    <Box key={i} sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">{edu.institution}</Typography>
-                      <Typography variant="body2">
-                        {edu.degree} - {edu.fieldOfStudy}
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(exp.startDate)} –{" "}
+                        {formatDate(exp.endDate) || "Present"}
                       </Typography>
-                      <Typography variant="subtitle2" color="text.secondary">{formatDate(edu.startDate)} – {formatDate(edu.endDate)}</Typography>
-
-
                     </Box>
                   ))}
-                </Paper>
-              </Stack>
-            </Grid>
+                </Stack>
+              </Paper>
 
-            {/* Right column: Applications, Experience, Preferences, Documents */}
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Stack spacing={3}>
-
-
-                {/* Experience & Preferences */}
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, md: 8 }}>
-                    <Paper elevation={0} sx={{ p: 2, borderRadius: 2, background: "rgba(255,255,255,0.6)" }}>
-                      <Typography variant="h6" gutterBottom>
-                        Experience
-                      </Typography>
-                      <Stack spacing={1}>
-                        {(user.experience || []).map((exp, idx) => (
-                          <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" py={1}>
-                            <Box>
-                              <Typography variant="subtitle2">{exp.position}</Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {exp.company}
-                              </Typography>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary">
-                              {formatDate(exp.startDate)} – {formatDate(exp.endDate) || "Present"}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Stack>
-                    </Paper>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, md: 8 }}>
-                    <Paper elevation={0} sx={{ p: 2, borderRadius: 2, background: "rgba(255,255,255,0.6)" }}>
-                      <Typography variant="h6" gutterBottom>
-                        Preferences
-                      </Typography>
-                      <Stack spacing={1}>
-                        <Box display="flex" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Job Types
-                          </Typography>
-                          <Typography>{user.preferences?.jobTypes?.length ? (user.preferences?.jobTypes || []).join(", ") : "Not Specified"}</Typography>
-                        </Box>
-                        <Box display="flex" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Salary Range
-                          </Typography>
-                          <Typography>
-                            {user.preferences?.salaryRange?.min && user.preferences?.salaryRange?.max
-                              ? `${user.preferences.salaryRange.currency} ${user.preferences.salaryRange.min?.toLocaleString()} - ${user
-                                .preferences!.salaryRange!.max?.toLocaleString()}`
-                              : "Not Specified"}
-                          </Typography>
-                        </Box>
-                        <Box display="flex" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Remote
-                          </Typography>
-                          <Typography>{user.preferences?.remoteWork ? "Yes" : "No"}</Typography>
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  </Grid>
-                </Grid>
-              </Stack>
-            </Grid>
+              {/* Preferences */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Preferences
+                </Typography>
+                <Stack spacing={1}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Job Types
+                    </Typography>
+                    <Typography>
+                      {user.preferences?.jobTypes?.length
+                        ? user.preferences?.jobTypes.join(", ")
+                        : "Not Specified"}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Salary Range
+                    </Typography>
+                    <Typography>
+                      {user.preferences?.salaryRange?.min &&
+                        user.preferences?.salaryRange?.max
+                        ? `${user.preferences.salaryRange.currency} ${user.preferences.salaryRange.min?.toLocaleString()} - ${user.preferences.salaryRange.max?.toLocaleString()}`
+                        : "Not Specified"}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Remote
+                    </Typography>
+                    <Typography>
+                      {user.preferences?.remoteWork ? "Yes" : "No"}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Paper>
+            </Stack>
           </Grid>
-        </Paper>
+        </Grid>
 
-        {/* Edit Profile Dialog */}
-        <EditUserDialog open={editOpen} onClose={closeEdit} user={user} values={editValues} setValues={setEditValues} onSave={handleSaveProfile} />
-      </Box>
+      </Paper>
+
+      {/* Edit Profile Dialog */}
+      <EditUserDialog open={editOpen} onClose={closeEdit} user={user} values={editValues} setValues={setEditValues} onSave={handleSaveProfile} />
     </Box>
+
   );
 }
 

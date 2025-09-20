@@ -12,7 +12,11 @@ import {
   Toolbar,
   Typography,
   Divider,
+  useMediaQuery,
+  IconButton,
+  AppBar,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WorkIcon from "@mui/icons-material/Work";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -22,6 +26,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import theme from "@/theme";
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
@@ -40,111 +45,57 @@ const menuItems = [
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+  // Drawer content (shared between desktop + mobile)
+  const drawerContent = (
+    <>
+      <Toolbar
         sx={{
-          width: open ? drawerWidth : collapsedWidth,
-          flexShrink: 0,
-          whiteSpace: "nowrap",
-          transition: "width 0.3s ease",
-          "& .MuiDrawer-paper": {
-            width: open ? drawerWidth : collapsedWidth,
-            boxSizing: "border-box",
-            borderRight: "none",
-            overflowX: "hidden",
-            transition: "width 0.3s ease",
-
-            // 🔥 Glassmorphism
-            background: "rgba(255, 255, 255, 0.12)", // slightly lighter
-            backdropFilter: "blur(18px) saturate(180%)",
-            WebkitBackdropFilter: "blur(18px) saturate(180%)",
-            border: "1px solid rgba(255, 255, 255, 0.2)", // frosted border
-            boxShadow: "4px 0 20px rgba(20,30,60,0.12)",
-          },
+          display: "flex",
+          alignItems: "center",
+          justifyContent: open ? "flex-start" : "center",
+          px: 2,
         }}
       >
-
-        {/* Logo / App Name */}
-        <Toolbar
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: open ? "flex-start" : "center",
-            px: 2,
-          }}
-        >
-          <Box
-            component="img"
-            src="/NextStepLogo.png"
-            alt="NextStep"
-            sx={{ width: 40, height: 40, borderRadius: "8px" }}
-          />
-          {open && (
+        <Box
+          component="img"
+          src="/NextStepLogo.png"
+          alt="NextStep"
+          sx={{ width: 40, height: 40, borderRadius: "8px" }}
+        />
+        {open && (
+          <Box display="flex" alignItems="center" ml={1}>
+            <Typography variant="h6" fontWeight="bold" color="text.primary">
+              Next
+            </Typography>
             <Typography
               variant="h6"
               fontWeight="bold"
-              color="primary"
-              sx={{ ml: 1 }}
+              sx={{ color: "#c5ccd1", ml: 0.3 }}
             >
-              NextStep
+              Step
             </Typography>
-          )}
-        </Toolbar>
+          </Box>
+        )}
+      </Toolbar>
 
-        <Divider sx={{ opacity: 0.4 }} />
+      <Divider sx={{ opacity: 0.4 }} />
 
-        {/* Menu Items */}
-        <List>
-          {menuItems.map((item, idx) => (
-            <ListItem key={idx} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  borderRadius: 2,
-                  mx: 1,
-                  my: 0.5,
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.25)",
-                  },
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 2 : "auto",
-                    justifyContent: "center",
-                    color: "text.primary",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                {open && <ListItemText primary={item.text} />}
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-
-        <Divider sx={{ opacity: 0.4, mt: "auto" }} />
-
-        {/* Bottom Sign Out */}
-        <Box mt="auto" p={1}>
-          <ListItem disablePadding sx={{ display: "block" }}>
+      <List>
+        {menuItems.map((item, idx) => (
+          <ListItem key={idx} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
                 borderRadius: 2,
+                mx: 1,
+                my: 0.5,
                 "&:hover": {
-                  background: "rgba(255,0,0,0.1)",
+                  background: "rgba(255,255,255,0.25)",
                 },
               }}
             >
@@ -153,23 +104,165 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
                   minWidth: 0,
                   mr: open ? 2 : "auto",
                   justifyContent: "center",
+                  color: "text.primary",
                 }}
               >
-                <ExitToAppIcon color="error" />
+                {item.icon}
               </ListItemIcon>
-              {open && (
-                <ListItemText
-                  primary="Sign Out"
-                  primaryTypographyProps={{
-                    fontWeight: 600,
-                    color: "error.main",
-                  }}
-                />
-              )}
+              {(open || isXs) && <ListItemText primary={item.text} />}
             </ListItemButton>
           </ListItem>
-        </Box>
-      </Drawer>
+        ))}
+      </List>
+
+      <Divider sx={{ opacity: 0.4, mt: "auto" }} />
+
+      <Box mt="auto" p={1}>
+        <ListItem disablePadding sx={{ display: "block" }}>
+          <ListItemButton
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+              borderRadius: 2,
+              "&:hover": {
+                background: "rgba(255,0,0,0.1)",
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 2 : "auto",
+                justifyContent: "center",
+              }}
+            >
+              <ExitToAppIcon color="error" />
+            </ListItemIcon>
+            {open && (
+              <ListItemText
+                primary="Sign Out"
+                primaryTypographyProps={{
+                  fontWeight: 600,
+                  color: "error.main",
+                }}
+              />
+            )}
+          </ListItemButton>
+        </ListItem>
+      </Box>
+    </>
+  );
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        backgroundImage: "url('/office.jpeg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "rgba(0,0,0,0.4)",
+          zIndex: 0,
+        },
+      }}
+    >
+      {/* MOBILE: Hamburger + Temporary Drawer */}
+      {isXs ? (
+        <>
+          <AppBar
+            position="fixed"
+            sx={{
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(18px) saturate(180%)",
+              WebkitBackdropFilter: "blur(18px) saturate(180%)",
+              zIndex: theme.zIndex.drawer + 1,
+            }}
+          >
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={() => setMobileOpen(!mobileOpen)}
+              >
+                <MenuIcon />
+              </IconButton>
+              {/* <Box
+                component="img"
+                src="/NextStepLogo.png"
+                alt="NextStep"
+                sx={{ width: 40, height: 40, borderRadius: "8px" }}
+              /> */}
+              <Box display="flex" alignItems="center" ml={1}>
+                <Typography variant="h6" fontWeight="bold" color="text.primary">
+                  Next
+                </Typography>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={{ color: "#fff", ml: 0.3 }}
+                >
+                  Step
+                </Typography>
+              </Box>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+            ModalProps={{ keepMounted: true }}
+            sx={{
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                boxSizing: "border-box",
+                background: "rgba(255,255,255,0.12)",
+                backdropFilter: "blur(18px) saturate(180%)",
+                WebkitBackdropFilter: "blur(18px) saturate(180%)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              },
+            }}
+          >
+            {drawerContent}
+          </Drawer>
+        </>
+      ) : (
+        // DESKTOP: Collapsible Permanent Drawer
+        <Drawer
+          variant="permanent"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          sx={{
+            width: open ? drawerWidth : collapsedWidth,
+            flexShrink: 0,
+            whiteSpace: "nowrap",
+            transition: "width 0.3s ease",
+            "& .MuiDrawer-paper": {
+              width: open ? drawerWidth : collapsedWidth,
+              boxSizing: "border-box",
+              borderRight: "none",
+              overflowX: "hidden",
+              transition: "width 0.3s ease",
+              background: "rgba(255, 255, 255, 0.12)",
+              backdropFilter: "blur(18px) saturate(180%)",
+              WebkitBackdropFilter: "blur(18px) saturate(180%)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              boxShadow: "4px 0 20px rgba(20,30,60,0.12)",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
 
       {/* Main Content */}
       <Box
@@ -178,7 +271,8 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
           flexGrow: 1,
           p: 3,
           transition: "margin-left 0.3s ease",
-          ml: open ? `${drawerWidth}px` : `${collapsedWidth}px`,
+          ml: "5px",
+          mt: isXs ? "64px" : 0, // push content below AppBar on mobile
         }}
       >
         {children}
