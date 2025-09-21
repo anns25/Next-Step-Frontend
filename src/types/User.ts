@@ -14,22 +14,22 @@
 
 
 export type LoginCredentials = {
-    email : string;
-    password: string;
+  email: string;
+  password: string;
 };
 
 export type RegisterCredentials = {
-    firstName : string;
-    lastName : string,
-    email : string;
-    password : string;
-    profilePicture: File;
+  firstName: string;
+  lastName: string,
+  email: string;
+  password: string;
+  profilePicture: File;
 };
 
 export type AuthResponse = {
-    data: string; //JWT token
-    user: User;
-    message: string;
+  data: string; //JWT token
+  user: User;
+  message: string;
 }
 
 
@@ -92,4 +92,19 @@ export type User = {
   emailVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
+
+  //New :Admin-specific fields (only populated for admin users)
+
+  adminPermissions?: {
+    canManageCompanies: boolean;
+    canManageUsers: boolean;
+    canManageJobs: boolean;
+    canViewAnalytics: boolean;
+    canManageSettings: boolean;
+  }
+  adminStats?: {
+    companiesApproved: number;
+    companiesRejected: number;
+  }
 };
+

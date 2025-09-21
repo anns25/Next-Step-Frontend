@@ -20,6 +20,7 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { safeParse } from "valibot";
+import { toast } from "react-toastify";
 
 const Login = () => {
     const theme = useTheme();
@@ -73,9 +74,10 @@ const Login = () => {
 
         const success = await login({ email: formValues.email, password: formValues.password });
         if (success) {
-            router.push('/profile');
+            // router.push('/profile');
+            toast.success('Login Successful');
         } else {
-            setErrors({ general: "Invalid email or password" });
+            setErrors({ general: "Login failed. Please check your credentials." });
 
         }
     }

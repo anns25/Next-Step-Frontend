@@ -55,6 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCookie('token', response.data, { maxAge: 60 * 60 * 24 });
         setCookie('userData', JSON.stringify(response.user), { maxAge: 60 * 60 * 24 });
         setUser(response.user);
+
+        if(response.user.role === "admin"){
+          router.push('/admin/dashboard');
+        } else{
+          router.push('/dashboard/profile');
+        }
         return true;
       }
       return false;
@@ -73,6 +79,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(response.user);
         toast.success("New User Created");
         setError('');
+
+        // Redirect based on user role
+        if(response.user.role === 'admin'){
+          router.push('/admin/dashboard');
+        }else{
+          router.push('/dashboard/profile');
+        }
         return true;
       }
       return false;

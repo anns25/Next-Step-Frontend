@@ -49,10 +49,26 @@ export function CompanyAuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await loginCompany(credentials);
       if (response) {
-        setCookie("companyToken", response.data, { maxAge: 60 * 60 * 24 });
-        setCookie("companyData", JSON.stringify(response.company), { maxAge: 60 * 60 * 24 });
-        setCompany(response.company);
-        return true;
+        //Check if company is approved
+        if (response.company.status === 'pending') {
+          toast.error('Your company registration is pending approval ');
+          return false;
+        }
+        if (response.company.status === 'rejected') {
+          toast.error('Your company registration was rejected ');
+          return false;
+        }
+        if (response.company.status === 'suspended') {
+          toast.error('Your company account has been suspended ');
+          return false;
+        }
+        if (response.company.status === 'approved') {
+
+          setCookie("companyToken", response.data, { maxAge: 60 * 60 * 24 });
+          setCookie("companyData", JSON.stringify(response.company), { maxAge: 60 * 60 * 24 });
+          setCompany(response.company);
+          return true;
+        }
       }
       return false;
     } catch {
@@ -64,14 +80,17 @@ export function CompanyAuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await registerCompany(credentials);
       if (response) {
-        setCookie("companyToken", response.data, { maxAge: 60 * 60 * 24 });
-        setCookie("companyData", JSON.stringify(response.company), { maxAge: 60 * 60 * 24 });
-        setCompany(response.company);
-        toast.success("Company registered successfully");
-        setError("");
+        // setCookie("companyToken", response.data, { maxAge: 60 * 60 * 24 });
+        // setCookie("companyData", JSON.stringify(response.company), { maxAge: 60 * 60 * 24 });
+        // setCompany(response.company);
+        // toast.success("Company registered successfully");
+        // setError("");
+        // return true;
+        // DON'T REDIRECT TO DASHBOARD - WAIT FOR APPROVAL
+        toast.success('Company registration submitted for approval.');
         return true;
       }
-      return false;
+       return false;
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         setError(error.response?.data?.message || "Company registration failed");
