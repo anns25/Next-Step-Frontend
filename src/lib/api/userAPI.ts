@@ -120,6 +120,26 @@ export async function updateMyProfile(values: Partial<User>, file?: File): Promi
   }
 }
 
+// Add this function to your existing userAPI.ts file
+
+export const deleteUserAccount = async (): Promise<void> => {
+  try {
+    const response = await api.delete('/user/profile');
+    if (response.status != 200) {
+      throw new Error('Failed to delete account');
+    }
+  }
+  catch (err: any) {
+    console.error("Delete account error : ", {
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message,
+    });
+    throw err.response?.data || err;
+  }
+};
+
+
 // export const updateMyProfile = async ( data: Partial<User>, file?: File) => {
 //   try {
 //     const formData = new FormData();

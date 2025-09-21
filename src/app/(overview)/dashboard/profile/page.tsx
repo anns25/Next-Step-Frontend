@@ -21,15 +21,16 @@ import {
   Stack,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import SaveIcon from "@mui/icons-material/Save";
-import CloseIcon from "@mui/icons-material/Close";
+
+
 import { useTheme } from "@mui/material/styles";
 import { User } from "@/types/User";
-import { getMyProfile, updateMyProfile } from "@/lib/api/userAPI";
+import { deleteUserAccount, getMyProfile, updateMyProfile } from "@/lib/api/userAPI";
 import EditUserDialog from "@/components/EditUserDialog";
 import { useAuth } from "@/contexts/authContext";
 import { Logout } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+import { deleteCookie } from "cookies-next";
 
 
 
@@ -92,6 +93,7 @@ const ProfilePage = () => {
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
   const [notesValue, setNotesValue] = useState("");
+  const router = useRouter();
 
 
   useEffect(() => {
@@ -141,18 +143,17 @@ const ProfilePage = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteUserAccount();
 
-  const handleEditNotes = (appId: string) => {
-    const app = applications.find((a) => a.id === appId);
-    setNotesValue(app?.notes ?? "");
-    setEditingNotesId(appId);
-  }
+      deleteCookie('token');
+      deleteCookie('userData');
+      router.push('/login');
 
-  const saveNotes = () => {
-    if (!editingNotesId) return;
-    setApplications((prev) => prev.map((a) => (a.id === editingNotesId ? { ...a, notes: notesValue } : a)));
-    setEditingNotesId(null);
-    setNotesValue("");
+    } catch (error) {
+      console.error('Delete account failed', error);
+    }
   }
 
   const handleLogout = async () => {
@@ -438,7 +439,7 @@ const ProfilePage = () => {
       </Paper>
 
       {/* Edit Profile Dialog */}
-      <EditUserDialog open={editOpen} onClose={closeEdit} user={user} values={editValues} setValues={setEditValues} onSave={handleSaveProfile} />
+      <EditUserDialog open={editOpen} onClose={closeEdit} user={user} values={editValues} setValues={setEditValues} onSave={handleSaveProfile} onDeleteAccount={handleDeleteAccount} />
     </Box>
 
   );

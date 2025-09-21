@@ -27,26 +27,31 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import theme from "@/theme";
+import { SearchIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
 
 const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon /> },
-  { text: "Find Jobs", icon: <WorkIcon /> },
-  { text: "My Applications", icon: <WorkIcon /> },
-  { text: "Saved Jobs", icon: <BookmarkIcon /> },
-  { text: "Companies", icon: <BusinessIcon /> },
-  { text: "Interviews", icon: <EventIcon /> },
-  { text: "Job Alerts", icon: <NotificationsIcon /> },
-  { text: "Profile", icon: <PersonIcon /> },
-  { text: "Settings", icon: <SettingsIcon /> },
+  { text: "Dashboard", icon: <DashboardIcon />, link: "/dashboard" },
+  { text: "Find Jobs", icon: <SearchIcon />, link: "/dashboard/jobs" },
+  { text: "My Applications", icon: <WorkIcon />, link: "/dashboard/applications" },
+  { text: "Saved Jobs", icon: <BookmarkIcon />, link: "/dashboard/saved" },
+  { text: "Companies", icon: <BusinessIcon />, link: "/dashboard/companies" },
+  { text: "Interviews", icon: <EventIcon />, link: "/dashboard/interviews" },
+  { text: "Job Alerts", icon: <NotificationsIcon />, link: "/dashboard/alerts" },
+  { text: "Profile", icon: <PersonIcon />, link: "/dashboard/profile" },
+  { text: "Settings", icon: <SettingsIcon />, link: "/dashboard/settings" },
 ];
+
 
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
+  const pathname = usePathname();
 
   // Drawer content (shared between desktop + mobile)
   const drawerContent = (
@@ -86,31 +91,36 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
       <List>
         {menuItems.map((item, idx) => (
           <ListItem key={idx} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                borderRadius: 2,
-                mx: 1,
-                my: 0.5,
-                "&:hover": {
-                  background: "rgba(255,255,255,0.25)",
-                },
-              }}
-            >
-              <ListItemIcon
+            <Link href={item.link} style={{ textDecoration: "none", color: "inherit" }}>
+              <ListItemButton
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 2 : "auto",
-                  justifyContent: "center",
-                  color: "text.primary",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  borderRadius: 2,
+                  mx: 1,
+                  my: 0.5,
+                  background: pathname === item.link ? "rgba(255,255,255,0.25)" : "transparent",
+                  "&:hover": {
+                    background: "rgba(255,255,255,0.25)",
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              {(open || isXs) && <ListItemText primary={item.text} />}
-            </ListItemButton>
+
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 2 : "auto",
+                    justifyContent: "center",
+                    color: "text.primary",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {(open || isXs) && <ListItemText primary={item.text} />}
+              </ListItemButton>
+            </Link>
+
           </ListItem>
         ))}
       </List>
