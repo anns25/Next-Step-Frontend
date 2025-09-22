@@ -156,9 +156,7 @@ const ProfilePage = () => {
     }
   }
 
-  const handleLogout = async () => {
-    await logout();
-  }
+
 
   const completion = useMemo(() => {
     if (!user) return 0;
@@ -230,15 +228,6 @@ const ProfilePage = () => {
                   <Chip label="Verified" size="small" color="primary" sx={{ ml: 1 }} />
                 )}
               </Stack>
-              <Button
-                variant="contained"
-                sx={{ mt: 3, backgroundColor: "#3a4b59", "&:hover": { backgroundColor: "#2f3e4a" } }}
-                size="small"
-                startIcon={<Logout />}
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
             </Grid>
           </Grid>
 
@@ -272,6 +261,7 @@ const ProfilePage = () => {
           {/* Left column */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={3}>
+
               {/* Basic Info */}
               <Paper
                 elevation={0}
@@ -315,6 +305,47 @@ const ProfilePage = () => {
                   </Box>
                 </Stack>
               </Paper>
+
+              {/* Skills Section */}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Skills
+                </Typography>
+                {user.skills && user.skills.length > 0 ? (
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {user.skills.map((skill, index) => (
+                      <Chip
+                        key={index}
+                        label={skill}
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          mb: 1,
+                          '&:hover': {
+                            backgroundColor: 'primary.light',
+                            color: 'white',
+                          },
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No skills added yet
+                  </Typography>
+                )}
+              </Paper>
+
+
 
               {/* Education */}
               <Paper

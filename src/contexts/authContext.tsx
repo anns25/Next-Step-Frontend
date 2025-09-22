@@ -11,7 +11,7 @@ import { loginUser, registerUser } from '../lib/api/userAPI';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (credentials: LoginCredentials) => Promise<boolean>;
+  login: (credentials: LoginCredentials) => Promise<{ success: boolean; message?: string }>;
   register: (credentials: RegisterCredentials) => Promise<boolean>;
   logout: () => Promise<void>;
   checkAuth: () => void;
@@ -46,28 +46,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+  const login = async (credentials: LoginCredentials): Promise<{ success: boolean; message?: string }> => {
     try {
       const response = await loginUser(credentials);
-      console.log("response", response);
+
       if (response) {
-        //Store token and user data in cookies (client-side)
         setCookie('token', response.data, { maxAge: 60 * 60 * 24 });
         setCookie('userData', JSON.stringify(response.user), { maxAge: 60 * 60 * 24 });
         setUser(response.user);
 
-        if(response.user.role === "admin"){
+        if (response.user.role === "admin") {
           router.push('/admin/dashboard');
-        } else{
+        } else {
           router.push('/dashboard/profile');
         }
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false, message: "Unexpected login failure" };
     } catch (error: unknown) {
-      return false;
+      if (error instanceof AxiosError) {
+        return { success: false, message: error.response?.data?.message || "Invalid credentials" };
+      }
+      return { success: false, message: "Something went wrong" };
     }
   };
+
 
   const register = async (credentials: RegisterCredentials): Promise<boolean> => {
     try {
@@ -81,9 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setError('');
 
         // Redirect based on user role
-        if(response.user.role === 'admin'){
+        if (response.user.role === 'admin') {
           router.push('/admin/dashboard');
-        }else{
+        } else {
           router.push('/dashboard/profile');
         }
         return true;

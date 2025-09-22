@@ -30,6 +30,7 @@ import theme from "@/theme";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/authContext";
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
@@ -47,15 +48,23 @@ const menuItems = [
 ];
 
 
+
+
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
   const pathname = usePathname();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  }
 
   // Drawer content (shared between desktop + mobile)
+  // Drawer content (shared between desktop + mobile)
   const drawerContent = (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <Toolbar
         sx={{
           display: "flex",
@@ -88,7 +97,7 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
 
       <Divider sx={{ opacity: 0.4 }} />
 
-      <List>
+      <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item, idx) => (
           <ListItem key={idx} disablePadding sx={{ display: "block" }}>
             <Link href={item.link} style={{ textDecoration: "none", color: "inherit" }}>
@@ -106,7 +115,6 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
                   },
                 }}
               >
-
                 <ListItemIcon
                   sx={{
                     minWidth: 0,
@@ -120,49 +128,49 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
                 {(open || isXs) && <ListItemText primary={item.text} />}
               </ListItemButton>
             </Link>
-
           </ListItem>
         ))}
       </List>
 
-      <Divider sx={{ opacity: 0.4, mt: "auto" }} />
+      <Divider sx={{ opacity: 0.4 }} />
 
-      <Box mt="auto" p={1}>
-        <ListItem disablePadding sx={{ display: "block" }}>
-          <ListItemButton
+      {/* Sign Out at bottom */}
+      <ListItem disablePadding sx={{ display: "block" }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            minHeight: 48,
+            justifyContent: open ? "initial" : "center",
+            px: 2.5,
+            borderRadius: 2,
+            "&:hover": {
+              background: "rgba(255,0,0,0.1)",
+            },
+          }}
+        >
+          <ListItemIcon
             sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-              borderRadius: 2,
-              "&:hover": {
-                background: "rgba(255,0,0,0.1)",
-              },
+              minWidth: 0,
+              mr: open ? 2 : "auto",
+              justifyContent: "center",
             }}
           >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 2 : "auto",
-                justifyContent: "center",
+            <ExitToAppIcon color="error" />
+          </ListItemIcon>
+          {(open || isXs) && (
+            <ListItemText
+              primary="Sign Out"
+              primaryTypographyProps={{
+                fontWeight: 600,
+                color: "error.main",
               }}
-            >
-              <ExitToAppIcon color="error" />
-            </ListItemIcon>
-            {open && (
-              <ListItemText
-                primary="Sign Out"
-                primaryTypographyProps={{
-                  fontWeight: 600,
-                  color: "error.main",
-                }}
-              />
-            )}
-          </ListItemButton>
-        </ListItem>
-      </Box>
-    </>
+            />
+          )}
+        </ListItemButton>
+      </ListItem>
+    </Box>
   );
+
 
   return (
     <Box

@@ -58,29 +58,26 @@ const Login = () => {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
+
         const result = safeParse(loginSchema, { email: formValues.email, password: formValues.password });
         if (!result.success) {
             const fieldErrors: { [key: string]: string } = {};
-
             result.issues.forEach(issue => {
                 const field = issue.path?.[0].key as string;
-
                 fieldErrors[field] = issue.message;
             });
             setErrors(fieldErrors);
             return;
         }
 
-
-        const success = await login({ email: formValues.email, password: formValues.password });
+        const { success, message } = await login({ email: formValues.email, password: formValues.password });
         if (success) {
-            // router.push('/profile');
-            toast.success('Login Successful');
+            toast.success("Login Successful");
         } else {
-            setErrors({ general: "Login failed. Please check your credentials." });
-
+            setErrors({ general: message || "Login failed" }); // 👈 show backend message
         }
-    }
+    };
+
 
 
 
@@ -201,6 +198,16 @@ const Login = () => {
                             Login to continue
                         </Typography>
                         <form onSubmit={handleLogin}>
+                            {errors.general && (
+                                <Typography
+                                    color="error"
+                                    variant="body2"
+                                    sx={{ mb: 1, fontWeight: 500 }}
+                                >
+                                    {errors.general}
+                                </Typography>
+                            )}
+
                             <TextField
                                 label="Email"
                                 onChange={(e) => handleFieldChange("email", e.target.value)}

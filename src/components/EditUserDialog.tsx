@@ -45,13 +45,13 @@ interface ValidationErrors {
   [key: string]: string;
 }
 
-const EditUserDialog: React.FC<Props> = ({ 
-  open, 
-  onClose, 
-  values, 
-  setValues, 
+const EditUserDialog: React.FC<Props> = ({
+  open,
+  onClose,
+  values,
+  setValues,
   onSave,
-  onDeleteAccount 
+  onDeleteAccount
 }) => {
   const theme = useTheme();
   const [tab, setTab] = useState(0);
@@ -69,38 +69,17 @@ const EditUserDialog: React.FC<Props> = ({
   const getMaxStartYear = () => getCurrentYear() + 2;
   const getMinStartYear = () => getCurrentYear() - 60;
 
-  // Validation function
-  const validateField = (path: string, value: any) => {
-    try {
-      const result = safeParse(profileUpdateSchemaWithConditions, {
-        ...values,
-        [path]: value
-      });
-      
-      if (result.success) {
-        // Clear error for this field
-        setErrors(prev => {
-          const { [path]: _, ...rest } = prev;
-          return rest;
-        });
-        return true;
-      } else {
-        // Find the specific error for this field
-        const fieldError = result.issues.find(issue => 
-          issue.path?.some(p => p.key === path) || 
-          issue.path?.some(p => p.key?.toString().includes(path))
-        );
-        
-        if (fieldError) {
-          setErrors(prev => ({ ...prev, [path]: fieldError.message }));
-          return false;
-        }
-      }
-    } catch (err) {
-      console.error('Validation error:', err);
-    }
-    return true;
+  // Clear error for a specific field when user starts typing
+  const clearFieldError = (fieldPath: string) => {
+    setErrors(prev => {
+      const { [fieldPath]: _, ...rest } = prev;
+      return rest;
+    });
   };
+
+
+  // Validate entire form
+  // ... existing code ...
 
   // Validate entire form
   const validateForm = () => {
@@ -119,13 +98,27 @@ const EditUserDialog: React.FC<Props> = ({
       return true;
     } catch (err) {
       console.error('Validation error:', err);
+      // Handle custom validation errors
+      if (err instanceof Error) {
+        const errorMessage = err.message;
+        // Check if it's a field-specific error with path:message format
+        if (errorMessage.includes(':')) {
+          const [fieldPath, message] = errorMessage.split(':');
+          setErrors({ [fieldPath]: message });
+        } else {
+          setErrors({ general: errorMessage });
+        }
+      }
       return false;
     }
   };
 
+  // ... existing code ...
+
   const handleChange = (field: keyof User, value: any) => {
     setValues((prev) => ({ ...prev, [field]: value }));
-    validateField(field.toString(), value);
+    // Clear error for this field when user starts typing
+    clearFieldError(field.toString());
   };
 
   const handleNestedChange = (path: string, value: any) => {
@@ -138,7 +131,8 @@ const EditUserDialog: React.FC<Props> = ({
     }
     curr[keys[keys.length - 1]] = value;
     setValues(updated);
-    validateField(path, value);
+    // Clear error for this field when user starts typing
+    clearFieldError(path);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,16 +150,16 @@ const EditUserDialog: React.FC<Props> = ({
       }
       setImageFile(file);
       setPreview(URL.createObjectURL(file));
-      setErrors(prev => {
-        const { image, ...rest } = prev;
-        return rest;
-      });
+      // Clear image error when user selects a valid file
+      clearFieldError('image');
     }
   };
 
   const handleRemoveImage = () => {
     setImageFile(null);
     setPreview(null);
+    // Clear image error when user removes image
+    clearFieldError('image');
   };
 
   const addSkill = () => {
@@ -184,14 +178,14 @@ const EditUserDialog: React.FC<Props> = ({
   const handleSave = async () => {
     if (!validateForm()) {
       // Switch to the first tab with errors
-      const firstErrorTab = Object.keys(errors).find(key => 
+      const firstErrorTab = Object.keys(errors).find(key =>
         ['firstName', 'lastName', 'email', 'resumeHeadline', 'skills', 'workStatus'].includes(key)
-      ) ? 0 : 
-      Object.keys(errors).find(key => key.includes('experience')) ? 1 :
-      Object.keys(errors).find(key => key.includes('education')) ? 2 :
-      Object.keys(errors).find(key => key.includes('preferences')) ? 3 :
-      Object.keys(errors).find(key => key.includes('location')) ? 4 : 0;
-      
+      ) ? 0 :
+        Object.keys(errors).find(key => key.includes('experience')) ? 1 :
+          Object.keys(errors).find(key => key.includes('education')) ? 2 :
+            Object.keys(errors).find(key => key.includes('preferences')) ? 3 :
+              Object.keys(errors).find(key => key.includes('location')) ? 4 : 0;
+
       setTab(firstErrorTab);
       return;
     }
@@ -208,7 +202,7 @@ const EditUserDialog: React.FC<Props> = ({
 
   const handleDeleteConfirm = async () => {
     if (!onDeleteAccount) return;
-    
+
     setDeleteLoading(true);
     try {
       await onDeleteAccount();
@@ -250,25 +244,8 @@ const EditUserDialog: React.FC<Props> = ({
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Edit Profile
-          {onDeleteAccount && (
-            <Tooltip title="Delete Account">
-              <IconButton
-                color="error"
-                onClick={() => setDeleteDialogOpen(true)}
-                sx={{
-                  bgcolor: 'error.light',
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'error.main',
-                  }
-                }}
-              >
-                <DeleteForever />
-              </IconButton>
-            </Tooltip>
-          )}
         </DialogTitle>
-        
+
         <DialogContent dividers>
           {successMessage && (
             <Alert severity="success" sx={{ mb: 2 }}>
@@ -342,11 +319,11 @@ const EditUserDialog: React.FC<Props> = ({
                 required
               />
 
-              <TextField 
-                label="Email" 
-                value={values.email ?? ""} 
-                disabled 
-                fullWidth 
+              <TextField
+                label="Email"
+                value={values.email ?? ""}
+                disabled
+                fullWidth
               />
 
               <TextField
@@ -423,6 +400,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.experience || [])];
                       updated[i].company = e.target.value;
                       handleChange("experience", updated);
+                      // Clear specific field error
+                      clearFieldError(`experience.${i}.company`);
                     }}
                     error={!!errors[`experience.${i}.company`]}
                     helperText={errors[`experience.${i}.company`]}
@@ -436,6 +415,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.experience || [])];
                       updated[i].position = e.target.value;
                       handleChange("experience", updated);
+                      // Clear specific field error
+                      clearFieldError(`experience.${i}.position`);
                     }}
                     error={!!errors[`experience.${i}.position`]}
                     helperText={errors[`experience.${i}.position`]}
@@ -451,6 +432,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.experience || [])];
                       updated[i].startDate = e.target.value;
                       handleChange("experience", updated);
+                      // Clear specific field error
+                      clearFieldError(`experience.${i}.startDate`);
                     }}
                     error={!!errors[`experience.${i}.startDate`]}
                     helperText={errors[`experience.${i}.startDate`]}
@@ -467,6 +450,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.experience || [])];
                       updated[i].endDate = e.target.value;
                       handleChange("experience", updated);
+                      // Clear specific field error
+                      clearFieldError(`experience.${i}.endDate`);
                     }}
                     error={!!errors[`experience.${i}.endDate`]}
                     helperText={errors[`experience.${i}.endDate`]}
@@ -516,6 +501,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.education || [])];
                       updated[i].institution = e.target.value;
                       handleChange("education", updated);
+                      // Clear specific field error
+                      clearFieldError(`education.${i}.institution`);
                     }}
                     error={!!errors[`education.${i}.institution`]}
                     helperText={errors[`education.${i}.institution`]}
@@ -529,6 +516,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.education || [])];
                       updated[i].degree = e.target.value;
                       handleChange("education", updated);
+                      // Clear specific field error
+                      clearFieldError(`education.${i}.degree`);
                     }}
                     error={!!errors[`education.${i}.degree`]}
                     helperText={errors[`education.${i}.degree`]}
@@ -542,6 +531,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.education || [])];
                       updated[i].fieldOfStudy = e.target.value;
                       handleChange("education", updated);
+                      // Clear specific field error
+                      clearFieldError(`education.${i}.fieldOfStudy`);
                     }}
                     error={!!errors[`education.${i}.fieldOfStudy`]}
                     helperText={errors[`education.${i}.fieldOfStudy`]}
@@ -557,6 +548,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.education || [])];
                       updated[i].startDate = e.target.value;
                       handleChange("education", updated);
+                      // Clear specific field error
+                      clearFieldError(`education.${i}.startDate`);
                     }}
                     error={!!errors[`education.${i}.startDate`]}
                     helperText={errors[`education.${i}.startDate`]}
@@ -573,6 +566,8 @@ const EditUserDialog: React.FC<Props> = ({
                       const updated = [...(values.education || [])];
                       updated[i].endDate = e.target.value;
                       handleChange("education", updated);
+                      // Clear specific field error
+                      clearFieldError(`education.${i}.endDate`);
                     }}
                     error={!!errors[`education.${i}.endDate`]}
                     helperText={errors[`education.${i}.endDate`]}
@@ -616,7 +611,7 @@ const EditUserDialog: React.FC<Props> = ({
               <Typography variant="h6" gutterBottom>
                 Job Preferences
               </Typography>
-              
+
               <JobPreferences
                 preferences={values.preferences?.jobTypes || []}
                 onChange={(jobTypes) => handleNestedChange("preferences.jobTypes", jobTypes)}
@@ -627,7 +622,7 @@ const EditUserDialog: React.FC<Props> = ({
               <Typography variant="h6" gutterBottom>
                 Salary & Other Preferences
               </Typography>
-              
+
               <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
                   type="number"
@@ -656,7 +651,7 @@ const EditUserDialog: React.FC<Props> = ({
                   fullWidth
                 />
               </Box>
-              
+
               <FormControlLabel
                 control={
                   <Switch
@@ -721,18 +716,42 @@ const EditUserDialog: React.FC<Props> = ({
           )}
         </DialogContent>
 
-        <DialogActions>
-          <Button onClick={onClose} color="secondary">
+        <DialogActions sx={{ justifyContent: "space-between", mt: 3, mb : 3, ml:3, mr:3}}>
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            sx={{
+              color: "#455463",
+              borderColor: "#455463",
+              "&:hover": {
+                backgroundColor: "#455463",
+                color: "#fff",
+              },
+            }}
+          >
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            color="primary"
-          >
-            Save Changes
-          </Button>
+
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {onDeleteAccount && (
+              <Button
+                color="error"
+                variant="outlined"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete Account
+              </Button>
+            )}
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              color="primary"
+            >
+              Save Changes
+            </Button>
+          </Box>
         </DialogActions>
+
       </Dialog>
 
       {/* Delete Account Confirmation Dialog */}

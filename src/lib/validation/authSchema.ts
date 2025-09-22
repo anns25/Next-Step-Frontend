@@ -42,7 +42,7 @@ export const experienceSchema = object({
             const date = new Date(value);
             const year = date.getFullYear();
             if (year < getMinStartYear() || year > getCurrentYear()) {
-                throw new Error(`Start date must be between ${getMinStartYear()} and ${getCurrentYear}`);
+                throw new Error(`Start date must be between ${getMinStartYear()} and ${getCurrentYear()}`);
             }
             return true;
         })
@@ -71,32 +71,26 @@ export const educationSchema = object({
     startDate: pipe(
         string(),
         nonEmpty('Start Date is required'),
-        custom((value) => {
-            if (typeof value !== "string") {
-                throw new Error("Invalid start date");
-            }
-            const date = new Date(value);
-            const year = date.getFullYear();
-            if (year < getMinBirthYear() || year > getCurrentYear()) {
-                throw new Error(`Start date must be between ${getMinBirthYear()} and ${getCurrentYear()}`)
-            }
-            return true;
-        })
+        custom(
+            (value) => {
+                if (typeof value !== "string") return false;
+                const year = new Date(value).getFullYear();
+                return year >= getMinStartYear() && year <= getMaxStartYear();
+            },
+            `Start date must be between ${getMinStartYear()} and ${getMaxStartYear()}`
+        )
     ),
     endDate: pipe(
         string(),
         nonEmpty('End Date is required'),
-        custom((value) => {
-            if (typeof value !== "string") {
-                throw new Error("Invalid end date");
-            }
-            const date = new Date(value);
-            const year = date.getFullYear();
-            if (year < getMinBirthYear() || year > getMaxStartYear()) {
-                throw new Error(`Start date must be between ${getMinBirthYear()} and ${getMaxStartYear()}`)
-            }
-            return true;
-        })
+        custom(
+            (value) => {
+                if (typeof value !== "string") return false;
+                const year = new Date(value).getFullYear();
+                return year >= getMinStartYear() && year <= getMaxStartYear();
+            },
+            `End date must be between ${getMinStartYear()} and ${getMaxStartYear()}`
+        ),
     )
 });
 

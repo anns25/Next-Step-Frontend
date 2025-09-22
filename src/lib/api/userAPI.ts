@@ -1,7 +1,7 @@
 import { PromiseIssue } from "valibot";
 import { AuthResponse, LoginCredentials, RegisterCredentials, User } from "../../types/User";
 import api from "../axios";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 //Authentication API functions
 export async function loginUser(credentials: LoginCredentials): Promise<AuthResponse | null> {
@@ -15,8 +15,10 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthResp
 
     return null;
   } catch (err: unknown) {
-    console.error("Login error", err);
-    return null;
+    if (err instanceof AxiosError && err.response?.status != 401) {
+      console.error("Login error", err);
+    }
+    throw err;
   }
 }
 
