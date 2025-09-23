@@ -510,7 +510,7 @@ export default function AdminCompanies() {
                                             <Tooltip title="Edit Company">
                                                 <IconButton
                                                     onClick={() => handleEditCompany(company)}
-                                                    color="secondary"
+                                                    color="primary"
                                                     size="small"
                                                 >
                                                     <EditIcon />

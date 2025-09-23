@@ -331,7 +331,7 @@ import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
-import { BusinessCenter } from "@mui/icons-material";
+import { BusinessCenter, People } from "@mui/icons-material";
 
 
 const drawerWidth = 240;
@@ -340,7 +340,7 @@ const collapsedWidth = 64;
 const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, link: "/admin/dashboard" },
   { text: "Companies", icon: <BusinessIcon />, link: "/admin/companies" },
-  { text: "Users", icon: <PersonIcon />, link: "/admin/users" },
+  { text: "Users", icon: <People />, link: "/admin/users" },
   { text: "Jobs", icon: <WorkIcon />, link: "/admin/jobs" },
   { text: "Interviews", icon: <BusinessCenter />, link: "/admin/interviews" },
   { text: "Profile", icon: <PersonIcon />, link: "/admin/profile" },
