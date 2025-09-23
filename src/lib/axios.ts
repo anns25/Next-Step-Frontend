@@ -30,9 +30,7 @@ api.interceptors.response.use(
     // If it's a login or register request, don't redirect
     if (
       originalRequest?.url?.includes("/user/login") ||
-      originalRequest?.url?.includes("/user/signup") ||
-      originalRequest?.url?.includes("/company/login") ||
-      originalRequest?.url?.includes("/company/signup")
+      originalRequest?.url?.includes("/user/signup") 
     ) {
       return Promise.reject(error); // just let component handle it
     }

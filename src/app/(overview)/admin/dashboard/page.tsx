@@ -17,6 +17,9 @@ import {
   LinearProgress,
   Alert,
   CircularProgress,
+  useTheme,
+  Stack,
+  Divider,
 } from '@mui/material';
 import {
   Business as BusinessIcon,
@@ -29,7 +32,7 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '@/contexts/authContext';
-import AdminLayout from '@/components/AdminLayout';
+import AdminLayout from '@/components/AdminSidebarLayout';
 
 // Define the proper type for stats
 interface StatItem {
@@ -76,6 +79,7 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [statsData, setStatsData] = useState<StatItem[]>(stats);
+  const theme = useTheme();
 
   useEffect(() => {
     // Fetch dashboard stats from API
@@ -105,32 +109,91 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout>
-      <Box>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-          Admin Dashboard
-        </Typography>
+      <Box sx={{ position: "relative", zIndex: 2 }}>
+        <Paper
+          elevation={6}
+          sx={{
+            p: { xs: 3, md: 6 },
+            borderRadius: { xs: 2, md: 3 },
+            backdropFilter: "blur(12px)",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
+            boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
+          }}
+        >
+          {/* ✅ Profile Header */}
+          <Grid container spacing={2} alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }} container spacing={2} alignItems="center">
+              <Grid>
+                <Avatar
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${user?.profilePicture}`}
+                  sx={{ width: 96, height: 96, bgcolor: theme.palette.secondary.main }}
+                >
+                  {user?.firstName?.[0] ?? "U"}
+                </Avatar>
+              </Grid>
+              <Grid>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  Welcome {user?.firstName}
+                </Typography>
+                <Typography variant="body2" color="#3a4b59">
+                  {user?.email}
+                </Typography>
+                <Stack direction="row" spacing={1} alignItems="center" mt={1}>
+                  {user?.location?.city && (
+                    <Typography variant="body2" color="#3a4b59">
+                      {user?.location.city}, {user?.location.country}
+                    </Typography>
+                  )}
+                  {user?.emailVerified && (
+                    <Chip label="Verified" size="small" color="primary" sx={{ ml: 1 }} />
+                  )}
+                </Stack>
+              </Grid>
+            </Grid>
 
-        {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {statsData.map((stat, index) => (
-            <Grid size={{xs: 12, sm : 6, md : 3}} key={index}>
-              <Card
-                sx={{
-                  height: '100%',
-                  background: `linear-gradient(135deg, ${stat.color}15 0%, ${stat.color}05 100%)`,
-                  border: `1px solid ${stat.color}20`,
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            
+          </Grid>
+
+
+          <Divider sx={{ my: 4 }} />
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+            Admin Dashboard
+          </Typography>
+
+          {/* Stats Cards */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {statsData.map((stat, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+                <Paper
+                  elevation={6}
+                  sx={{
+                    height: "100%",
+                    p: 3,
+                    borderRadius: 3,
+                    backdropFilter: "blur(12px)",
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
+                    boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
+                    border: `1px solid ${stat.color}40`,
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 12px 40px rgba(20,30,60,0.2)",
+                    },
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <Box
                       sx={{
-                        p: 1,
+                        p: 1.5,
                         borderRadius: 2,
-                        backgroundColor: stat.color + '20',
+                        backgroundColor: stat.color + "22",
                         color: stat.color,
                         mr: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
                       {stat.icon}
@@ -144,20 +207,19 @@ export default function AdminDashboard() {
                       </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <TrendingUpIcon sx={{ fontSize: 16, color: '#2e7d32', mr: 0.5 }} />
-                    <Typography variant="body2" sx={{ color: '#2e7d32', fontWeight: 500 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <TrendingUpIcon sx={{ fontSize: 16, color: "#2e7d32", mr: 0.5 }} />
+                    <Typography variant="body2" sx={{ color: "#2e7d32", fontWeight: 500 }}>
                       {stat.change} from last month
                     </Typography>
                   </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
 
-        {/* Rest of your component */}
+
+        </Paper>
       </Box>
-    </AdminLayout>
   );
 }

@@ -23,7 +23,7 @@ export type Company = {
         };
     };
     // NEW: Approval system fields
-    status: 'pending' | 'approved' | 'rejected' | 'suspended';
+    status: 'active' | 'inactive' | 'suspended';
     approvedBy?: string; // Admin user ID who approved
     approvedAt?: string; // ISO date string
     rejectionReason?: string;
@@ -33,7 +33,7 @@ export type Company = {
     // Existing fields
     benefits?: string[];
     culture?: string[];
-    foundedYear?: number;
+    foundedYear?: string;
     isRemoteFriendly?: boolean;
     totalJobs?: number;
     totalApplications?: number;
@@ -97,7 +97,7 @@ export type CompanySuspensionRequest = {
 };
 
 // NEW: Company status enum for better type safety
-export type CompanyStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
+export type CompanyStatus = 'active' | 'inactive' | 'suspended';
 
 // NEW: Company filters for admin dashboard
 export type CompanyFilters = {

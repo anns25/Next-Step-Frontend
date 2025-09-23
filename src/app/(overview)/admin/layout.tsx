@@ -1,5 +1,6 @@
 "use client";
 
+import AdminSidebarLayout from '@/components/AdminSidebarLayout';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 import React from 'react';
 
@@ -11,7 +12,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <ProtectedAdminRoute>
-      {children}
+      <AdminSidebarLayout>{children}</AdminSidebarLayout>
     </ProtectedAdminRoute>
   );
 }
