@@ -29,6 +29,7 @@ import {
     CardActions,
     Alert,
     Snackbar,
+    Stack,
 } from "@mui/material";
 import {
     Business as BusinessIcon,
@@ -45,11 +46,13 @@ import {
 import { Company, CompanyListResponse, CompanyStatus } from "@/types/Company";
 import AdminLayout from "@/components/AdminSidebarLayout";
 import {
-    getAllCompanies,
+    getAllCompaniesByAdmin,
     deleteCompany,
     getJobsByCompany,
     createJobForCompany,
     deleteJob,
+    createCompany,
+    updateCompany,
 } from "@/lib/api/adminAPI";
 
 import CompanyViewDialog from "@/components/CompanyViewDialog";
@@ -113,13 +116,17 @@ export default function AdminCompanies() {
     const fetchCompanies = async () => {
         setLoading(true);
         try {
-            const response = await getAllCompanies({
+            const params = {
                 page: currentPage,
                 limit,
                 search: searchTerm || undefined,
                 industry: industryFilter || undefined,
                 status: statusFilter || undefined,
-            });
+            };
+
+            console.log('Fetching companies with params:', params);
+            const response = await getAllCompaniesByAdmin(params);
+
 
             if (response) {
                 setCompanies(response.companies);
@@ -239,43 +246,41 @@ export default function AdminCompanies() {
     };
 
     // Handle company form save
+    // Update the handleCompanySave function in your companies page:
+
     const handleCompanySave = async (formData: FormData) => {
         try {
             if (editingCompany) {
                 // Update existing company
-                const response = await fetch(`/api/admin/companies/${editingCompany._id}`, {
-                    method: 'PATCH',
-                    body: formData,
+                await updateCompany(editingCompany._id, formData);
+                setSnackbar({
+                    open: true,
+                    message: "Company updated successfully",
+                    severity: "success",
                 });
-                if (!response.ok) throw new Error('Failed to update company');
             } else {
                 // Create new company
-                const response = await fetch('/api/admin/companies', {
-                    method: 'POST',
-                    body: formData,
+                await createCompany(formData);
+                setSnackbar({
+                    open: true,
+                    message: "Company created successfully",
+                    severity: "success",
                 });
-                if (!response.ok) throw new Error('Failed to create company');
             }
-        } catch (error) {
+
+            // Refresh the companies list
+            fetchCompanies();
+
+        } catch (error: any) {
             console.error('Error saving company:', error);
-            throw error;
+            setSnackbar({
+                open: true,
+                message: error.message || "Failed to save company",
+                severity: "error",
+            });
+            throw error; // Re-throw to prevent dialog from closing on error
         }
     };
-
-    if (loading && companies.length === 0) {
-        return (
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "50vh",
-                }}
-            >
-                <CircularProgress />
-            </Box>
-        );
-    }
 
     return (
         <>
@@ -283,7 +288,7 @@ export default function AdminCompanies() {
                 <Paper
                     elevation={6}
                     sx={{
-                        p: { xs: 3, md: 6 },
+                        p: { xs: 2, sm: 3, md: 6 },
                         borderRadius: { xs: 2, md: 3 },
                         backdropFilter: "blur(12px)",
                         background:
@@ -291,25 +296,43 @@ export default function AdminCompanies() {
                         boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
                     }}
                 >
-                    {/* Header */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {/* Header - Made responsive */}
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
+                        alignItems: { xs: "flex-start", sm: "center" },
+                        mb: 3,
+                        mr: 3,
+                        gap: { xs: 2, sm: 0 }
+                    }}>
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 700,
+                                fontSize: { xs: "1.75rem", sm: "2rem", md: "2.125rem" }
+                            }}
+                        >
                             Company Management
                         </Typography>
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}
                             onClick={() => setCompanyFormOpen(true)}
-                            sx={{ borderRadius: 2 }}
+                            sx={{
+                                borderRadius: 2,
+                                width: { xs: "100%", sm: "auto" },
+                                minWidth: { xs: "auto", sm: "140px" }
+                            }}
                         >
                             Add Company
                         </Button>
                     </Box>
 
-                    {/* Search and Filters */}
+                    {/* Search and Filters - Made responsive */}
                     <Paper
                         sx={{
-                            p: 3,
+                            p: { xs: 2, sm: 3 },
                             mb: 3,
                             borderRadius: 3,
                             backdropFilter: "blur(12px)",
@@ -319,7 +342,7 @@ export default function AdminCompanies() {
                         }}
                     >
                         <Grid container spacing={2} alignItems="center">
-                            <Grid size={{ xs: 12, md: 4 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <TextField
                                     placeholder="Search companies..."
                                     value={searchTerm}
@@ -334,7 +357,7 @@ export default function AdminCompanies() {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12, md: 3 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <FormControl fullWidth>
                                     <InputLabel>Industry</InputLabel>
                                     <Select
@@ -351,7 +374,7 @@ export default function AdminCompanies() {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid size={{ xs: 12, md: 3 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <FormControl fullWidth>
                                     <InputLabel>Status</InputLabel>
                                     <Select
@@ -366,7 +389,7 @@ export default function AdminCompanies() {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid size={{ xs: 12, md: 2 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Button
                                     variant="outlined"
                                     startIcon={<RefreshIcon />}
@@ -381,8 +404,16 @@ export default function AdminCompanies() {
 
                     <Divider sx={{ mb: 3 }} />
 
-                    {/* Results Summary */}
-                    <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {/* Results Summary - Made responsive */}
+                    <Box sx={{
+                        mb: 3,
+                        mr: 3,
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
+                        alignItems: { xs: "flex-start", sm: "center" },
+                        gap: { xs: 1, sm: 0 }
+                    }}>
                         <Typography variant="body2" color="text.secondary">
                             Showing {companies.length} of {total} companies
                         </Typography>
@@ -394,7 +425,7 @@ export default function AdminCompanies() {
                     {/* Companies Grid */}
                     <Grid container spacing={3}>
                         {companies.map((company) => (
-                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={company._id}>
+                            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={company._id}>
                                 <Card
                                     sx={{
                                         height: "100%",
@@ -413,70 +444,117 @@ export default function AdminCompanies() {
                                         },
                                     }}
                                 >
-                                    <CardContent sx={{ flexGrow: 1 }}>
+                                    <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
                                         <Box
                                             sx={{
                                                 display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "flex-start",
-                                                mb: 2,
+                                                flexDirection: { xs: "column", sm: "row" }, // ✅ stack on xs, row on sm+
+                                                alignItems: { xs: "flex-start", sm: "center" },
+                                                gap: { xs: 1, sm: 0 }, // space when stacked
+                                                minWidth: 0,
                                             }}
                                         >
-                                            <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+                                            {/* Avatar + Text */}
+                                            <Box sx={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
                                                 <Avatar
                                                     sx={{
-                                                        width: 48,
-                                                        height: 48,
+                                                        display: { xs: "none", sm: "none", md: "flex" }, // hidden on xs+sm
+                                                        width: { sm: 48 },
+                                                        height: { sm: 48 },
                                                         mr: 2,
                                                         bgcolor: "primary.main",
+                                                        flexShrink: 0,
                                                     }}
                                                 >
                                                     {company.logo ? (
-                                                        <img
+                                                        <Box
+                                                            component="img"
                                                             src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${company.logo}`}
                                                             alt={company.name}
-                                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                            sx={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                objectFit: "cover",
+                                                                borderRadius: "50%",
+                                                            }}
                                                         />
                                                     ) : (
-                                                        <BusinessIcon />
+                                                        <BusinessIcon
+                                                            sx={{
+                                                                fontSize: { sm: 30, md: 40 },
+                                                                color: "white",
+                                                            }}
+                                                        />
                                                     )}
                                                 </Avatar>
+
                                                 <Box sx={{ flex: 1, minWidth: 0 }}>
                                                     <Typography
                                                         variant="h6"
-                                                        sx={{ fontWeight: 600, mb: 0.5 }}
-                                                        noWrap
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            mb: 0.5,
+                                                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            whiteSpace: "nowrap",
+                                                        }}
+                                                        title={company.name}
                                                     >
                                                         {company.name}
                                                     </Typography>
-                                                    <Typography variant="body2" color="text.secondary" noWrap>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        sx={{
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            whiteSpace: "nowrap",
+                                                        }}
+                                                        title={company.industry}
+                                                    >
                                                         {company.industry}
                                                     </Typography>
                                                 </Box>
                                             </Box>
+
+                                            {/* Chip */}
                                             <Chip
                                                 label={company.status}
                                                 color={getStatusColor(company.status)}
                                                 size="small"
+                                                sx={{ flexShrink: 0, ml: { xs: 0, sm: 1 }, mb: { xs: 2 } }} // ✅ stacked on xs, inline on sm+
                                             />
                                         </Box>
 
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"
-                                            sx={{ mb: 1 }}
+                                            sx={{
+                                                mb: 1,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap"
+                                            }}
+                                            title={`${company.location?.city}, ${company.location?.country}`}
                                         >
                                             📍 {company.location?.city}, {company.location?.country}
                                         </Typography>
                                         <Typography
                                             variant="body2"
                                             color="text.secondary"
-                                            sx={{ mb: 2 }}
+                                            sx={{
+                                                mb: 2,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap"
+                                            }}
+                                            title={company.contact?.email}
                                         >
                                             📧 {company.contact?.email}
                                         </Typography>
 
-                                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                                        <Box sx={{ display: "flex", justifyContent: { xs: "space-around", sm: "space-between" }, mb: 2 }}>
                                             <Box>
                                                 <Typography variant="body2" color="text.secondary">
                                                     Jobs
@@ -496,8 +574,13 @@ export default function AdminCompanies() {
                                         </Box>
                                     </CardContent>
 
-                                    <CardActions sx={{ p: 2, pt: 0 }}>
-                                        <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                                    <CardActions sx={{ p: { xs: 1.5, sm: 2 }, pt: 0 }}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            gap: { xs: 0.5, sm: 1 },
+                                            width: "100%",
+                                            justifyContent: { xs: "center", md: "start" }
+                                        }}>
                                             <Tooltip title="View Details">
                                                 <IconButton
                                                     onClick={() => handleViewCompany(company)}
@@ -550,6 +633,11 @@ export default function AdminCompanies() {
                                 onChange={handlePageChange}
                                 color="primary"
                                 size="large"
+                                sx={{
+                                    '& .MuiPaginationItem-root': {
+                                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                                    }
+                                }}
                             />
                         </Box>
                     )}
@@ -563,7 +651,7 @@ export default function AdminCompanies() {
                                 color: "text.secondary",
                             }}
                         >
-                            <BusinessIcon sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
+                            <BusinessIcon sx={{ fontSize: { xs: 48, sm: 64 }, mb: 2, opacity: 0.5 }} />
                             <Typography variant="h6" gutterBottom>
                                 No companies found
                             </Typography>
@@ -635,6 +723,14 @@ export default function AdminCompanies() {
                 open={deleteDialogOpen}
                 onClose={() => setDeleteDialogOpen(false)}
                 aria-labelledby="delete-dialog-title"
+                maxWidth="sm"
+                fullWidth
+                sx={{
+                    '& .MuiDialog-paper': {
+                        margin: { xs: 2, sm: 3 },
+                        width: { xs: 'calc(100% - 32px)', sm: 'auto' }
+                    }
+                }}
             >
                 <DialogTitle id="delete-dialog-title">Delete Company</DialogTitle>
                 <DialogContent>
@@ -649,10 +745,15 @@ export default function AdminCompanies() {
                         This action cannot be undone.
                     </Typography>
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: { xs: 1, sm: 0 },
+                    p: { xs: 2, sm: 3 }
+                }}>
                     <Button
                         onClick={() => setDeleteDialogOpen(false)}
                         disabled={deleteLoading}
+                        fullWidth={window.innerWidth < 600}
                     >
                         Cancel
                     </Button>
@@ -662,6 +763,7 @@ export default function AdminCompanies() {
                         variant="contained"
                         disabled={deleteLoading}
                         startIcon={deleteLoading ? <CircularProgress size={20} /> : <DeleteIcon />}
+                        fullWidth={window.innerWidth < 600}
                     >
                         {deleteLoading ? "Deleting..." : "Delete"}
                     </Button>

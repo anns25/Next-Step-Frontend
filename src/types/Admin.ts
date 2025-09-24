@@ -1,15 +1,12 @@
 // Admin dashboard statistics
 export type AdminStats = {
     totalCompanies: number;
-    pendingCompanies: number;
-    approvedCompanies: number;
-    rejectedCompanies: number;
-    suspendedCompanies: number;
+    activeCompanies : number;
+    activeJobs : number;
     totalJobs: number;
     totalUsers: number;
     totalApplications: number;
-    recentRegistrations: number; // Last 7 days
-    recentApprovals: number; // Last 7 days
+    recentApplications : number;
 };
 
 // Admin activity log

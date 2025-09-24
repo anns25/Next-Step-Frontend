@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,334 +8,531 @@ import {
   DialogActions,
   Button,
   TextField,
-  Tabs,
-  Tab,
-  Box,
-  Stack,
-  Chip,
-  Alert,
-  Typography,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Switch,
+  Grid,
+  Box,
+  Typography,
+  Chip,
+  IconButton,
+  Alert,
   FormControlLabel,
-} from "@mui/material";
-import { PhotoCamera, Delete } from "@mui/icons-material";
-import { Company } from "@/types/Company";
+  Switch,
+  InputAdornment,
+  CircularProgress,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Business as BusinessIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
+import { Company, CompanyFormData } from '@/types/Company';
+import { companyValidationSchema } from '@/lib/validation/companyAuthSchema';
 
-type Props = {
+interface CompanyFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: FormData) => Promise<void>;
+  onSave: (formData: FormData) => Promise<void>;
   initialData?: Company | null;
-};
+}
 
-const CompanyFormDialog: React.FC<Props> = ({ open, onClose, onSave, initialData }) => {
-  const [tab, setTab] = useState(0);
+const industries = [
+  'Technology',
+  'Healthcare',
+  'Finance',
+  'Education',
+  'Manufacturing',
+  'Retail',
+  'Consulting',
+  'Media',
+  'Real Estate',
+  'Other',
+];
 
-  const [formData, setFormData] = useState({
-    name: "",
-    industry: "",
-    description: "",
-    website: "",
-    foundedYear: "",
-    contact: {
-      email: "",
-      phone: "",
-      linkedin: "",
-      twitter: "",
-    },
+const statusOptions = [
+  { value: 'active', label: 'Active', color: 'success' },
+  { value: 'inactive', label: 'Inactive', color: 'error' },
+  { value: 'suspended', label: 'Suspended', color: 'warning' },
+];
+
+export default function CompanyFormDialog({
+  open,
+  onClose,
+  onSave,
+  initialData,
+}: CompanyFormDialogProps) {
+  const [formData, setFormData] = useState<CompanyFormData>({
+    name: '',
+    description: '',
+    website: '',
+    industry: '',
     location: {
-      address: "",
-      city: "",
-      state: "",
-      country: "",
-      zipCode: "",
+      city: '',
+      country: '',
+      address: '',
+      state: '',
+      zipCode: '',
     },
-    benefits: [] as string[],
-    culture: [] as string[],
-    status: "active",
+    contact: {
+      email: '',
+      phone: '',
+      linkedin: '',
+      twitter: '',
+    },
+    benefits: [],
+    culture: [],
+    foundedYear: undefined,
     isRemoteFriendly: false,
     canPostJobs: true,
     maxJobs: 50,
+    status: 'active',
   });
 
-  const [logo, setLogo] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-
-  const [newBenefit, setNewBenefit] = useState("");
-  const [newCulture, setNewCulture] = useState("");
-
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
 
-  const industries = [
-    "Technology",
-    "Healthcare",
-    "Finance",
-    "Education",
-    "Manufacturing",
-    "Retail",
-    "Consulting",
-    "Media",
-    "Real Estate",
-    "Other",
-  ];
-
-  const countries = [
-    "United States",
-    "Canada",
-    "United Kingdom",
-    "Germany",
-    "France",
-    "Australia",
-    "Japan",
-    "India",
-    "Brazil",
-    "Other",
-  ];
-
-  // preload data for editing
+  // Initialize form data when dialog opens
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        name: initialData.name || "",
-        industry: initialData.industry || "",
-        description: initialData.description || "",
-        website: initialData.website || "",
-        foundedYear: initialData.foundedYear?.toString() || "",
-        contact: {
-          email: initialData.contact?.email || "",
-          phone: initialData.contact?.phone || "",
-          linkedin: initialData.contact?.linkedin || "",
-          twitter: initialData.contact?.twitter || "",
-        },
-        location: {
-          address: initialData.location?.address || "",
-          city: initialData.location?.city || "",
-          state: initialData.location?.state || "",
-          country: initialData.location?.country || "",
-          zipCode: initialData.location?.zipCode || "",
-        },
-        benefits: initialData.benefits || [],
-        culture: initialData.culture || [],
-        status: initialData.status || "active",
-        isRemoteFriendly: initialData.isRemoteFriendly || false,
-        canPostJobs: initialData.canPostJobs !== undefined ? initialData.canPostJobs : true,
-        maxJobs: initialData.maxJobs || 50,
-      });
-      if (initialData.logo) {
-        setLogoPreview(`${process.env.NEXT_PUBLIC_API_URL}/uploads/${initialData.logo}`);
+    if (open) {
+      if (initialData) {
+        setFormData({
+          name: initialData.name || '',
+          description: initialData.description || '',
+          website: initialData.website || '',
+          industry: initialData.industry || '',
+          location: {
+            city: initialData.location?.city || '',
+            country: initialData.location?.country || '',
+            address: initialData.location?.address || '',
+            state: initialData.location?.state || '',
+            zipCode: initialData.location?.zipCode || '',
+          },
+          contact: {
+            email: initialData.contact?.email || '',
+            phone: initialData.contact?.phone || '',
+            linkedin: initialData.contact?.linkedin || '',
+            twitter: initialData.contact?.twitter || '',
+          },
+          benefits: initialData.benefits || [],
+          culture: initialData.culture || [],
+          foundedYear: initialData.foundedYear,
+          isRemoteFriendly: initialData.isRemoteFriendly || false,
+          canPostJobs: initialData.canPostJobs !== false,
+          maxJobs: initialData.maxJobs || 50,
+          status: initialData.status || 'active',
+        });
+        setLogoPreview(initialData.logo ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${initialData.logo}` : '');
+      } else {
+        // Reset form for new company
+        setFormData({
+          name: '',
+          description: '',
+          website: '',
+          industry: '',
+          location: {
+            city: '',
+            country: '',
+            address: '',
+            state: '',
+            zipCode: '',
+          },
+          contact: {
+            email: '',
+            phone: '',
+            linkedin: '',
+            twitter: '',
+          },
+          benefits: [],
+          culture: [],
+          foundedYear: undefined,
+          isRemoteFriendly: false,
+          canPostJobs: true,
+          maxJobs: 50,
+          status: 'active',
+        });
+        setLogoPreview('');
+        setLogoFile(null);
       }
-    } else {
-      resetForm();
+      setErrors({});
+      setSubmitError('');
     }
-  }, [initialData]);
+  }, [open, initialData]);
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      industry: "",
-      description: "",
-      website: "",
-      foundedYear: "",
-      contact: { email: "", phone: "", linkedin: "", twitter: "" },
-      location: { address: "", city: "", state: "", country: "", zipCode: "" },
-      benefits: [],
-      culture: [],
-      status: "active",
-      isRemoteFriendly: false,
-      canPostJobs: true,
-      maxJobs: 50,
-    });
-    setLogo(null);
-    setLogoPreview(null);
-    setErrors({});
-    setSuccessMessage("");
-    setErrorMessage("");
+
+  const getNestedProperty = (obj: any, path: string): any => {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
   };
 
-  const handleInputChange = (
-    field: string,
-    value: string | boolean | number,
-    nested?: "contact" | "location"
-  ) => {
-    if (nested) {
-      setFormData((prev) => ({
-        ...prev,
-        [nested]: { ...prev[nested], [field]: value },
-      }));
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[`${nested}.${field}`];
-        return updated;
-      });
-    } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[field];
-        return updated;
-      });
+  const validateField = (name: string, value: any): string => {
+    const fieldSchema = getNestedProperty(companyValidationSchema, name);
+    if (!fieldSchema) return '';
+
+    if (fieldSchema.required && (!value || value.toString().trim() === '')) {
+      return fieldSchema.required;
     }
-  };
 
-  const handleAddChip = (field: "benefits" | "culture", value: string) => {
-    if (!value.trim()) return;
-    setFormData((prev) => ({
-      ...prev,
-      [field]: [...prev[field], value],
-    }));
-    if (field === "benefits") setNewBenefit("");
-    if (field === "culture") setNewCulture("");
-  };
-
-  const handleDeleteChip = (field: "benefits" | "culture", chip: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: prev[field].filter((c) => c !== chip),
-    }));
-  };
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setLogo(file);
-      setLogoPreview(URL.createObjectURL(file));
+    if (value && fieldSchema.minLength && value.length < fieldSchema.minLength.value) {
+      return fieldSchema.minLength.message;
     }
+
+    if (value && fieldSchema.maxLength && value.length > fieldSchema.maxLength.value) {
+      return fieldSchema.maxLength.message;
+    }
+
+    if (value && fieldSchema.pattern && !fieldSchema.pattern.value.test(value)) {
+      return fieldSchema.pattern.message;
+    }
+
+    if (value && fieldSchema.min && Number(value) < fieldSchema.min.value) {
+      return fieldSchema.min.message;
+    }
+
+    if (value && fieldSchema.max && Number(value) > fieldSchema.max.value) {
+      return fieldSchema.max.message;
+    }
+
+    return '';
   };
 
-  const handleRemoveLogo = () => {
-    setLogo(null);
-    setLogoPreview(null);
-  };
-
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    // Required fields
-    if (!formData.name) newErrors.name = "Company name is required";
-    if (!formData.description) newErrors.description = "Company description is required";
-    if (!formData.industry) newErrors.industry = "Industry is required";
-    if (!formData.contact.email) newErrors["contact.email"] = "Email is required";
-    if (!formData.location.city) newErrors["location.city"] = "City is required";
-    if (!formData.location.country) newErrors["location.country"] = "Country is required";
-    
-    // Validation rules
-    if (formData.name && formData.name.length > 100) {
-      newErrors.name = "Company name cannot exceed 100 characters";
+
+    // Validate required fields
+    const requiredFields = [
+      'name',
+      'description',
+      'industry',
+      'location.city',
+      'location.country',
+      'contact.email',
+    ];
+
+    requiredFields.forEach(field => {
+      const value = getNestedProperty(formData, field);
+      const error = validateField(field, value);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+
+    // Validate optional fields if they have values
+    if (formData.website) {
+      const error = validateField('website', formData.website);
+      if (error) newErrors.website = error;
     }
-    if (formData.description && formData.description.length > 2000) {
-      newErrors.description = "Description cannot exceed 2000 characters";
+
+    if (formData.foundedYear) {
+      const error = validateField('foundedYear', formData.foundedYear);
+      if (error) newErrors.foundedYear = error;
     }
-    if (formData.website && !formData.website.match(/^https?:\/\/.+/)) {
-      newErrors.website = "Please enter a valid website URL";
+
+    if (formData.maxJobs) {
+      const error = validateField('maxJobs', formData.maxJobs);
+      if (error) newErrors.maxJobs = error;
     }
-    if (formData.contact.email && !formData.contact.email.match(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)) {
-      newErrors["contact.email"] = "Please enter a valid email";
-    }
-    if (formData.foundedYear && (isNaN(Number(formData.foundedYear)) || Number(formData.foundedYear) < 1800 || Number(formData.foundedYear) > new Date().getFullYear())) {
-      newErrors.foundedYear = "Please enter a valid founded year";
-    }
-    if (formData.maxJobs && (isNaN(Number(formData.maxJobs)) || Number(formData.maxJobs) < 1)) {
-      newErrors.maxJobs = "Max jobs must be a positive number";
-    }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      setErrorMessage("Please fix the highlighted errors.");
-      return;
+  // Replace the handleInputChange function with this improved version:
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => {
+      const newData = { ...prev };
+
+      // Handle nested object updates safely
+      if (field.includes('.')) {
+        const keys = field.split('.');
+        let current = newData as any;
+
+        // Navigate to the parent object
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) {
+            current[keys[i]] = {};
+          }
+          current = current[keys[i]];
+        }
+
+        // Set the final value
+        current[keys[keys.length - 1]] = value;
+      } else {
+        // Handle top-level properties
+        (newData as any)[field] = value;
+      }
+
+      return newData;
+    });
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
-
-    const data = new FormData();
-    
-    // Basic information
-    data.append("name", formData.name);
-    data.append("description", formData.description);
-    data.append("industry", formData.industry);
-    data.append("website", formData.website);
-    if (formData.foundedYear) data.append("foundedYear", formData.foundedYear);
-    
-    // Contact information
-    data.append("contact[email]", formData.contact.email);
-    if (formData.contact.phone) data.append("contact[phone]", formData.contact.phone);
-    if (formData.contact.linkedin) data.append("contact[linkedin]", formData.contact.linkedin);
-    if (formData.contact.twitter) data.append("contact[twitter]", formData.contact.twitter);
-    
-    // Location information
-    if (formData.location.address) data.append("location[address]", formData.location.address);
-    data.append("location[city]", formData.location.city);
-    if (formData.location.state) data.append("location[state]", formData.location.state);
-    data.append("location[country]", formData.location.country);
-    if (formData.location.zipCode) data.append("location[zipCode]", formData.location.zipCode);
-    
-    // Arrays
-    formData.benefits.forEach((b, i) => data.append(`benefits[${i}]`, b));
-    formData.culture.forEach((c, i) => data.append(`culture[${i}]`, c));
-    
-    // Settings
-    data.append("status", formData.status);
-    data.append("isRemoteFriendly", formData.isRemoteFriendly.toString());
-    data.append("canPostJobs", formData.canPostJobs.toString());
-    data.append("maxJobs", formData.maxJobs.toString());
-    
-    // Logo
-    if (logo) data.append("logo", logo);
-
-    try {
-      await onSave(data);
-      setSuccessMessage("Company saved successfully!");
-      setErrorMessage("");
-      resetForm();
-      onClose();
-    } catch (err) {
-      setErrorMessage("Failed to save company. Please try again.");
-      console.error(err);
+    if (submitError) {
+      setSubmitError('');
     }
   };
 
+  // Also update the addArrayItem and removeArrayItem functions to be more type-safe:
+
+  const addArrayItem = (field: 'benefits' | 'culture', value: string) => {
+    if (value.trim()) {
+      setFormData(prev => {
+        const currentArray = prev[field] || [];
+        return {
+          ...prev,
+          [field]: [...currentArray, value.trim()]
+        };
+      });
+    }
+  };
+
+  const removeArrayItem = (field: 'benefits' | 'culture', index: number) => {
+    setFormData(prev => {
+      const currentArray = prev[field] || [];
+      return {
+        ...prev,
+        [field]: currentArray.filter((_, i) => i !== index)
+      };
+    });
+  };
+
+
+
+  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setSubmitError('Please select a valid image file');
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitError('Image file size must be less than 5MB');
+        return;
+      }
+
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setSubmitError('');
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const submitData = new FormData();
+
+      // Add form fields in the format expected by your backend
+      submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
+      submitData.append('industry', formData.industry);
+      submitData.append('status', formData.status || 'active');
+
+      // Add optional fields only if they have values
+      if (formData.website) {
+        submitData.append('website', formData.website);
+      }
+
+      if (formData.foundedYear) {
+        submitData.append('foundedYear', formData.foundedYear.toString());
+      }
+
+      if (formData.maxJobs) {
+        submitData.append('maxJobs', formData.maxJobs.toString());
+      }
+
+      submitData.append('isRemoteFriendly', formData.isRemoteFriendly?.toString() || 'false');
+      submitData.append('canPostJobs', formData.canPostJobs?.toString() || 'true');
+
+      // Add location fields
+      submitData.append('location.city', formData.location.city);
+      submitData.append('location.country', formData.location.country);
+
+      if (formData.location.address) {
+        submitData.append('location.address', formData.location.address);
+      }
+      if (formData.location.state) {
+        submitData.append('location.state', formData.location.state);
+      }
+      if (formData.location.zipCode) {
+        submitData.append('location.zipCode', formData.location.zipCode);
+      }
+
+      // Add contact fields
+
+      submitData.append('contact.email', formData.contact.email);
+
+      if (formData.contact.phone) {
+        submitData.append('contact.phone', formData.contact.phone);
+      }
+      if (formData.contact.linkedin) {
+        submitData.append('contact.linkedin', formData.contact.linkedin);
+      }
+      if (formData.contact.twitter) {
+        submitData.append('contact.twitter', formData.contact.twitter);
+      }
+
+      // Add arrays - fix the undefined issue
+      const benefits = formData.benefits || [];
+      benefits.forEach((benefit, index) => {
+        submitData.append(`benefits[${index}]`, benefit);
+      });
+
+      const culture = formData.culture || [];
+      culture.forEach((cultureItem, index) => {
+        submitData.append(`culture[${index}]`, cultureItem);
+      });
+
+      // Add logo file if selected
+      if (logoFile) {
+        submitData.append('logo', logoFile);
+      }
+
+      await onSave(submitData);
+      onClose();
+    } catch (error: any) {
+      console.error('Error saving company:', error);
+      setSubmitError(error.message || 'Failed to save company. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!loading) {
+      onClose();
+    }
+  };
+
+  // Helper function to get array items safely
+  const getArrayItems = (field: 'benefits' | 'culture'): string[] => {
+    return formData[field] || [];
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      fullScreen={window.innerWidth < 768}
+    >
       <DialogTitle>
-        {initialData ? "Edit Company" : "Add New Company"}
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center" gap={1}>
+            <BusinessIcon />
+            <Typography variant="h6">
+              {initialData ? 'Edit Company' : 'Add New Company'}
+            </Typography>
+          </Box>
+          <IconButton onClick={handleClose} disabled={loading}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </DialogTitle>
+
       <DialogContent dividers>
-        {successMessage && <Alert severity="success">{successMessage}</Alert>}
-        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+        {submitError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {submitError}
+          </Alert>
+        )}
 
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
-          <Tab label="Basic Info" />
-          <Tab label="Contact" />
-          <Tab label="Location" />
-          <Tab label="Culture & Benefits" />
-          <Tab label="Settings" />
-        </Tabs>
+        <Grid container spacing={3}>
+          {/* Company Logo */}
+          <Grid size={{ xs: 12 }}>
+            <Box display="flex" alignItems="center" gap={2}>
+              {logoPreview && (
+                <Box
+                  component="img"
+                  src={logoPreview}
+                  alt="Logo preview"
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    objectFit: 'cover',
+                    borderRadius: 1,
+                    border: '1px solid #ddd',
+                  }}
+                />
+              )}
+              <Button
+                variant="outlined"
+                component="label"
+                disabled={loading}
+                startIcon={<BusinessIcon />}
+              >
+                {logoPreview ? 'Change Logo' : 'Upload Logo'}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                />
+              </Button>
+              {logoPreview && (
+                <Button
+                  variant="text"
+                  color="error"
+                  onClick={() => {
+                    setLogoPreview('');
+                    setLogoFile(null);
+                  }}
+                  disabled={loading}
+                >
+                  Remove
+                </Button>
+              )}
+            </Box>
+          </Grid>
 
-        {tab === 0 && (
-          <Stack spacing={2}>
+          {/* Basic Information */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Basic Information
+            </Typography>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              fullWidth
               label="Company Name"
               value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               error={!!errors.name}
               helperText={errors.name}
-              fullWidth
+              disabled={loading}
               required
             />
-            <FormControl fullWidth required error={!!errors.industry}>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth error={!!errors.industry} required>
               <InputLabel>Industry</InputLabel>
               <Select
                 value={formData.industry}
-                onChange={(e) => handleInputChange("industry", e.target.value)}
+                onChange={(e) => handleInputChange('industry', e.target.value)}
                 label="Industry"
+                disabled={loading}
               >
                 {industries.map((industry) => (
                   <MenuItem key={industry} value={industry}>
@@ -341,264 +540,345 @@ const CompanyFormDialog: React.FC<Props> = ({ open, onClose, onSave, initialData
                   </MenuItem>
                 ))}
               </Select>
-              {errors.industry && (
-                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                  {errors.industry}
-                </Typography>
-              )}
             </FormControl>
+            {errors.industry && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 2 }}>
+                {errors.industry}
+              </Typography>
+            )}
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
             <TextField
+              fullWidth
+              multiline
+              rows={4}
               label="Description"
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               error={!!errors.description}
               helperText={errors.description}
-              multiline
-              rows={3}
-              fullWidth
+              disabled={loading}
               required
             />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              fullWidth
               label="Website"
               value={formData.website}
-              onChange={(e) => handleInputChange("website", e.target.value)}
+              onChange={(e) => handleInputChange('website', e.target.value)}
               error={!!errors.website}
-              helperText={errors.website || "e.g., https://example.com"}
-              fullWidth
+              helperText={errors.website}
+              disabled={loading}
               placeholder="https://example.com"
             />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label="Founded Year"
-              value={formData.foundedYear}
-              onChange={(e) => handleInputChange("foundedYear", e.target.value)}
-              error={!!errors.foundedYear}
-              helperText={errors.foundedYear}
               fullWidth
               type="number"
+              label="Founded Year"
+              value={formData.foundedYear || ''}
+              onChange={(e) => handleInputChange('foundedYear', e.target.value ? parseInt(e.target.value) : undefined)}
+              error={!!errors.foundedYear}
+              helperText={errors.foundedYear}
+              disabled={loading}
               inputProps={{ min: 1800, max: new Date().getFullYear() }}
             />
+          </Grid>
 
-            <Box>
-              <Typography variant="subtitle1">Company Logo</Typography>
-              {logoPreview ? (
-                <Box display="flex" alignItems="center" gap={2}>
-                  <img
-                    src={logoPreview}
-                    alt="Logo Preview"
-                    style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8 }}
-                  />
-                  <IconButton color="error" onClick={handleRemoveLogo}>
-                    <Delete />
-                  </IconButton>
-                </Box>
-              ) : (
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<PhotoCamera />}
-                >
-                  Upload Logo
-                  <input type="file" hidden accept="image/*" onChange={handleLogoChange} />
-                </Button>
-              )}
-            </Box>
-          </Stack>
-        )}
+          {/* Location Information */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Location
+            </Typography>
+          </Grid>
 
-        {tab === 1 && (
-          <Stack spacing={2}>
+          <Grid size={{ xs: 12 }}>
             <TextField
-              label="Email"
-              value={formData.contact.email}
-              onChange={(e) => handleInputChange("email", e.target.value, "contact")}
-              error={!!errors["contact.email"]}
-              helperText={errors["contact.email"]}
               fullWidth
-              required
-              type="email"
-            />
-            <TextField
-              label="Phone"
-              value={formData.contact.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value, "contact")}
-              fullWidth
-            />
-            <TextField
-              label="LinkedIn"
-              value={formData.contact.linkedin}
-              onChange={(e) => handleInputChange("linkedin", e.target.value, "contact")}
-              fullWidth
-              placeholder="https://linkedin.com/company/example"
-            />
-            <TextField
-              label="Twitter"
-              value={formData.contact.twitter}
-              onChange={(e) => handleInputChange("twitter", e.target.value, "contact")}
-              fullWidth
-              placeholder="https://twitter.com/example"
-            />
-          </Stack>
-        )}
-
-        {tab === 2 && (
-          <Stack spacing={2}>
-            <TextField
               label="Address"
               value={formData.location.address}
-              onChange={(e) => handleInputChange("address", e.target.value, "location")}
-              fullWidth
+              onChange={(e) => handleInputChange('location.address', e.target.value)}
+              disabled={loading}
             />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              fullWidth
               label="City"
               value={formData.location.city}
-              onChange={(e) => handleInputChange("city", e.target.value, "location")}
-              error={!!errors["location.city"]}
-              helperText={errors["location.city"]}
-              fullWidth
+              onChange={(e) => handleInputChange('location.city', e.target.value)}
+              error={!!errors['location.city']}
+              helperText={errors['location.city']}
+              disabled={loading}
               required
             />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              fullWidth
               label="State/Province"
               value={formData.location.state}
-              onChange={(e) => handleInputChange("state", e.target.value, "location")}
-              fullWidth
+              onChange={(e) => handleInputChange('location.state', e.target.value)}
+              disabled={loading}
             />
-            <FormControl fullWidth required error={!!errors["location.country"]}>
-              <InputLabel>Country</InputLabel>
-              <Select
-                value={formData.location.country}
-                onChange={(e) => handleInputChange("country", e.target.value, "location")}
-                label="Country"
-              >
-                {countries.map((country) => (
-                  <MenuItem key={country} value={country}>
-                    {country}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors["location.country"] && (
-                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                  {errors["location.country"]}
-                </Typography>
-              )}
-            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
+              fullWidth
+              label="Country"
+              value={formData.location.country}
+              onChange={(e) => handleInputChange('location.country', e.target.value)}
+              error={!!errors['location.country']}
+              helperText={errors['location.country']}
+              disabled={loading}
+              required
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
               label="ZIP/Postal Code"
               value={formData.location.zipCode}
-              onChange={(e) => handleInputChange("zipCode", e.target.value, "location")}
-              fullWidth
+              onChange={(e) => handleInputChange('location.zipCode', e.target.value)}
+              disabled={loading}
             />
-          </Stack>
-        )}
+          </Grid>
 
-        {tab === 3 && (
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="subtitle1">Benefits</Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 2 }}>
-                {formData.benefits.map((b) => (
-                  <Chip key={b} label={b} onDelete={() => handleDeleteChip("benefits", b)} />
-                ))}
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <TextField
-                  label="Add Benefit"
-                  value={newBenefit}
-                  onChange={(e) => setNewBenefit(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleAddChip("benefits", newBenefit);
-                    }
-                  }}
-                />
-                <Button onClick={() => handleAddChip("benefits", newBenefit)}>Add</Button>
-              </Stack>
-            </Box>
+          {/* Contact Information */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Contact Information
+            </Typography>
+          </Grid>
 
-            <Box>
-              <Typography variant="subtitle1">Company Culture</Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 2 }}>
-                {formData.culture.map((c) => (
-                  <Chip key={c} label={c} onDelete={() => handleDeleteChip("culture", c)} />
-                ))}
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <TextField
-                  label="Add Culture"
-                  value={newCulture}
-                  onChange={(e) => setNewCulture(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleAddChip("culture", newCulture);
-                    }
-                  }}
-                />
-                <Button onClick={() => handleAddChip("culture", newCulture)}>Add</Button>
-              </Stack>
-            </Box>
-          </Stack>
-        )}
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              type="email"
+              label="Contact Email"
+              value={formData.contact.email}
+              onChange={(e) => handleInputChange('contact.email', e.target.value)}
+              error={!!errors['contact.email']}
+              helperText={errors['contact.email']}
+              disabled={loading}
+              required
+            />
+          </Grid>
 
-        {tab === 4 && (
-          <Stack spacing={2}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="Phone"
+              value={formData.contact.phone}
+              onChange={(e) => handleInputChange('contact.phone', e.target.value)}
+              disabled={loading}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="LinkedIn"
+              value={formData.contact.linkedin}
+              onChange={(e) => handleInputChange('contact.linkedin', e.target.value)}
+              disabled={loading}
+              placeholder="https://linkedin.com/company/..."
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="Twitter"
+              value={formData.contact.twitter}
+              onChange={(e) => handleInputChange('contact.twitter', e.target.value)}
+              disabled={loading}
+              placeholder="@companyhandle"
+            />
+          </Grid>
+
+          {/* Company Settings */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Company Settings
+            </Typography>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 4 }}>
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select
                 value={formData.status}
-                onChange={(e) => handleInputChange("status", e.target.value)}
+                onChange={(e) => handleInputChange('status', e.target.value)}
                 label="Status"
+                disabled={loading}
               >
-                <MenuItem value="active">Active</MenuItem>
-                <MenuItem value="inactive">Inactive</MenuItem>
-                <MenuItem value="suspended">Suspended</MenuItem>
+                {statusOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Chip label={option.label} color={option.color as any} size="small" />
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.isRemoteFriendly}
-                  onChange={(e) => handleInputChange("isRemoteFriendly", e.target.checked)}
-                />
-              }
-              label="Remote Friendly"
-            />
-            
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.canPostJobs}
-                  onChange={(e) => handleInputChange("canPostJobs", e.target.checked)}
-                />
-              }
-              label="Can Post Jobs"
-            />
-            
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
-              label="Max Jobs Allowed"
-              value={formData.maxJobs}
-              onChange={(e) => handleInputChange("maxJobs", e.target.value)}
-              error={!!errors.maxJobs}
-              helperText={errors.maxJobs}
               fullWidth
               type="number"
-              inputProps={{ min: 1 }}
+              label="Max Jobs"
+              value={formData.maxJobs}
+              onChange={(e) => handleInputChange('maxJobs', parseInt(e.target.value) || 50)}
+              error={!!errors.maxJobs}
+              helperText={errors.maxJobs}
+              disabled={loading}
+              inputProps={{ min: 1, max: 1000 }}
             />
-          </Stack>
-        )}
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box display="flex" flexDirection="column" gap={1}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isRemoteFriendly}
+                    onChange={(e) => handleInputChange('isRemoteFriendly', e.target.checked)}
+                    disabled={loading}
+                  />
+                }
+                label="Remote Friendly"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.canPostJobs}
+                    onChange={(e) => handleInputChange('canPostJobs', e.target.checked)}
+                    disabled={loading}
+                  />
+                }
+                label="Can Post Jobs"
+              />
+            </Box>
+          </Grid>
+
+          {/* Benefits */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Benefits
+            </Typography>
+            <Box display="flex" gap={1} mb={2}>
+              <TextField
+                size="small"
+                placeholder="Add benefit..."
+                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const target = e.target as HTMLInputElement;
+                    addArrayItem('benefits', target.value);
+                    target.value = '';
+                  }
+                }}
+                disabled={loading}
+              />
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  const input = document.querySelector('input[placeholder="Add benefit..."]') as HTMLInputElement;
+                  if (input) {
+                    addArrayItem('benefits', input.value);
+                    input.value = '';
+                  }
+                }}
+                disabled={loading}
+              >
+                Add
+              </Button>
+            </Box>
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              {getArrayItems('benefits').map((benefit, index) => (
+                <Chip
+                  key={index}
+                  label={benefit}
+                  onDelete={() => removeArrayItem('benefits', index)}
+                  disabled={loading}
+                />
+              ))}
+            </Box>
+          </Grid>
+
+          {/* Culture */}
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="h6" gutterBottom>
+              Company Culture
+            </Typography>
+            <Box display="flex" gap={1} mb={2}>
+              <TextField
+                size="small"
+                placeholder="Add culture value..."
+                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const target = e.target as HTMLInputElement;
+                    addArrayItem('culture', target.value);
+                    target.value = '';
+                  }
+                }}
+                disabled={loading}
+              />
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  const input = document.querySelector('input[placeholder="Add culture value..."]') as HTMLInputElement;
+                  if (input) {
+                    addArrayItem('culture', input.value);
+                    input.value = '';
+                  }
+                }}
+                disabled={loading}
+              >
+                Add
+              </Button>
+            </Box>
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              {getArrayItems('culture').map((culture, index) => (
+                <Chip
+                  key={index}
+                  label={culture}
+                  onDelete={() => removeArrayItem('culture', index)}
+                  disabled={loading}
+                />
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} color="inherit">
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={handleClose} disabled={loading}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} variant="contained">
-          Save
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} /> : <BusinessIcon />}
+        >
+          {loading ? 'Saving...' : initialData ? 'Update Company' : 'Create Company'}
         </Button>
       </DialogActions>
     </Dialog>
   );
-};
-
-export default CompanyFormDialog;
-
+}

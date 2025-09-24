@@ -33,7 +33,7 @@ export type Company = {
     // Existing fields
     benefits?: string[];
     culture?: string[];
-    foundedYear?: string;
+    foundedYear?: number; // Changed from string to number
     isRemoteFriendly?: boolean;
     totalJobs?: number;
     totalApplications?: number;
@@ -41,44 +41,37 @@ export type Company = {
     lastLogin?: string;
     createdAt?: string;
     updatedAt?: string;
+    createdBy?: string;
+    lastUpdatedBy?: string;
 };
 
-export type CompanyLoginCredentials = {
-    email: string;
-    password: string;
-};
-
-export type CompanyRegisterCredentials = {
+// NEW: Form data interface for creating/updating companies
+export interface CompanyFormData {
     name: string;
-    description?: string;
-    industry?: string;
+    description: string;
     website?: string;
+    industry: string;
+    location: {
+        address?: string;
+        city: string;
+        state?: string;
+        country: string;
+        zipCode?: string;
+    };
     contact: {
         email: string;
         phone?: string;
         linkedin?: string;
         twitter?: string;
     };
-    password: string;
-    location?: {
-        address?: string;
-        city?: string;
-        state?: string;
-        country?: string;
-        zipCode?: string;
-    };
-    logo?: File;
     benefits?: string[];
     culture?: string[];
     foundedYear?: number;
     isRemoteFriendly?: boolean;
-};
-
-export type CompanyAuthResponse = {
-    data: string; // JWT token
-    company: Company;
-    message: string;
-};
+    canPostJobs?: boolean;
+    maxJobs?: number;
+    status?: 'active' | 'inactive' | 'suspended';
+}
 
 // NEW: Admin company management types
 export type CompanyApprovalRequest = {
@@ -118,19 +111,3 @@ export type CompanyListResponse = {
     total: number;
 };
 
-//Add a type for the mockCompanyList 
-
-export type CompanyListItem = {
-    _id : string;
-    name : string; 
-    industry : string;
-    location : string;
-    jobs : number;
-    applications : number;
-    status: CompanyStatus;
-    contact: {
-        email: string;
-    };
-    createdAt: string;
-    lastLogin? : string;
-}

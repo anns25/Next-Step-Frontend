@@ -3,7 +3,7 @@ import api from "../axios";
 import { AdminStats } from "@/types/Admin";
 
 
-export async function getAllCompanies(params?: {
+export async function getAllCompaniesByAdmin(params?: {
     page?: number;
     limit?: number;
     search?: string;
@@ -18,7 +18,7 @@ export async function getAllCompanies(params?: {
         if (params?.industry) queryParams.append('industry', params.industry);
         if (params?.status) queryParams.append('status', params.status);
 
-        const response = await api.get(`/company/all?${queryParams.toString()}`);
+        const response = await api.get(`/admin/companies?${queryParams.toString()}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching companies", error)
@@ -46,10 +46,19 @@ export async function createCompany(companyData: FormData): Promise<Company | nu
             },
         });
         return response.data.company;
-    } catch (error) {
-        console.error("Error creating company:", error);
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Error updating company:", error.response.data); // 👈 full backend response
+            console.error("Status:", error.response.status);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            console.error("No response received:", error.request);
+        } else {
+            console.error("Request setup error:", error.message);
+        }
         throw error;
     }
+
 }
 
 export async function updateCompany(companyId: string, companyData: FormData): Promise<Company | null> {
@@ -61,26 +70,35 @@ export async function updateCompany(companyId: string, companyData: FormData): P
             },
         });
         return response.data.company;
-    } catch (error) {
-        console.error("Error updating company : ", error);
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Error updating company:", error.response.data); // 👈 full backend response
+            console.error("Status:", error.response.status);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            console.error("No response received:", error.request);
+        } else {
+            console.error("Request setup error:", error.message);
+        }
         throw error;
     }
+
 }
 
 export const deleteCompany = async (companyId: string) => {
-  try {
-    const response = await api.delete(`/admin/companies/${companyId}`);
-    // Log success if needed
-    console.log("Delete success:", response.status);
-    return true;
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Backend error:", error.response.data);
-    } else {
-      console.error("Error deleting company:", error.message);
+    try {
+        const response = await api.delete(`/admin/companies/${companyId}`);
+        // Log success if needed
+        console.log("Delete success:", response.status);
+        return true;
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Backend error:", error.response.data);
+        } else {
+            console.error("Error deleting company:", error.message);
+        }
+        return false;
     }
-    return false;
-  }
 };
 
 
