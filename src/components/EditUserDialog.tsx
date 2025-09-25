@@ -77,10 +77,6 @@ const EditUserDialog: React.FC<Props> = ({
     });
   };
 
-
-  // Validate entire form
-  // ... existing code ...
-
   // Validate entire form
   const validateForm = () => {
     try {
@@ -98,22 +94,12 @@ const EditUserDialog: React.FC<Props> = ({
       return true;
     } catch (err) {
       console.error('Validation error:', err);
-      // Handle custom validation errors
       if (err instanceof Error) {
-        const errorMessage = err.message;
-        // Check if it's a field-specific error with path:message format
-        if (errorMessage.includes(':')) {
-          const [fieldPath, message] = errorMessage.split(':');
-          setErrors({ [fieldPath]: message });
-        } else {
-          setErrors({ general: errorMessage });
-        }
+        setErrors({ general: err.message });
       }
       return false;
     }
   };
-
-  // ... existing code ...
 
   const handleChange = (field: keyof User, value: any) => {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -716,7 +702,7 @@ const EditUserDialog: React.FC<Props> = ({
           )}
         </DialogContent>
 
-        <DialogActions sx={{ justifyContent: "space-between", mt: 3, mb : 3, ml:3, mr:3}}>
+        <DialogActions sx={{ justifyContent: "space-between", mt: 3, mb: 3, ml: 3, mr: 3 }}>
           <Button
             onClick={onClose}
             variant="outlined"

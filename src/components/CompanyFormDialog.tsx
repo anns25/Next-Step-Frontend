@@ -237,9 +237,30 @@ export default function CompanyFormDialog({
       if (error) newErrors.maxJobs = error;
     }
 
+    if (formData.contact.phone) {
+      const error = validateField('contact.phone', formData.contact.phone);
+      if (error) newErrors["contact.phone"] = error;
+    }
+
+    if (formData.contact.linkedin) {
+      const error = validateField('contact.linkedin', formData.contact.linkedin);
+      if (error) newErrors["contact.linkedin"] = error;
+    }
+
+    if (formData.contact.twitter) {
+      const error = validateField('contact.twitter', formData.contact.twitter);
+      if (error) newErrors["contact.twitter"] = error;
+    }
+
+    if (formData.status) {
+      const error = validateField('status', formData.status);
+      if (error) newErrors.status = error;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
 
   // Replace the handleInputChange function with this improved version:
 
@@ -680,6 +701,8 @@ export default function CompanyFormDialog({
               label="Phone"
               value={formData.contact.phone}
               onChange={(e) => handleInputChange('contact.phone', e.target.value)}
+              error={!!errors["contact.phone"]}
+              helperText={errors["contact.phone"]}
               disabled={loading}
             />
           </Grid>
@@ -692,6 +715,8 @@ export default function CompanyFormDialog({
               onChange={(e) => handleInputChange('contact.linkedin', e.target.value)}
               disabled={loading}
               placeholder="https://linkedin.com/company/..."
+              error={!!errors["contact.linkedin"]}
+              helperText={errors["contact.linkedin"]}
             />
           </Grid>
 
@@ -702,7 +727,9 @@ export default function CompanyFormDialog({
               value={formData.contact.twitter}
               onChange={(e) => handleInputChange('contact.twitter', e.target.value)}
               disabled={loading}
-              placeholder="@companyhandle"
+              placeholder="https://twitter.com/company/..."
+              error={!!errors["contact.twitter"]}
+              helperText={errors["contact.twitter"]}
             />
           </Grid>
 

@@ -73,21 +73,6 @@ export interface CompanyFormData {
     status?: 'active' | 'inactive' | 'suspended';
 }
 
-// NEW: Admin company management types
-export type CompanyApprovalRequest = {
-    companyId: string;
-    maxJobs?: number;
-};
-
-export type CompanyRejectionRequest = {
-    companyId: string;
-    reason: string;
-};
-
-export type CompanySuspensionRequest = {
-    companyId: string;
-    reason: string;
-};
 
 // NEW: Company status enum for better type safety
 export type CompanyStatus = 'active' | 'inactive' | 'suspended';

@@ -1,80 +1,10 @@
-export interface CompanyLocation {
-  address?: string;
-  city: string;
-  state?: string;
-  country: string;
-  zipCode?: string;
-  coordinates?: {
-    latitude?: number;
-    longitude?: number;
-  };
-}
-
-export interface CompanyContact {
-  email: string;
-  phone?: string;
-  linkedin?: string;
-  twitter?: string;
-}
-
-export interface Company {
-  _id?: string;
-  name: string;
-  description: string;
-  website?: string;
-  logo?: string;
-  industry: string;
-  location: CompanyLocation;
-  contact: CompanyContact;
-  benefits?: string[];
-  culture?: string[];
-  foundedYear?: number;
-  isRemoteFriendly?: boolean;
-  canPostJobs?: boolean;
-  maxJobs?: number;
-  totalJobs?: number;
-  totalApplications?: number;
-  isActive?: boolean;
-  status?: 'active' | 'inactive' | 'suspended';
-  createdBy?: string;
-  lastUpdatedBy?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface CompanyListResponse {
-  companies: Company[];
-  totalPages: number;
-  currentPage: number;
-  total: number;
-}
-
-export type CompanyStatus = 'active' | 'inactive' | 'suspended';
-
-// Form data interface for creating/updating companies
-export interface CompanyFormData {
-  name: string;
-  description: string;
-  website?: string;
-  industry: string;
-  location: CompanyLocation;
-  contact: CompanyContact;
-  benefits?: string[];
-  culture?: string[];
-  foundedYear?: number;
-  isRemoteFriendly?: boolean;
-  canPostJobs?: boolean;
-  maxJobs?: number;
-  status?: CompanyStatus;
-}
-
 // Validation schema for company form
 export const companyValidationSchema = {
   name: {
     required: "Company name is required",
     minLength: {
-      value: 2,
-      message: "Company name must be at least 2 characters"
+      value: 1,
+      message: "Company name must be at least 1 character"
     },
     maxLength: {
       value: 100,
@@ -84,8 +14,8 @@ export const companyValidationSchema = {
   description: {
     required: "Company description is required",
     minLength: {
-      value: 10,
-      message: "Description must be at least 10 characters"
+      value: 1,
+      message: "Description must be at least 1 character"
     },
     maxLength: {
       value: 2000,
@@ -94,8 +24,8 @@ export const companyValidationSchema = {
   },
   website: {
     pattern: {
-      value: /^https?:\/\/.+/,
-      message: "Please enter a valid website URL (must start with http:// or https://)"
+      value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+      message: "Please enter a valid website URL"
     }
   },
   industry: {
@@ -107,14 +37,41 @@ export const companyValidationSchema = {
     },
     country: {
       required: "Country is required"
+    },
+    address: {
+      // Optional field - no validation needed
+    },
+    state: {
+      // Optional field - no validation needed
+    },
+    zipCode: {
+      // Optional field - no validation needed
     }
   },
   contact: {
     email: {
       required: "Contact email is required",
       pattern: {
-        value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        message: "Please enter a valid email address"
+        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        message: "Please enter a valid email"
+      }
+    },
+    phone: {
+      pattern: {
+        value: /^[\+]?[1-9][\d]{0,15}$/,
+        message: "Please enter a valid phone number"
+      }
+    },
+    linkedin: {
+      pattern: {
+        value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+        message: "Please enter a valid LinkedIn URL"
+      }
+    },
+    twitter: {
+      pattern: {
+        value: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+        message: "Please enter a valid Twitter URL"
       }
     }
   },
@@ -126,6 +83,21 @@ export const companyValidationSchema = {
     max: {
       value: new Date().getFullYear(),
       message: "Founded year cannot be in the future"
+    }
+  },
+  isRemoteFriendly: {
+    // Boolean field - no specific validation needed
+  },
+  benefits: {
+    // Array field - no specific validation needed
+  },
+  culture: {
+    // Array field - no specific validation needed
+  },
+  status: {
+    pattern: {
+      value: /^(active|inactive|suspended)$/,
+      message: "Status must be active, inactive, or suspended"
     }
   },
   maxJobs: {

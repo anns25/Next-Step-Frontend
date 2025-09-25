@@ -1,4 +1,4 @@
-import { object, string, minLength, nonEmpty, pipe, email, custom, literal, union, minValue, maxValue, number, boolean, array, regex, maxLength, InferOutput } from 'valibot';
+import { object, string, minLength, nonEmpty, pipe, email, custom, literal, union, minValue, maxValue, number, boolean, array, regex, maxLength, InferOutput, optional } from 'valibot';
 
 //Date Validation helpers
 const getCurrentYear = () => new Date().getFullYear();
@@ -49,15 +49,15 @@ export const experienceSchema = object({
     ),
     endDate: pipe(
         string(),
-        nonEmpty('End date is required'),
         custom((value) => {
+            if (!value || value === '') return true; // Allow empty end dates
             if (typeof value !== "string") {
                 throw new Error("Invalid end date");
             }
             const date = new Date(value);
             const year = date.getFullYear();
             if (year < getMinStartYear() || year > getMaxStartYear()) {
-                throw new Error(`Start date must be between ${getMinStartYear()} and ${getMaxStartYear()}`);
+                throw new Error(`End date must be between ${getMinStartYear()} and ${getMaxStartYear()}`);
             }
             return true;
         })
@@ -75,16 +75,16 @@ export const educationSchema = object({
             (value) => {
                 if (typeof value !== "string") return false;
                 const year = new Date(value).getFullYear();
-                return year >= getMinStartYear() && year <= getMaxStartYear();
+                return year >= getMinStartYear() && year <= getCurrentYear();
             },
-            `Start date must be between ${getMinStartYear()} and ${getMaxStartYear()}`
+            `Start date must be between ${getMinStartYear()} and ${getCurrentYear()}`
         )
     ),
     endDate: pipe(
         string(),
-        nonEmpty('End Date is required'),
         custom(
             (value) => {
+                if (!value || value === '') return true; // Allow empty end dates
                 if (typeof value !== "string") return false;
                 const year = new Date(value).getFullYear();
                 return year >= getMinStartYear() && year <= getMaxStartYear();
@@ -112,7 +112,6 @@ export const salaryRangeSchema = object({
         maxValue(10000000, 'Maximum salary seems too high')
     ),
     currency: pipe(string(), nonEmpty('Currency is required'))
-
 });
 
 export const preferencesSchema = object({
@@ -125,7 +124,7 @@ export const preferencesSchema = object({
     })
 });
 
-// Main profile update schema
+// Main profile update schema - Updated to match EditUserDialog structure
 export const profileUpdateSchema = object({
     firstName: pipe(
         string(),
@@ -146,9 +145,12 @@ export const profileUpdateSchema = object({
     ),
     resumeHeadline: pipe(
         string(),
-        minLength(10, 'Resume headline should be at least 10 characters'),
-        maxLength(200, 'Resume headline should be less than 200 characters')
+        maxLength(500, 'Resume headline cannot exceed 500 characters')
     ),
+    workStatus: union([
+        literal('fresher'),
+        literal('experienced'),
+    ]),
     skills: array(
         pipe(
             string(),
@@ -156,10 +158,6 @@ export const profileUpdateSchema = object({
             minLength(2, 'Skill must be at least 2 characters')
         )
     ),
-    workStatus: union([
-        literal('fresher'),
-        literal('experienced'),
-    ]),
     experience: array(experienceSchema),
     education: array(educationSchema),
     location: locationSchema,
@@ -167,15 +165,24 @@ export const profileUpdateSchema = object({
 });
 
 // Conditional validation for experienced users
-
 type ProfileUpdate = InferOutput<typeof profileUpdateSchema>;
 export const profileUpdateSchemaWithConditions = pipe(
     profileUpdateSchema,
     custom((data) => {
         const profile = data as ProfileUpdate;
+        
         // If work status is experienced, require at least one experience
         if (profile.workStatus === 'experienced' && (!profile.experience || profile.experience.length === 0)) {
             throw new Error('At least one experience entry is required for experienced users');
+        }
+
+        // Validate that experience entries have required fields
+        if (profile.experience) {
+            profile.experience.forEach((exp, index) => {
+                if (!exp.company || !exp.position || !exp.startDate) {
+                    throw new Error(`Experience entry #${index + 1} must have company, position, and startDate`);
+                }
+            });
         }
 
         // Validate salary range
@@ -214,10 +221,3 @@ export const profileUpdateSchemaWithConditions = pipe(
         return true;
     })
 );
-
-
-
-
-
-
-

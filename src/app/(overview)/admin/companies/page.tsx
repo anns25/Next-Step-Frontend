@@ -49,14 +49,16 @@ import {
     getAllCompaniesByAdmin,
     deleteCompany,
     getJobsByCompany,
-    createJobForCompany,
     deleteJob,
     createCompany,
     updateCompany,
+    createJob,
 } from "@/lib/api/adminAPI";
 
 import CompanyViewDialog from "@/components/CompanyViewDialog";
 import CompanyFormDialog from "@/components/CompanyFormDialog";
+import JobFormDialog from "@/components/JobFormDialog";
+import { Job } from "@/types/Job";
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -78,6 +80,7 @@ export default function AdminCompanies() {
     const [jobFormOpen, setJobFormOpen] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+    const [editingJob, setEditingJob] = useState<Job | null>(null);
     const [companyJobs, setCompanyJobs] = useState<any[]>([]);
 
     // Snackbar states
@@ -281,6 +284,36 @@ export default function AdminCompanies() {
             throw error; // Re-throw to prevent dialog from closing on error
         }
     };
+
+
+    const handleJobSave = async (formData: FormData) => {
+        try {
+            if (!selectedCompany?._id) {
+                throw new Error("No company selected to attach the job to");
+            }
+
+            // Pass companyId + formData to the API
+            await createJob({
+                companyId: selectedCompany._id,
+                data: formData,
+            });
+
+            setSnackbar({
+                open: true,
+                message: "Job created successfully",
+                severity: "success",
+            });
+        } catch (error: any) {
+            console.error("Error saving job:", error);
+            setSnackbar({
+                open: true,
+                message: error.message || "Failed to save job",
+                severity: "error",
+            });
+            throw error; // keep dialog open on error
+        }
+    };
+
 
     return (
         <>
@@ -702,6 +735,13 @@ export default function AdminCompanies() {
                         });
                     }
                 }}
+            />
+
+            <JobFormDialog
+                open={jobFormOpen}
+                onSave={handleJobSave}
+                onClose={handleJobFormClose}
+                initialData={editingJob}
             />
 
             {/* Snackbar */}

@@ -175,7 +175,7 @@ const CompanyViewDialog: React.FC<Props> = ({
                                     size="small"
                                     sx={{ fontWeight: 600 }}
                                 />
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="background.default">
                                     {company.industry}
                                 </Typography>
                             </Box>
@@ -390,11 +390,11 @@ const CompanyViewDialog: React.FC<Props> = ({
                                                                 key={index}
                                                                 label={culture}
                                                                 size="small"
-                                                                color="secondary"
+                                                                color="primary"
                                                                 variant="outlined"
                                                                 sx={{
                                                                     '&:hover': {
-                                                                        backgroundColor: 'secondary.light',
+                                                                        backgroundColor: 'primary.light',
                                                                         color: 'white',
                                                                     },
                                                                 }}

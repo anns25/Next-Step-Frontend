@@ -1,6 +1,7 @@
 import { Company, CompanyListResponse } from "@/types/Company";
 import api from "../axios";
 import { AdminStats } from "@/types/Admin";
+import { JobListResponse } from "@/types/Job";
 
 
 export async function getAllCompaniesByAdmin(params?: {
@@ -114,9 +115,10 @@ export async function getAdminDashboardStats(): Promise<AdminStats | null> {
 
 //Job Management for Companies
 
-export async function createJobForCompany(companyId: string, jobData: any): Promise<any> {
+export async function createJob(jobData: { companyId: string; data: FormData }): Promise<any> {
     try {
-        const response = await api.post(`/admin/companies/${companyId}/jobs`, jobData);
+        const {companyId, data} = jobData;
+        const response = await api.post(`/admin/companies/${companyId}/jobs`, data);
         return response.data.job;
     } catch (error) {
         console.error("Error creating job:", error);
@@ -159,4 +161,42 @@ export async function deleteJob(jobId: string): Promise<boolean> {
         console.error("Error deleting job:", error);
         return false;
     }
+}
+
+export async function getAllJobsByAdmin(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    company?: string;
+    jobType? : string;
+    experienceLevel? : string;
+}): Promise<JobListResponse | null> {
+    try {
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.limit) queryParams.append('limit', params.limit.toString());
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.jobType) queryParams.append('jobType', params.jobType);
+        if (params?.company) queryParams.append('company', params.company);
+        if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
+        
+
+        const response = await api.get(`/job/all?${queryParams.toString()}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching companies", error)
+        return null;
+    }
+
+}
+
+export async function getJobById(id: string): Promise<Company | null> {
+    try {
+        const response = await api.get(`/job/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching company :", error);
+        return null;
+    }
+
 }

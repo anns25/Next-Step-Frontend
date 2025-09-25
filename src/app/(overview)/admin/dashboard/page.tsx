@@ -131,11 +131,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <AdminLayout>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
           <CircularProgress />
         </Box>
-      </AdminLayout>
     );
   }
 
