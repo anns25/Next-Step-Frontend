@@ -115,10 +115,14 @@ export async function getAdminDashboardStats(): Promise<AdminStats | null> {
 
 //Job Management for Companies
 
-export async function createJob(jobData: { companyId: string; data: FormData }): Promise<any> {
+export async function createJob(jobData: { company: string, data: FormData }): Promise<any> {
     try {
-        const {companyId, data} = jobData;
-        const response = await api.post(`/admin/companies/${companyId}/jobs`, data);
+        // extract company from formData
+
+
+        const { company, data } = jobData
+        console.log("****", data);
+        const response = await api.post(`/admin/companies/${company}/jobs`, data, { headers: { "Content-Type": "application/json" } });
         return response.data.job;
     } catch (error) {
         console.error("Error creating job:", error);
@@ -145,11 +149,24 @@ export async function getJobsByCompany(companyId: string, params?: {
 
 export async function updateJob(jobId: string, jobData: any): Promise<any> {
     try {
-        const response = await api.patch(`/admin/jobs/${jobId}`, jobData);
+        console.log('Updating job with data:', jobData);
+        const response = await api.patch(`/admin/jobs/${jobId}`, jobData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
         return response.data.job;
-    } catch (error) {
-        console.error("Error updating job:", error);
-        return false;
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Error updating job:", error.response.data);
+            console.error("Status:", error.response.status);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            console.error("No response received:", error.request);
+        } else {
+            console.error("Request setup error:", error.message);
+        }
+        throw error;
     }
 }
 
@@ -168,8 +185,8 @@ export async function getAllJobsByAdmin(params?: {
     limit?: number;
     search?: string;
     company?: string;
-    jobType? : string;
-    experienceLevel? : string;
+    jobType?: string;
+    experienceLevel?: string;
 }): Promise<JobListResponse | null> {
     try {
         const queryParams = new URLSearchParams();
@@ -179,7 +196,7 @@ export async function getAllJobsByAdmin(params?: {
         if (params?.jobType) queryParams.append('jobType', params.jobType);
         if (params?.company) queryParams.append('company', params.company);
         if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
-        
+
 
         const response = await api.get(`/job/all?${queryParams.toString()}`);
         return response.data;

@@ -251,11 +251,11 @@ export default function AdminJobs() {
         setCurrentPage(page);
     };
 
-    const handleJobSave = async (formData: any) => {
+    const handleJobSave = async (jobData: any) => {
         try {
             if (editingJob) {
-                // Update existing job
-                await updateJob(editingJob._id, formData);
+                console.log('Updating job:', editingJob._id, 'with data:', jobData);
+                await updateJob(editingJob._id, jobData);
                 setSnackbar({
                     open: true,
                     message: "Job updated successfully",
@@ -268,14 +268,29 @@ export default function AdminJobs() {
 
         } catch (error: any) {
             console.error('Error saving job:', error);
+            let errorMessage = "Failed to save job";
+
+            // Handle backend validation errors
+            if (error.response?.data?.errors) {
+                const errors = error.response.data.errors;
+                if (Array.isArray(errors)) {
+                    errorMessage = errors.map(err => err.msg || err.message).join(', ');
+                }
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
             setSnackbar({
                 open: true,
-                message: error.message || "Failed to save job",
+                message: errorMessage,
                 severity: "error",
             });
             throw error; // Re-throw to prevent dialog from closing on error
         }
     };
+
 
     const formatSalary = (salary: Job["salary"]) => {
         if (!salary) return "Not specified";
@@ -294,14 +309,7 @@ export default function AdminJobs() {
         return parts.join(", ");
     };
 
-    const formatDate = (date?: string | Date | null) => {
-        if (!date) return "";
-        return new Date(date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-        });
-    };
-
+  
     const getCompanyLogo = (company: string | { _id: string; name: string; logo?: string } | undefined): string | null => {
         if (!company || typeof company === "string") return null;
         return company.logo || null;
@@ -531,7 +539,7 @@ export default function AdminJobs() {
                                                         )}
                                                     </Avatar>
 
-                                                    <Box sx={{ flex: 1, minWidth: 0, maxWidth : {xs : "180px", sm : "100%"}, ml: 1 }}>
+                                                    <Box sx={{ flex: 1, minWidth: 0, maxWidth: { xs: "180px", sm: "100%" }, ml: 1 }}>
                                                         <Typography
                                                             variant="h6"
                                                             sx={{

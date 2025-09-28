@@ -29,13 +29,14 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 import { Job, JobFormData } from '@/types/Job';
-import { jobCreationSchemaWithConditions } from '@/lib/validation/jobAuthSchema';
+import { jobCreationSchemaWithConditions, jobValidationSchema } from '@/lib/validation/jobAuthSchema';
 
 interface JobFormDialogProps {
     open: boolean;
     onClose: () => void;
     onSave: (formData: any) => Promise<void>;
     initialData?: Job | null;
+    companyId?: string; // Add this prop
 }
 
 const jobTypes = [
@@ -78,11 +79,12 @@ export default function JobFormDialog({
     onClose,
     onSave,
     initialData,
+    companyId, // Add this parameter
 }: JobFormDialogProps) {
     const [formData, setFormData] = useState<JobFormData>({
         title: '',
         description: '',
-        company: '',
+        company: companyId || '', // Use companyId if provided
         location: {
             type: 'remote',
             address: '',
@@ -105,7 +107,6 @@ export default function JobFormDialog({
             education: '',
             experience: '',
             certifications: [],
-            languages: []
         },
         responsibilities: [],
         benefits: [],
@@ -129,7 +130,7 @@ export default function JobFormDialog({
                 setFormData({
                     title: initialData.title || '',
                     description: initialData.description || '',
-                    company: typeof initialData.company === 'string' ? initialData.company : initialData.company._id,
+                    company: companyId || (typeof initialData.company === 'string' ? initialData.company : initialData.company._id),
                     location: {
                         type: initialData.location?.type || 'remote',
                         address: initialData.location?.address || '',
@@ -152,12 +153,11 @@ export default function JobFormDialog({
                         education: initialData.requirements?.education || '',
                         experience: initialData.requirements?.experience || '',
                         certifications: initialData.requirements?.certifications || [],
-                        languages: initialData.requirements?.languages || []
                     },
                     responsibilities: initialData.responsibilities || [],
                     benefits: initialData.benefits || [],
-                    applicationDeadline: initialData.applicationDeadline || '',
-                    startDate: initialData.startDate || '',
+                    applicationDeadline: formatDateForInput(initialData.applicationDeadline || ''),
+                    startDate: formatDateForInput(initialData.startDate || ''),
                     isActive: initialData.isActive !== false,
                     isFeatured: initialData.isFeatured || false,
                     tags: initialData.tags || [],
@@ -169,7 +169,7 @@ export default function JobFormDialog({
                 setFormData({
                     title: '',
                     description: '',
-                    company: '',
+                    company: companyId || '', // Use companyId if provided
                     location: {
                         type: 'remote',
                         address: '',
@@ -192,7 +192,6 @@ export default function JobFormDialog({
                         education: '',
                         experience: '',
                         certifications: [],
-                        languages: []
                     },
                     responsibilities: [],
                     benefits: [],
@@ -208,14 +207,14 @@ export default function JobFormDialog({
             setErrors({});
             setSubmitError('');
         }
-    }, [open, initialData]);
+    }, [open, initialData, companyId]);
 
     const getNestedProperty = (obj: any, path: string): any => {
         return path.split('.').reduce((current, key) => current?.[key], obj);
     };
 
     const validateField = (name: string, value: any): string => {
-        const fieldSchema = getNestedProperty(jobCreationSchemaWithConditions, name);
+        const fieldSchema = getNestedProperty(jobValidationSchema, name);
         if (!fieldSchema) return '';
 
         if (fieldSchema.required && (!value || value.toString().trim() === '')) {
@@ -234,17 +233,29 @@ export default function JobFormDialog({
             return fieldSchema.pattern.message;
         }
 
-        if (value && fieldSchema.min && Number(value) < fieldSchema.min.value) {
-            return fieldSchema.min.message;
+        if (value && fieldSchema.validate && typeof fieldSchema.validate === 'function') {
+            const validationResult = fieldSchema.validate(value);
+            if (validationResult !== true && typeof validationResult === 'string') {
+                return validationResult;
+            }
         }
 
-        if (value && fieldSchema.max && Number(value) > fieldSchema.max.value) {
-            return fieldSchema.max.message;
+        // Fix: Handle numeric validation properly
+        if (value !== null && value !== undefined && value !== '') {
+            const numValue = Number(value);
+            if (!isNaN(numValue)) {
+                if (fieldSchema.min && numValue < fieldSchema.min.value) {
+                    return fieldSchema.min.message;
+                }
+
+                if (fieldSchema.max && numValue > fieldSchema.max.value) {
+                    return fieldSchema.max.message;
+                }
+            }
         }
 
         return '';
     };
-
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
 
@@ -283,8 +294,53 @@ export default function JobFormDialog({
             }
         }
 
+        // Validate optional fields if they have values
+        if (formData.externalUrl) {
+            const error = validateField('externalUrl', formData.externalUrl);
+            if (error) newErrors.externalUrl = error;
+        }
+
+        if (formData.applicationInstructions) {
+            const error = validateField('applicationInstructions', formData.applicationInstructions);
+            if (error) newErrors.applicationInstructions = error;
+        }
+
+        if (formData.applicationDeadline) {
+            const error = validateField('applicationDeadline', formData.applicationDeadline);
+            if (error) newErrors.applicationDeadline = error;
+        }
+
+        if (formData.startDate) {
+            const error = validateField('startDate', formData.startDate);
+            if (error) newErrors.startDate = error;
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    // Update the formatDateForInput function to handle more cases
+    const formatDateForInput = (date: string | Date | null | undefined) => {
+        if (!date) return "";
+
+        // If it's already in yyyy-mm-dd format, return as is
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return date;
+        }
+
+        // If it's in dd-mm-yyyy format, convert it
+        if (typeof date === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(date)) {
+            const [day, month, year] = date.split('-');
+            return `${year}-${month}-${day}`;
+        }
+
+        // For other formats, try to parse as Date
+        const d = new Date(date);
+        if (isNaN(d.getTime())) {
+            return "";
+        }
+
+        return d.toISOString().split("T")[0]; // yyyy-MM-dd
     };
 
     const handleInputChange = (field: string, value: any) => {
@@ -361,6 +417,32 @@ export default function JobFormDialog({
         });
     };
 
+    // Add this helper function to ensure dates are in correct format
+    const ensureDateFormat = (date: string | undefined): string | undefined => {
+        if (!date) return undefined;
+
+        // If it's already in yyyy-mm-dd format, return as is
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return date;
+        }
+
+        // If it's in dd-mm-yyyy format, convert it
+        if (/^\d{2}-\d{2}-\d{4}$/.test(date)) {
+            const [day, month, year] = date.split('-');
+            return `${year}-${month}-${day}`;
+        }
+
+        // For other formats, try to parse as Date and convert
+        const d = new Date(date);
+        if (isNaN(d.getTime())) {
+            return undefined;
+        }
+
+        return d.toISOString().split("T")[0];
+    };
+
+
+
     const handleSubmit = async () => {
         setSubmitError('');
 
@@ -370,7 +452,157 @@ export default function JobFormDialog({
 
         setLoading(true);
         try {
-            await onSave(formData);
+            // For editing jobs, send as regular object with proper nested structure
+            if (initialData) {
+                const jobData = {
+                    title: formData.title,
+                    description: formData.description,
+                    company: formData.company,
+                    jobType: formData.jobType,
+                    experienceLevel: formData.experienceLevel,
+                    isActive: formData.isActive,
+                    isFeatured: formData.isFeatured,
+                    // Ensure location object is properly structured
+                    location: {
+                        type: formData.location.type,
+                        address: formData.location.address || '',
+                        city: formData.location.city || '',
+                        state: formData.location.state || '',
+                        country: formData.location.country || '',
+                        zipCode: formData.location.zipCode || ''
+                    },
+                    // Ensure salary object is properly structured
+                    salary: {
+                        min: formData.salary?.min || undefined,
+                        max: formData.salary?.max || undefined,
+                        currency: formData.salary?.currency || 'USD',
+                        period: formData.salary?.period || 'yearly',
+                        isNegotiable: formData.salary?.isNegotiable || false
+                    },
+                    // Ensure requirements object is properly structured
+                    requirements: {
+                        skills: formData.requirements?.skills || [],
+                        education: formData.requirements?.education || '',
+                        experience: formData.requirements?.experience || '',
+                        certifications: formData.requirements?.certifications || []
+                    },
+                    responsibilities: formData.responsibilities || [],
+                    benefits: formData.benefits || [],
+                    tags: formData.tags || [],
+                    // Ensure dates are in correct format
+                    applicationDeadline: ensureDateFormat(formData.applicationDeadline),
+                    startDate: ensureDateFormat(formData.startDate),
+                    externalUrl: formData.externalUrl || undefined,
+                    applicationInstructions: formData.applicationInstructions || undefined,
+                };
+
+                console.log('Sending job data for update:', jobData);
+                await onSave(jobData);
+            } else {
+                // For creating jobs, send as FormData (existing logic)
+                const submitData = new FormData();
+
+                // Add form fields in the format expected by your backend
+                submitData.append('title', formData.title);
+                submitData.append('description', formData.description);
+                submitData.append('company', formData.company);
+                submitData.append('jobType', formData.jobType);
+                submitData.append('experienceLevel', formData.experienceLevel);
+                submitData.append('isActive', formData.isActive?.toString() || 'true');
+                submitData.append('isFeatured', formData.isFeatured?.toString() || 'false');
+
+                // Add date fields with proper formatting
+                const formattedApplicationDeadline = ensureDateFormat(formData.applicationDeadline);
+                if (formattedApplicationDeadline) {
+                    submitData.append('applicationDeadline', formattedApplicationDeadline);
+                }
+
+                const formattedStartDate = ensureDateFormat(formData.startDate);
+                if (formattedStartDate) {
+                    submitData.append('startDate', formattedStartDate);
+                }
+
+                if (formData.externalUrl) {
+                    submitData.append('externalUrl', formData.externalUrl);
+                }
+
+                if (formData.applicationInstructions) {
+                    submitData.append('applicationInstructions', formData.applicationInstructions);
+                }
+
+                // Add location fields
+                submitData.append('location.type', formData.location.type);
+
+                if (formData.location.address) {
+                    submitData.append('location.address', formData.location.address);
+                }
+                if (formData.location.city) {
+                    submitData.append('location.city', formData.location.city);
+                }
+                if (formData.location.state) {
+                    submitData.append('location.state', formData.location.state);
+                }
+                if (formData.location.country) {
+                    submitData.append('location.country', formData.location.country);
+                }
+                if (formData.location.zipCode) {
+                    submitData.append('location.zipCode', formData.location.zipCode);
+                }
+
+                // Add salary fields - only if they have valid positive values
+                if (formData.salary?.min !== undefined && formData.salary?.min >= 0) {
+                    submitData.append('salary.min', formData.salary.min.toString());
+                }
+                if (formData.salary?.max !== undefined && formData.salary?.max >= 0) {
+                    submitData.append('salary.max', formData.salary.max.toString());
+                }
+                if (formData.salary?.currency) {
+                    submitData.append('salary.currency', formData.salary.currency);
+                }
+                if (formData.salary?.period) {
+                    submitData.append('salary.period', formData.salary.period);
+                }
+                if (formData.salary?.isNegotiable !== undefined) {
+                    submitData.append('salary.isNegotiable', formData.salary.isNegotiable.toString());
+                }
+
+                // Add requirements fields
+                if (formData.requirements?.education) {
+                    submitData.append('requirements.education', formData.requirements.education);
+                }
+                if (formData.requirements?.experience) {
+                    submitData.append('requirements.experience', formData.requirements.experience);
+                }
+
+                // Add arrays
+                const skills = formData.requirements?.skills || [];
+                skills.forEach((skill, index) => {
+                    submitData.append(`requirements.skills[${index}]`, skill);
+                });
+
+                const certifications = formData.requirements?.certifications || [];
+                certifications.forEach((cert, index) => {
+                    submitData.append(`requirements.certifications[${index}]`, cert);
+                });
+
+                const responsibilities = formData.responsibilities || [];
+                responsibilities.forEach((responsibility, index) => {
+                    submitData.append(`responsibilities[${index}]`, responsibility);
+                });
+
+                const benefits = formData.benefits || [];
+                benefits.forEach((benefit, index) => {
+                    submitData.append(`benefits[${index}]`, benefit);
+                });
+
+                const tags = formData.tags || [];
+                tags.forEach((tag, index) => {
+                    submitData.append(`tags[${index}]`, tag);
+                });
+
+                await onSave(submitData);
+            }
+
             onClose();
         } catch (error: any) {
             console.error('Error saving job:', error);
@@ -608,7 +840,13 @@ export default function JobFormDialog({
                             type="number"
                             label="Min Salary"
                             value={formData.salary?.min || ''}
-                            onChange={(e) => handleInputChange('salary.min', e.target.value ? Number(e.target.value) : undefined)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Only allow positive numbers or empty string
+                                if (value === '' || (Number(value) >= 0 && !isNaN(Number(value)))) {
+                                    handleInputChange('salary.min', value ? Number(value) : undefined);
+                                }
+                            }}
                             error={!!errors['salary.min']}
                             helperText={errors['salary.min']}
                             disabled={loading}
@@ -621,7 +859,13 @@ export default function JobFormDialog({
                             type="number"
                             label="Max Salary"
                             value={formData.salary?.max || ''}
-                            onChange={(e) => handleInputChange('salary.max', e.target.value ? Number(e.target.value) : undefined)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Only allow positive numbers or empty string
+                                if (value === '' || (Number(value) >= 0 && !isNaN(Number(value)))) {
+                                    handleInputChange('salary.max', value ? Number(value) : undefined);
+                                }
+                            }}
                             error={!!errors['salary.max']}
                             helperText={errors['salary.max']}
                             disabled={loading}
@@ -696,8 +940,10 @@ export default function JobFormDialog({
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
                                         const target = e.target as HTMLInputElement;
-                                        addArrayItem('requirements.skills', target.value);
-                                        target.value = '';
+                                        if (target.value.trim()) {
+                                            addArrayItem('requirements.skills', target.value);
+                                            target.value = '';
+                                        }
                                     }
                                 }}
                                 disabled={loading}
@@ -708,7 +954,7 @@ export default function JobFormDialog({
                                 startIcon={<AddIcon />}
                                 onClick={() => {
                                     const input = document.querySelector('input[placeholder="Add skill..."]') as HTMLInputElement;
-                                    if (input) {
+                                    if (input && input.value.trim()) {
                                         addArrayItem('requirements.skills', input.value);
                                         input.value = '';
                                     }
@@ -854,12 +1100,14 @@ export default function JobFormDialog({
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             fullWidth
-                            type="datetime-local"
+                            type="date"
                             label="Application Deadline"
-                            value={formData.applicationDeadline || ''}
+                            value={formatDateForInput(formData.applicationDeadline)}
                             onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
                             InputLabelProps={{ shrink: true }}
                             disabled={loading}
+                            error={!!errors['applicationDeadline']}
+                            helperText={errors['applicationDeadline']}
                         />
                     </Grid>
 
@@ -868,10 +1116,12 @@ export default function JobFormDialog({
                             fullWidth
                             type="date"
                             label="Start Date"
-                            value={formData.startDate || ''}
+                            value={formatDateForInput(formData.startDate)}
                             onChange={(e) => handleInputChange('startDate', e.target.value)}
                             InputLabelProps={{ shrink: true }}
                             disabled={loading}
+                            error={!!errors['startDate']}
+                            helperText={errors['startDate']}
                         />
                     </Grid>
 
@@ -883,6 +1133,8 @@ export default function JobFormDialog({
                             onChange={(e) => handleInputChange('externalUrl', e.target.value)}
                             disabled={loading}
                             placeholder="https://company.com/apply"
+                            error={!!errors['externalUrl']}
+                            helperText={errors['externalUrl']}
                         />
                     </Grid>
 

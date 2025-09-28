@@ -59,6 +59,7 @@ import CompanyViewDialog from "@/components/CompanyViewDialog";
 import CompanyFormDialog from "@/components/CompanyFormDialog";
 import JobFormDialog from "@/components/JobFormDialog";
 import { Job } from "@/types/Job";
+import { useAuth } from "@/contexts/authContext";
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -82,6 +83,8 @@ export default function AdminCompanies() {
     const [editingCompany, setEditingCompany] = useState<Company | null>(null);
     const [editingJob, setEditingJob] = useState<Job | null>(null);
     const [companyJobs, setCompanyJobs] = useState<any[]>([]);
+
+    const { user } = useAuth();
 
     // Snackbar states
     const [snackbar, setSnackbar] = useState({
@@ -286,16 +289,26 @@ export default function AdminCompanies() {
     };
 
 
-    const handleJobSave = async (formData: FormData) => {
+    const handleJobSave = async (formData: FormData) => { 
         try {
             if (!selectedCompany?._id) {
                 throw new Error("No company selected to attach the job to");
             }
 
+            if (!user?._id) {
+                throw new Error("User is not logged in");
+            }
+
+            
+            // Add createdBy field
+            formData.append('createdBy', user._id);
+
+            console.log("formData", formData);
+
             // Pass companyId + formData to the API
             await createJob({
-                companyId: selectedCompany._id,
-                data: formData,
+                company: selectedCompany._id,
+                data: formData// Use the new FormData object
             });
 
             setSnackbar({
@@ -313,7 +326,6 @@ export default function AdminCompanies() {
             throw error; // keep dialog open on error
         }
     };
-
 
     return (
         <>
@@ -742,6 +754,7 @@ export default function AdminCompanies() {
                 onSave={handleJobSave}
                 onClose={handleJobFormClose}
                 initialData={editingJob}
+                companyId={selectedCompany?._id} // Add this line
             />
 
             {/* Snackbar */}
