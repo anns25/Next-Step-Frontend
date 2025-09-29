@@ -32,60 +32,45 @@ import {
     Stack,
     useMediaQuery,
     useTheme,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
 } from "@mui/material";
 import {
-    Work as WorkIcon,
+    People as PeopleIcon,
     Search as SearchIcon,
-    Edit as EditIcon,
-    Visibility as ViewIcon,
-    Add as AddIcon,
     Delete as DeleteIcon,
     Refresh as RefreshIcon,
-    FilterList as FilterIcon,
-    Business as BusinessIcon,
-    LocationOn as LocationIcon,
-    AttachMoney as MoneyIcon,
-    People as PeopleIcon,
-    Schedule as ScheduleIcon,
+    Email as EmailIcon,
+    CalendarToday as CalendarIcon,
+    Verified as VerifiedIcon,
+    Person as PersonIcon,
+    AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
 
-import { Job, JobListResponse, JobFilters } from "@/types/Job";
-import AdminLayout from "@/components/AdminSidebarLayout";
-import {
-    getAllJobsByAdmin,
-    deleteJob,
-    updateJob,
-} from "@/lib/api/adminAPI";
+import { User } from "@/types/User";
+import { getAllUsersByAdmin, deleteUserByAdmin } from "@/lib/api/adminAPI";
 
-import JobFormDialog from "@/components/JobFormDialog";
-import JobViewDialog from "@/components/JobViewDialog";
-
-export default function AdminJobs() {
+export default function AdminUsers() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-    const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
 
-    const [jobs, setJobs] = useState<Job[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [companyFilter, setCompanyFilter] = useState("");
-    const [jobTypeFilter, setJobTypeFilter] = useState("");
-    const [experienceFilter, setExperienceFilter] = useState("");
-    const [statusFilter, setStatusFilter] = useState("");
+    const [roleFilter, setRoleFilter] = useState("");
+    const [verificationFilter, setVerificationFilter] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [limit] = useState(12);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
-    const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
-
-    // Dialog states
-    const [jobFormOpen, setJobFormOpen] = useState(false);
-    const [jobViewOpen, setJobViewOpen] = useState(false);
-    const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-    const [editingJob, setEditingJob] = useState<Job | null>(null);
+    const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
     // Snackbar states
     const [snackbar, setSnackbar] = useState({
@@ -94,79 +79,48 @@ export default function AdminJobs() {
         severity: "success" as "success" | "error" | "warning" | "info",
     });
 
-    const jobTypes = [
-        "full-time",
-        "part-time",
-        "contract",
-        "internship",
-        "temporary"
-    ];
+    const roles = ["user", "admin"];
+    const verificationStatuses = ["verified", "unverified"];
 
-    const experienceLevels = [
-        "entry",
-        "mid",
-        "senior",
-        "executive"
-    ];
-
-    const getJobTypeColor = (jobType: string): "success" | "warning" | "error" | "default" | "info" => {
-        switch (jobType) {
-            case "full-time":
-                return "success";
-            case "part-time":
-                return "info";
-            case "contract":
-                return "warning";
-            case "internship":
-                return "default";
-            case "temporary":
+    const getRoleColor = (role: string): "success" | "warning" | "error" | "default" | "info" => {
+        switch (role) {
+            case "admin":
                 return "error";
+            case "user":
+                return "success";
             default:
                 return "default";
         }
     };
 
-    const getExperienceColor = (level: string): "success" | "warning" | "error" | "default" | "info" => {
-        switch (level) {
-            case "entry":
-                return "success";
-            case "mid":
-                return "info";
-            case "senior":
-                return "warning";
-            case "executive":
-                return "error";
-            default:
-                return "default";
-        }
+    const getVerificationColor = (verified: boolean): "success" | "warning" | "error" | "default" | "info" => {
+        return verified ? "success" : "warning";
     };
 
-    const fetchJobs = async () => {
+    const fetchUsers = async () => {
         setLoading(true);
         try {
             const params = {
                 page: currentPage,
                 limit,
                 search: searchTerm || undefined,
-                company: companyFilter || undefined,
-                jobType: jobTypeFilter || undefined,
-                experienceLevel: experienceFilter || undefined,
-                isActive: statusFilter ? statusFilter === "active" : undefined,
+                role: roleFilter || undefined,
+                emailVerified: verificationFilter ? verificationFilter === "verified" : undefined,
             };
 
-            console.log('Fetching jobs with params:', params);
-            const response = await getAllJobsByAdmin(params);
+            console.log('Fetching users with params:', params);
+            const response = await getAllUsersByAdmin(params);
 
             if (response) {
-                setJobs(response.jobs);
+                setUsers(response.users);
                 setTotalPages(response.totalPages);
                 setTotal(response.total);
             }
         } catch (error) {
-            console.error("Error fetching jobs:", error);
+            console.error("Error fetching users:", error);
             setSnackbar({
                 open: true,
-                message: "Failed to fetch jobs",
+                message: "Failed to fetch users",
                 severity: "error",
             });
         } finally {
@@ -175,161 +129,82 @@ export default function AdminJobs() {
     };
 
     useEffect(() => {
-        fetchJobs();
-    }, [currentPage, searchTerm, companyFilter, jobTypeFilter, experienceFilter, statusFilter]);
+        fetchUsers();
+    }, [currentPage, searchTerm, roleFilter, verificationFilter]);
 
     const handleSearch = (value: string) => {
         setSearchTerm(value);
         setCurrentPage(1);
     };
 
-    const handleJobTypeFilter = (value: string) => {
-        setJobTypeFilter(value);
+    const handleRoleFilter = (value: string) => {
+        setRoleFilter(value);
         setCurrentPage(1);
     };
 
-    const handleExperienceFilter = (value: string) => {
-        setExperienceFilter(value);
+    const handleVerificationFilter = (value: string) => {
+        setVerificationFilter(value);
         setCurrentPage(1);
     };
 
-
-    const handleViewJob = (job: Job) => {
-        setSelectedJob(job);
-        setJobViewOpen(true);
-    };
-
-    const handleEditJob = (job: Job) => {
-        setEditingJob(job);
-        setJobFormOpen(true);
-    };
-
-    const handleDeleteJob = (job: Job) => {
-        setJobToDelete(job);
+    const handleDeleteUser = (user: User) => {
+        setUserToDelete(user);
         setDeleteDialogOpen(true);
     };
 
     const handleDeleteConfirm = async () => {
-        if (!jobToDelete) return;
+        if (!userToDelete) return;
         setDeleteLoading(true);
         try {
-            const success = await deleteJob(jobToDelete._id);
+            const success = await deleteUserByAdmin(userToDelete._id);
             if (success) {
                 setSnackbar({
                     open: true,
-                    message: "Job deleted successfully",
+                    message: "User deleted successfully",
                     severity: "success",
                 });
-                fetchJobs();
+                fetchUsers();
             } else {
                 setSnackbar({
                     open: true,
-                    message: "Failed to delete job",
+                    message: "Failed to delete user",
                     severity: "error",
                 });
             }
         } catch (error) {
             setSnackbar({
                 open: true,
-                message: "Failed to delete job",
+                message: "Failed to delete user",
                 severity: "error",
             });
         } finally {
             setDeleteLoading(false);
             setDeleteDialogOpen(false);
-            setJobToDelete(null);
+            setUserToDelete(null);
         }
-    };
-
-    const handleJobFormClose = () => {
-        setJobFormOpen(false);
-        setEditingJob(null);
-        fetchJobs();
     };
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
         setCurrentPage(page);
     };
 
-    const handleJobSave = async (jobData: any) => {
-        try {
-            if (editingJob) {
-                console.log('Updating job:', editingJob._id, 'with data:', jobData);
-                await updateJob(editingJob._id, jobData);
-                setSnackbar({
-                    open: true,
-                    message: "Job updated successfully",
-                    severity: "success",
-                });
-            }
-
-            // Refresh the jobs list
-            fetchJobs();
-
-        } catch (error: any) {
-            console.error('Error saving job:', error);
-            let errorMessage = "Failed to save job";
-
-            // Handle backend validation errors
-            if (error.response?.data?.errors) {
-                const errors = error.response.data.errors;
-                if (Array.isArray(errors)) {
-                    errorMessage = errors.map(err => err.msg || err.message).join(', ');
-                }
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
-
-            setSnackbar({
-                open: true,
-                message: errorMessage,
-                severity: "error",
-            });
-            throw error; // Re-throw to prevent dialog from closing on error
-        }
+    const formatDate = (date?: string | Date | null) => {
+        if (!date) return "Never";
+        return new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
     };
 
-
-    const formatSalary = (salary: Job["salary"]) => {
-        if (!salary) return "Not specified";
-        const { min, max, currency, period } = salary;
-        if (min && max) {
-            return `${currency} ${min.toLocaleString()} - ${max.toLocaleString()} / ${period}`;
-        } else if (min) {
-            return `${currency} ${min.toLocaleString()}+ / ${period}`;
-        }
-        return "Not specified";
-    };
-
-    const formatLocation = (location: Job["location"]) => {
-        if (location.type === "remote") return "Remote";
-        const parts = [location.city, location.state, location.country].filter(Boolean);
-        return parts.join(", ");
-    };
-
-
-    const getCompanyLogo = (company: string | { _id: string; name: string; logo?: string } | undefined): string | null => {
-        if (!company || typeof company === "string") return null;
-        return company.logo || null;
-    };
-
-    const getCompanyName = (company: string | { _id: string; name: string; logo?: string } | undefined): string | null => {
-        if (!company || typeof company === "string") return null;
-        return company.name || null;
-    };
-
-    // Add this function after your existing handlers
     const handleReset = () => {
         setSearchTerm("");
-        setCompanyFilter("");
-        setJobTypeFilter("");
-        setExperienceFilter("");
-        setStatusFilter("");
+        setRoleFilter("");
+        setVerificationFilter("");
         setCurrentPage(1);
-        fetchJobs();
+        fetchUsers();
     };
+
 
 
     return (
@@ -364,7 +239,7 @@ export default function AdminJobs() {
                                 lineHeight: 1.2,
                             }}
                         >
-                            Job Management
+                            User Management
                         </Typography>
                     </Box>
 
@@ -381,9 +256,9 @@ export default function AdminJobs() {
                         }}
                     >
                         <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
-                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <TextField
-                                    placeholder="Search jobs..."
+                                    placeholder="Search users..."
                                     value={searchTerm}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     InputProps={{
@@ -399,16 +274,16 @@ export default function AdminJobs() {
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <FormControl fullWidth size={isMobile ? "small" : "medium"}>
-                                    <InputLabel>Job Type</InputLabel>
+                                    <InputLabel>Role</InputLabel>
                                     <Select
-                                        value={jobTypeFilter}
-                                        onChange={(e) => handleJobTypeFilter(e.target.value)}
-                                        label="Job Type"
+                                        value={roleFilter}
+                                        onChange={(e) => handleRoleFilter(e.target.value)}
+                                        label="Role"
                                     >
-                                        <MenuItem value="">All Types</MenuItem>
-                                        {jobTypes.map((type) => (
-                                            <MenuItem key={type} value={type}>
-                                                {type}
+                                        <MenuItem value="">All Roles</MenuItem>
+                                        {roles.map((role) => (
+                                            <MenuItem key={role} value={role}>
+                                                {role.charAt(0).toUpperCase() + role.slice(1)}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -416,41 +291,21 @@ export default function AdminJobs() {
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <FormControl fullWidth size={isMobile ? "small" : "medium"}>
-                                    <InputLabel>Experience</InputLabel>
+                                    <InputLabel>Verification</InputLabel>
                                     <Select
-                                        value={experienceFilter}
-                                        onChange={(e) => handleExperienceFilter(e.target.value)}
-                                        label="Experience"
+                                        value={verificationFilter}
+                                        onChange={(e) => handleVerificationFilter(e.target.value)}
+                                        label="Verification"
                                     >
-                                        <MenuItem value="">All Levels</MenuItem>
-                                        {experienceLevels.map((level) => (
-                                            <MenuItem key={level} value={level}>
-                                                {level}
+                                        <MenuItem value="">All Status</MenuItem>
+                                        {verificationStatuses.map((status) => (
+                                            <MenuItem key={status} value={status}>
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
                                             </MenuItem>
                                         ))}
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                <TextField
-                                    placeholder="Search by Company"
-                                    value={companyFilter}
-                                    onChange={(e) => {
-                                        setCompanyFilter(e.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchIcon fontSize={isMobile ? "small" : "medium"} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    fullWidth
-                                    size={isMobile ? "small" : "medium"}
-                                />
-                            </Grid>
-
 
                             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Button
@@ -478,17 +333,17 @@ export default function AdminJobs() {
                         gap: { xs: 1, sm: 0 }
                     }}>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
-                            Showing {jobs.length} of {total} jobs
+                            Showing {users.length} of {total} users
                         </Typography>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
                             Page {currentPage} of {totalPages}
                         </Typography>
                     </Box>
 
-                    {/* Jobs Grid */}
+                    {/* Users Grid */}
                     <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
-                        {jobs.map((job) => (
-                            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 3 }} key={job._id}>
+                        {users.map((user) => (
+                            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4, xl: 3 }} key={user._id}>
                                 <Card
                                     sx={{
                                         height: "100%",
@@ -499,7 +354,7 @@ export default function AdminJobs() {
                                         background:
                                             "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                                         boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
-                                        border: `1px solid ${job.isActive ? '#4caf50' : '#f44336'}40`,
+                                        border: `1px solid ${user.emailVerified ? '#4caf50' : '#ff9800'}40`,
                                         transition: "transform 0.2s ease, box-shadow 0.2s ease",
                                         "&:hover": {
                                             transform: "translateY(-4px)",
@@ -517,39 +372,20 @@ export default function AdminJobs() {
                                                 minWidth: 0,
                                             }}
                                         >
-                                            {/* Job Title + Company */}
+                                            {/* User Avatar + Info */}
                                             <Box sx={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0, width: "100%", mb: 1 }}>
                                                 <Box sx={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
                                                     <Avatar
                                                         sx={{
-                                                            display: { xs: "none", sm: "none", md: "flex" }, // hidden on xs+sm
-                                                            width: { sm: 48 },
-                                                            height: { sm: 48 },
+                                                            width: { xs: 40, sm: 48 },
+                                                            height: { xs: 40, sm: 48 },
                                                             mr: 2,
-                                                            bgcolor: "primary.main",
+                                                            bgcolor: user.role === 'admin' ? "error.main" : "primary.main",
                                                             flexShrink: 0,
                                                         }}
+                                                        src={user.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}` : undefined}
                                                     >
-                                                        {getCompanyLogo(job.company) ? (
-                                                            <Box
-                                                                component="img"
-                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${getCompanyLogo(job.company)}`}
-                                                                alt={`${getCompanyName(job.company)}`}
-                                                                sx={{
-                                                                    width: "100%",
-                                                                    height: "100%",
-                                                                    objectFit: "cover",
-                                                                    borderRadius: "50%",
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <BusinessIcon
-                                                                sx={{
-                                                                    fontSize: { sm: 30, md: 40 },
-                                                                    color: "white",
-                                                                }}
-                                                            />
-                                                        )}
+                                                        {user.role === 'admin' ? <AdminIcon /> : <PersonIcon />}
                                                     </Avatar>
 
                                                     <Box sx={{ flex: 1, minWidth: 0, maxWidth: { xs: "180px", sm: "100%" }, ml: 1 }}>
@@ -564,9 +400,9 @@ export default function AdminJobs() {
                                                                 whiteSpace: "nowrap",
                                                                 lineHeight: 1.2,
                                                             }}
-                                                            title={job.title}
+                                                            title={`${user.firstName} ${user.lastName}`}
                                                         >
-                                                            {job.title}
+                                                            {user.firstName} {user.lastName}
                                                         </Typography>
                                                         <Typography
                                                             variant="body2"
@@ -577,17 +413,17 @@ export default function AdminJobs() {
                                                                 whiteSpace: "nowrap",
                                                                 fontSize: { xs: "0.75rem", sm: "0.875rem" },
                                                             }}
-                                                            title={typeof job.company === 'string' ? job.company : job.company.name}
+                                                            title={user.email}
                                                         >
-                                                            {typeof job.company === 'string' ? job.company : job.company.name}
+                                                            {user.email}
                                                         </Typography>
                                                     </Box>
                                                 </Box>
                                             </Box>
-                                            {/* Status Chip */}
+                                            {/* Role Chip */}
                                             <Chip
-                                                label={job.isActive ? "Active" : "Inactive"}
-                                                color={job.isActive ? "success" : "error"}
+                                                label={(user.role || 'user')?.charAt(0).toUpperCase() + user.role?.slice(1)}
+                                                color={getRoleColor(user.role || 'user')}
                                                 size="small"
                                                 sx={{
                                                     flexShrink: 0,
@@ -599,18 +435,12 @@ export default function AdminJobs() {
                                             />
                                         </Box>
 
-                                        {/* Job Details */}
+                                        {/* User Details */}
                                         <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
                                             <Box sx={{ display: "flex", gap: 0.5, mb: 1, flexWrap: "wrap" }}>
                                                 <Chip
-                                                    label={job.jobType}
-                                                    color={getJobTypeColor(job.jobType)}
-                                                    size="small"
-                                                    sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
-                                                />
-                                                <Chip
-                                                    label={job.experienceLevel}
-                                                    color={getExperienceColor(job.experienceLevel)}
+                                                    label={user.emailVerified ? "Verified" : "Unverified"}
+                                                    color={getVerificationColor(user.emailVerified || false)}
                                                     size="small"
                                                     sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
                                                 />
@@ -626,9 +456,9 @@ export default function AdminJobs() {
                                                     whiteSpace: "nowrap",
                                                     fontSize: { xs: "0.75rem", sm: "0.875rem" }
                                                 }}
-                                                title={formatLocation(job.location)}
+                                                title={`Member since: ${formatDate(user.createdAt)}`}
                                             >
-                                                📍 {formatLocation(job.location)}
+                                                📅 Member since: {formatDate(user.createdAt)}
                                             </Typography>
 
                                             <Typography
@@ -641,41 +471,10 @@ export default function AdminJobs() {
                                                     whiteSpace: "nowrap",
                                                     fontSize: { xs: "0.75rem", sm: "0.875rem" }
                                                 }}
-                                                title={formatSalary(job.salary)}
+                                                title={`Last login: ${formatDate(user.lastLogin)}`}
                                             >
-                                                💰 {formatSalary(job.salary)}
+                                                🔐 Last login: {formatDate(user.lastLogin)}
                                             </Typography>
-                                        </Box>
-
-                                        {/* Stats */}
-                                        <Box sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            mb: { xs: 1.5, sm: 2 },
-                                            gap: 1
-                                        }}>
-                                            <Box sx={{ textAlign: "center", flex: 1 }}>
-                                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
-                                                    Applications
-                                                </Typography>
-                                                <Typography variant="h6" sx={{
-                                                    fontWeight: 600,
-                                                    fontSize: { xs: "0.875rem", sm: "1rem" }
-                                                }}>
-                                                    {job.applicationCount || 0}
-                                                </Typography>
-                                            </Box>
-                                            <Box sx={{ textAlign: "center", flex: 1 }}>
-                                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
-                                                    Views
-                                                </Typography>
-                                                <Typography variant="h6" sx={{
-                                                    fontWeight: 600,
-                                                    fontSize: { xs: "0.875rem", sm: "1rem" }
-                                                }}>
-                                                    {job.viewCount || 0}
-                                                </Typography>
-                                            </Box>
                                         </Box>
                                     </CardContent>
 
@@ -690,27 +489,9 @@ export default function AdminJobs() {
                                             width: "100%",
                                             justifyContent: "center"
                                         }}>
-                                            <Tooltip title="View Details">
+                                            <Tooltip title="Delete User">
                                                 <IconButton
-                                                    onClick={() => handleViewJob(job)}
-                                                    color="primary"
-                                                    size={isMobile ? "small" : "medium"}
-                                                >
-                                                    <ViewIcon fontSize={isMobile ? "small" : "medium"} />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Edit Job">
-                                                <IconButton
-                                                    onClick={() => handleEditJob(job)}
-                                                    color="primary"
-                                                    size={isMobile ? "small" : "medium"}
-                                                >
-                                                    <EditIcon fontSize={isMobile ? "small" : "medium"} />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Delete Job">
-                                                <IconButton
-                                                    onClick={() => handleDeleteJob(job)}
+                                                    onClick={() => handleDeleteUser(user)}
                                                     color="error"
                                                     size={isMobile ? "small" : "medium"}
                                                 >
@@ -743,7 +524,7 @@ export default function AdminJobs() {
                     )}
 
                     {/* Empty State */}
-                    {jobs.length === 0 && !loading && (
+                    {users.length === 0 && !loading && (
                         <Box
                             sx={{
                                 textAlign: "center",
@@ -751,54 +532,25 @@ export default function AdminJobs() {
                                 color: "text.secondary",
                             }}
                         >
-                            <WorkIcon sx={{
+                            <PeopleIcon sx={{
                                 fontSize: { xs: 40, sm: 48, md: 64 },
                                 mb: 2,
                                 opacity: 0.5
                             }} />
                             <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-                                No jobs found
+                                No users found
                             </Typography>
                             <Typography variant="body2" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
-                                {searchTerm || jobTypeFilter || experienceFilter || statusFilter
+                                {searchTerm || roleFilter || verificationFilter
                                     ? "Try adjusting your search criteria"
-                                    : "Get started by adding your first job"}
+                                    : "No users have been registered yet"}
                             </Typography>
                         </Box>
                     )}
                 </Paper>
             </Box>
 
-            {/* Dialogs */}
-            <JobFormDialog
-                open={jobFormOpen}
-                onSave={handleJobSave}
-                onClose={handleJobFormClose}
-                initialData={editingJob}
-            />
-
-            <JobViewDialog
-                open={jobViewOpen}
-                onClose={() => setJobViewOpen(false)}
-                job={selectedJob}
-            />
-
-            {/* Snackbar */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={() => setSnackbar({ ...snackbar, open: false })}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    severity={snackbar.severity}
-                    sx={{ width: "100%" }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-
+            {/* Delete Confirmation Dialog */}
             <Dialog
                 open={deleteDialogOpen}
                 onClose={() => setDeleteDialogOpen(false)}
@@ -813,21 +565,21 @@ export default function AdminJobs() {
                 }}
             >
                 <DialogTitle id="delete-dialog-title" sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
-                    Delete Job
+                    Delete User
                 </DialogTitle>
                 <DialogContent>
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         This action cannot be undone!
                     </Alert>
                     <Typography sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
-                        Are you sure you want to delete the job{" "}
-                        <strong>{jobToDelete?.title}</strong>?
+                        Are you sure you want to delete the user{" "}
+                        <strong>{userToDelete?.firstName} {userToDelete?.lastName}</strong>?
                     </Typography>
                     <Typography color="error" fontWeight="bold" sx={{
                         mt: 2,
                         fontSize: { xs: "0.75rem", sm: "0.875rem" }
                     }}>
-                        This action cannot be undone.
+                        This will permanently remove the user and all their data.
                     </Typography>
                 </DialogContent>
                 <DialogActions sx={{
@@ -852,10 +604,26 @@ export default function AdminJobs() {
                         fullWidth={isMobile}
                         size={isMobile ? "small" : "medium"}
                     >
-                        {deleteLoading ? "Deleting..." : "Delete"}
+                        {deleteLoading ? "Deleting..." : "Delete User"}
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Snackbar */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: "100%" }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 }

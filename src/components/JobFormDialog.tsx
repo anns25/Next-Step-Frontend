@@ -67,7 +67,7 @@ const salaryPeriods = [
 ];
 
 const currencies = [
-    'RUP',
+    'INR',
     'USD',
     'EUR',
     'GBP',

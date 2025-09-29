@@ -142,33 +142,3 @@ export const deleteUserAccount = async (): Promise<void> => {
 };
 
 
-// export const updateMyProfile = async ( data: Partial<User>, file?: File) => {
-//   try {
-//     const formData = new FormData();
-
-//     // If profile picture file selected, append
-//     if (file) {
-//       formData.append("profilePicture", file);
-//     }
-
-//     // Append other fields
-//     for (const [key, value] of Object.entries(data)) {
-//       if (typeof value === "object" && value !== null) {
-//         formData.append(key, JSON.stringify(value)); // nested objects
-//       } else {
-//         formData.append(key, value as any);
-//       }
-//     }
-
-//     const res = await api.patch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, formData, {
-//       headers: {
-//         "Content-Type": "multipart/form-data",
-//       },
-//     });
-
-//     return res.data;
-//   } catch (err: any) {
-//     console.error("Update profile error:", err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };

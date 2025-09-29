@@ -289,7 +289,7 @@ export default function AdminCompanies() {
     };
 
 
-    const handleJobSave = async (formData: FormData) => { 
+    const handleJobSave = async (formData: FormData) => {
         try {
             if (!selectedCompany?._id) {
                 throw new Error("No company selected to attach the job to");
@@ -299,7 +299,7 @@ export default function AdminCompanies() {
                 throw new Error("User is not logged in");
             }
 
-            
+
             // Add createdBy field
             formData.append('createdBy', user._id);
 
@@ -326,6 +326,16 @@ export default function AdminCompanies() {
             throw error; // keep dialog open on error
         }
     };
+
+    // Add this function after your existing handlers
+    const handleReset = () => {
+        setSearchTerm("");
+        setIndustryFilter("");
+        setStatusFilter("");
+        setCurrentPage(1);
+        fetchCompanies();
+    };
+
 
     return (
         <>
@@ -438,10 +448,10 @@ export default function AdminCompanies() {
                                 <Button
                                     variant="outlined"
                                     startIcon={<RefreshIcon />}
-                                    onClick={fetchCompanies}
+                                    onClick={handleReset}
                                     fullWidth
                                 >
-                                    Refresh
+                                    Reset
                                 </Button>
                             </Grid>
                         </Grid>

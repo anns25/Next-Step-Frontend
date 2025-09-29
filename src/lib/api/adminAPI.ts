@@ -3,6 +3,52 @@ import api from "../axios";
 import { AdminStats } from "@/types/Admin";
 import { JobListResponse } from "@/types/Job";
 
+// Add these functions to your existing adminAPI.ts file
+
+export async function deleteUserByAdmin(userId: string): Promise<boolean> {
+    try {
+        await api.delete(`/admin/users/${userId}`);
+        return true;
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return false;
+    }
+}
+
+// User Management Functions
+export async function getAllUsersByAdmin(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  emailVerified?: boolean;
+}): Promise<any> {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.role) queryParams.append('role', params.role);
+    if (params?.emailVerified !== undefined) queryParams.append('emailVerified', params.emailVerified.toString());
+
+    const response = await api.get(`/admin/users?${queryParams.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users", error);
+    return null;
+  }
+}
+
+export async function getUserByIdByAdmin(userId: string): Promise<any> {
+  try {
+    const response = await api.get(`/admin/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+}
+
 
 export async function getAllCompaniesByAdmin(params?: {
     page?: number;
