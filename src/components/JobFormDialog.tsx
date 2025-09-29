@@ -313,7 +313,15 @@ export default function JobFormDialog({
         if (formData.startDate) {
             const error = validateField('startDate', formData.startDate);
             if (error) newErrors.startDate = error;
+            if (formData.applicationDeadline) {
+                if (formData.startDate <= formData.applicationDeadline) {
+                    newErrors.startDate = 'Start date cannot be earlier than application deadline'
+                }
+
+            }
         }
+
+
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

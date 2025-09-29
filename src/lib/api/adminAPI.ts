@@ -195,9 +195,9 @@ export async function getAllJobsByAdmin(params?: {
         if (params?.search) queryParams.append('search', params.search);
         if (params?.jobType) queryParams.append('jobType', params.jobType);
         if (params?.company) queryParams.append('company', params.company);
+        console.log("company", params?.company);
         if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
-
-
+        
         const response = await api.get(`/job/all?${queryParams.toString()}`);
         return response.data;
     } catch (error) {

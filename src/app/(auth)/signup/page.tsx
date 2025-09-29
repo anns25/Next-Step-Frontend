@@ -114,7 +114,7 @@ const SignUp = () => {
             });
 
             if (success) {
-                router.push('/dashboard/profile');
+                router.push('/user/dashboard');
             } else {
                 setErrors({ general: "Registration failed" });
             }
