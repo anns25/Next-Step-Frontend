@@ -50,15 +50,15 @@ import {
 } from "@mui/icons-material";
 
 import { Job, JobListResponse, JobFilters } from "@/types/Job";
-import AdminLayout from "@/components/AdminSidebarLayout";
 import {
-    getAllJobsByAdmin,
     deleteJob,
+    getAllJobsByAdmin,
     updateJob,
 } from "@/lib/api/adminAPI";
 
 import JobFormDialog from "@/components/JobFormDialog";
 import JobViewDialog from "@/components/JobViewDialog";
+import { getAllJobs } from "@/lib/api/jobAPI";
 
 export default function AdminJobs() {
     const theme = useTheme();
@@ -190,6 +190,11 @@ export default function AdminJobs() {
 
     const handleExperienceFilter = (value: string) => {
         setExperienceFilter(value);
+        setCurrentPage(1);
+    };
+
+    const handleStatusFilter = (value: string) => {
+        setStatusFilter(value);
         setCurrentPage(1);
     };
 
@@ -381,7 +386,7 @@ export default function AdminJobs() {
                         }}
                     >
                         <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
-                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <TextField
                                     placeholder="Search jobs..."
                                     value={searchTerm}
@@ -431,6 +436,20 @@ export default function AdminJobs() {
                                     </Select>
                                 </FormControl>
                             </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Status</InputLabel>
+                                    <Select
+                                        value={statusFilter}
+                                        onChange={(e) => handleStatusFilter(e.target.value)}
+                                        label="Status"
+                                    >
+                                        <MenuItem value="">All Statuses</MenuItem>
+                                        <MenuItem value="active">Active</MenuItem>
+                                        <MenuItem value="inactive">Inactive</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
                                     placeholder="Search by Company"
@@ -439,23 +458,17 @@ export default function AdminJobs() {
                                         setCompanyFilter(e.target.value);
                                         setCurrentPage(1);
                                     }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchIcon fontSize={isMobile ? "small" : "medium"} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
+
                                     fullWidth
                                     size={isMobile ? "small" : "medium"}
                                 />
                             </Grid>
 
 
-                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                            <Grid size={{ xs: 12, sm: 6, md: 1 }}>
                                 <Button
                                     variant="outlined"
-                                    startIcon={<RefreshIcon fontSize={isMobile ? "small" : "medium"} />}
+                                    //startIcon={<RefreshIcon fontSize={isMobile ? "small" : "medium"} />}
                                     onClick={handleReset}
                                     fullWidth
                                     size={isMobile ? "small" : "medium"}

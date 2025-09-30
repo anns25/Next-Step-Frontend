@@ -48,7 +48,6 @@ import AdminLayout from "@/components/AdminSidebarLayout";
 import {
     getAllCompaniesByAdmin,
     deleteCompany,
-    getJobsByCompany,
     deleteJob,
     createCompany,
     updateCompany,
@@ -60,6 +59,7 @@ import CompanyFormDialog from "@/components/CompanyFormDialog";
 import JobFormDialog from "@/components/JobFormDialog";
 import { Job } from "@/types/Job";
 import { useAuth } from "@/contexts/authContext";
+import { getJobsByCompany } from "@/lib/api/jobAPI";
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState<Company[]>([]);

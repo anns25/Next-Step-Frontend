@@ -36,15 +36,15 @@ const drawerWidth = 240;
 const collapsedWidth = 64;
 
 const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, link: "/dashboard" },
-  { text: "Find Jobs", icon: <SearchIcon />, link: "/dashboard/jobs" },
-  { text: "My Applications", icon: <WorkIcon />, link: "/dashboard/applications" },
-  { text: "Saved Jobs", icon: <BookmarkIcon />, link: "/dashboard/saved" },
-  { text: "Companies", icon: <BusinessIcon />, link: "/dashboard/companies" },
-  { text: "Interviews", icon: <EventIcon />, link: "/dashboard/interviews" },
-  { text: "Job Alerts", icon: <NotificationsIcon />, link: "/dashboard/alerts" },
-  { text: "Profile", icon: <PersonIcon />, link: "/dashboard/profile" },
-  { text: "Settings", icon: <SettingsIcon />, link: "/dashboard/settings" },
+  { text: "Dashboard", icon: <DashboardIcon />, link: "/user/dashboard" },
+  { text: "Find Jobs", icon: <SearchIcon />, link: "/user/jobs" },
+  { text: "My Applications", icon: <WorkIcon />, link: "/user/applications" },
+  { text: "Saved Jobs", icon: <BookmarkIcon />, link: "/user/saved" },
+  { text: "Companies", icon: <BusinessIcon />, link: "/user/companies" },
+  { text: "Interviews", icon: <EventIcon />, link: "/user/interviews" },
+  { text: "Job Alerts", icon: <NotificationsIcon />, link: "/user/alerts" },
+  { text: "Profile", icon: <PersonIcon />, link: "/user/profile" },
+  { text: "Settings", icon: <SettingsIcon />, link: "/user/settings" },
 ];
 
 

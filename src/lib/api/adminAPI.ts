@@ -176,21 +176,34 @@ export async function createJob(jobData: { company: string, data: FormData }): P
     }
 }
 
-export async function getJobsByCompany(companyId: string, params?: {
+
+export async function getAllJobsByAdmin(params?: {
     page?: number;
     limit?: number;
-}): Promise<any> {
+    search?: string;
+    company?: string;
+    jobType?: string;
+    experienceLevel?: string;
+    isActive?: boolean;
+}): Promise<JobListResponse | null> {
     try {
         const queryParams = new URLSearchParams();
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.limit) queryParams.append('limit', params.limit.toString());
-
-        const response = await api.get(`/job/company/${companyId}?${queryParams.toString()}`);
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.jobType) queryParams.append('jobType', params.jobType);
+        if (params?.company) queryParams.append('company', params.company);
+        if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
+         if (params?.isActive !== undefined) {
+            queryParams.append('isActive', params.isActive.toString());
+        }        
+        const response = await api.get(`/admin/jobs/?${queryParams.toString()}`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching company jobs: ", error);
+        console.error("Error fetching companies", error)
         return null;
     }
+
 }
 
 export async function updateJob(jobId: string, jobData: any): Promise<any> {
@@ -226,32 +239,6 @@ export async function deleteJob(jobId: string): Promise<boolean> {
     }
 }
 
-export async function getAllJobsByAdmin(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    company?: string;
-    jobType?: string;
-    experienceLevel?: string;
-}): Promise<JobListResponse | null> {
-    try {
-        const queryParams = new URLSearchParams();
-        if (params?.page) queryParams.append('page', params.page.toString());
-        if (params?.limit) queryParams.append('limit', params.limit.toString());
-        if (params?.search) queryParams.append('search', params.search);
-        if (params?.jobType) queryParams.append('jobType', params.jobType);
-        if (params?.company) queryParams.append('company', params.company);
-        console.log("company", params?.company);
-        if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
-        
-        const response = await api.get(`/job/all?${queryParams.toString()}`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching companies", error)
-        return null;
-    }
-
-}
 
 export async function getJobById(id: string): Promise<Company | null> {
     try {
