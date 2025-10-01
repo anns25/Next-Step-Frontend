@@ -383,7 +383,7 @@ export default function AdminUsers() {
                                                             bgcolor: user.role === 'admin' ? "error.main" : "primary.main",
                                                             flexShrink: 0,
                                                         }}
-                                                        src={user.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}` : undefined}
+                                                        src={user.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${user.profilePicture}` : undefined}
                                                     >
                                                         {user.role === 'admin' ? <AdminIcon /> : <PersonIcon />}
                                                     </Avatar>

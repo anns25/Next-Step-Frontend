@@ -167,7 +167,7 @@ const AdminProfilePage = () => {
               <Grid>
                 <Box sx={{ position: "relative" }}>
                   <Avatar
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${user.profilePicture}`}
                     sx={{
                       width: 120,
                       height: 120,
@@ -418,7 +418,7 @@ const AdminProfilePage = () => {
           <DialogContent>
             <Box sx={{ textAlign: "center", py: 2 }}>
               <Avatar
-                src={selectedFile ? URL.createObjectURL(selectedFile) : `${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}`}
+                src={selectedFile ? URL.createObjectURL(selectedFile) : `${process.env.NEXT_PUBLIC_API_URL}/uploads/images${user.profilePicture}`}
                 sx={{
                   width: 120,
                   height: 120,

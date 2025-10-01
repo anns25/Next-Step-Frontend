@@ -1,4 +1,3 @@
-import { PromiseIssue } from "valibot";
 import { AuthResponse, LoginCredentials, RegisterCredentials, User } from "../../types/User";
 import api from "../axios";
 import axios, { AxiosError } from "axios";

@@ -205,7 +205,7 @@ const ProfilePage = () => {
           <Grid size={{ xs: 12, md: 6 }} container spacing={2} alignItems="center">
             <Grid>
               <Avatar
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${user.profilePicture}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${user.profilePicture}`}
                 sx={{ width: 96, height: 96, bgcolor: theme.palette.secondary.main }}
               >
                 {user.firstName?.[0] ?? "U"}

@@ -172,7 +172,7 @@ const UserCompanyViewDialog: React.FC<UserCompanyViewDialogProps> = ({
                         >
                             {company.logo ? (
                                 <img
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${company.logo}`}
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${company.logo}`}
                                     alt={company.name}
                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />

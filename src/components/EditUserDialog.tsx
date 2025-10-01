@@ -258,7 +258,7 @@ const EditUserDialog: React.FC<Props> = ({
             <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
               <Box display="flex" alignItems="center" gap={2}>
                 <Avatar
-                  src={preview || (values.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${values.profilePicture}` : undefined)}
+                  src={preview || (values.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${values.profilePicture}` : undefined)}
                   sx={{ width: 64, height: 64 }}
                 />
                 {imageFile ? (

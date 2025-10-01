@@ -349,7 +349,7 @@ export default function UserCompanies() {
                                                 {company.logo ? (
                                                     <Box
                                                         component="img"
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${company.logo}`}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${company.logo}`}
                                                         alt={company.name}
                                                         sx={{
                                                             width: "100%",

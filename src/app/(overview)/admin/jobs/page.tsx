@@ -546,7 +546,7 @@ export default function AdminJobs() {
                                                         {getCompanyLogo(job.company) ? (
                                                             <Box
                                                                 component="img"
-                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${getCompanyLogo(job.company)}`}
+                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${getCompanyLogo(job.company)}`}
                                                                 alt={`${getCompanyName(job.company)}`}
                                                                 sx={{
                                                                     width: "100%",

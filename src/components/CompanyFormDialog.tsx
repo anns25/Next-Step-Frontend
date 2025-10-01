@@ -127,7 +127,7 @@ export default function CompanyFormDialog({
           maxJobs: initialData.maxJobs || 50,
           status: initialData.status || 'active',
         });
-        setLogoPreview(initialData.logo ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${initialData.logo}` : '');
+        setLogoPreview(initialData.logo ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${initialData.logo}` : '');
       } else {
         // Reset form for new company
         setFormData({

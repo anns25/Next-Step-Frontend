@@ -164,7 +164,7 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                     <Box display="flex" alignItems="center" gap={2}>
                         <Avatar
-                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${getCompanyLogo(job.company)}`}
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${getCompanyLogo(job.company)}`}
                             sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}
                         >
                             {!getCompanyLogo(job.company) && <WorkIcon />}
