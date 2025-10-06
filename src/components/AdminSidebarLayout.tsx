@@ -331,7 +331,7 @@ import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
-import { BusinessCenter, People } from "@mui/icons-material";
+import { BusinessCenter, Description, People } from "@mui/icons-material";
 
 
 const drawerWidth = 240;
@@ -342,6 +342,7 @@ const menuItems = [
   { text: "Companies", icon: <BusinessIcon />, link: "/admin/companies" },
   { text: "Users", icon: <People />, link: "/admin/users" },
   { text: "Jobs", icon: <WorkIcon />, link: "/admin/jobs" },
+  { text: "Applications", icon: <Description />, link: "/admin/applications"},
   { text: "Interviews", icon: <BusinessCenter />, link: "/admin/interviews" },
   { text: "Profile", icon: <PersonIcon />, link: "/admin/profile" },
 ];

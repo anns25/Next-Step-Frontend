@@ -45,19 +45,6 @@ const ApplicationsPage: React.FC = () => {
                             <Typography variant="h4" sx={{ fontWeight: 600 }}>
                                 My Applications
                             </Typography>
-                            <Button
-                                variant="contained"
-                                startIcon={<AddIcon />}
-                                onClick={() => handleOpenApplicationDialog(null)}
-                                sx={{
-                                    background: "linear-gradient(135deg, #1976d2, #1565c0)",
-                                    "&:hover": {
-                                        background: "linear-gradient(135deg, #1565c0, #1976d2)",
-                                    },
-                                }}
-                            >
-                                New Application
-                            </Button>
                         </Box>
 
                         <ApplicationList onRefresh={handleApplicationSuccess} />

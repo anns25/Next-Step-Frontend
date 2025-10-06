@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -16,6 +16,10 @@ import {
     Paper,
     Chip,
     Stack,
+    Grid,
+    FormControl,
+    FormLabel,
+    FormHelperText,
 } from "@mui/material";
 import {
     Close as CloseIcon,
@@ -26,8 +30,10 @@ import {
     LocationOn as LocationIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import { parse, ValiError } from 'valibot';
 import { ApplicationFormData, Job } from "@/types/Job";
-import { ApplicationApi } from "@/lib/api/applicationAPI";
+import { applicationCreationSchema } from "@/lib/validation/applicationAuthSchema";
+import { createApplication } from "@/lib/api/applicationAPI";
 
 interface Props {
     open: boolean;
@@ -43,88 +49,110 @@ const ApplicationFormDialog: React.FC<Props> = ({
     onSuccess,
 }) => {
     const theme = useTheme();
+    const [loading, setLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [generalError, setGeneralError] = useState("");
     const [formData, setFormData] = useState<ApplicationFormData>({
         jobId: job?._id || "",
         coverLetter: "",
         notes: "",
-        resume: undefined,
     });
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [loading, setLoading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-    const handleChange = (field: keyof ApplicationFormData, value: any) => {
+    // Initialize form data when dialog opens
+    useEffect(() => {
+        if (open) {
+            setFormData({
+                jobId: job?._id || "",
+                coverLetter: "",
+                notes: "",
+            });
+            setResumeFile(null);
+            setFieldErrors({});
+            setGeneralError("");
+            setSuccessMessage("");
+        }
+    }, [open, job]);
+
+    const handleInputChange = (field: keyof ApplicationFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        // Clear error when user starts typing
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: "" }));
+        // Clear field error when user starts typing
+        if (fieldErrors[field]) {
+            setFieldErrors(prev => ({ ...prev, [field]: "" }));
+        }
+        if (generalError) {
+            setGeneralError("");
         }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Validate file type
-            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (!allowedTypes.includes(file.type)) {
-                setErrors(prev => ({ ...prev, resume: "Please select a PDF or DOC file" }));
-                return;
+            setResumeFile(file);
+            // Clear resume error when user selects a file
+            if (fieldErrors.resume) {
+                setFieldErrors(prev => ({ ...prev, resume: "" }));
             }
-
-            // Validate file size (10MB limit)
-            if (file.size > 10 * 1024 * 1024) {
-                setErrors(prev => ({ ...prev, resume: "File size must be less than 10MB" }));
-                return;
+            if (generalError) {
+                setGeneralError("");
             }
-
-            handleChange("resume", file);
-            setErrors(prev => ({ ...prev, resume: "" }));
         }
     };
 
     const handleRemoveFile = () => {
-        handleChange("resume", null);
+        setResumeFile(null);
+        if (fieldErrors.resume) {
+            setFieldErrors(prev => ({ ...prev, resume: "" }));
+        }
     };
 
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.jobId) {
-            newErrors.jobId = "Job ID is required";
-        }
-
-        if (!formData.resume) {
-            newErrors.resume = "Resume file is required";
-        }
-        if (formData.coverLetter) {
-            if (formData.coverLetter.length > 2000) {
-                newErrors.coverLetter = "Cover letter cannot exceed 2000 characters";
-            }
-        }
-        if (formData.notes && formData.notes.length > 500) {
-            newErrors.notes = "Notes cannot exceed 500 characters";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validateForm()) {
-            return;
-        }
-
-        setLoading(true);
+    const validateForm = (): boolean => {
         try {
-            const submitData = new FormData();
-            submitData.append("jobId", formData.jobId);
-            submitData.append("coverLetter", formData.coverLetter || '');
-            submitData.append("notes", formData.notes || '');
-            if (formData.resume) {
-                submitData.append("resume", formData.resume);
+            const dataToValidate = { 
+                ...formData, 
+                resume: resumeFile 
+            };
+            parse(applicationCreationSchema, dataToValidate);
+            setFieldErrors({});
+            return true;
+        } catch (error) {
+            if (error instanceof ValiError) {
+                const errors: Record<string, string> = {};
+                error.issues.forEach(issue => {
+                    if (issue.path) {
+                        const fieldName = issue.path[0].key as string;
+                        errors[fieldName] = issue.message;
+                    }
+                });
+                setFieldErrors(errors);
+            }
+            return false;
+        }
+    };
+
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setGeneralError("");
+        
+        try {
+            // Validate the form data with valibot
+            if (!validateForm()) {
+                setGeneralError("Please fix the validation errors below");
+                return;
             }
 
-            await ApplicationApi.createApplication(submitData);
+            // Create FormData for file upload
+            const formDataToSend = new FormData();
+            formDataToSend.append("jobId", formData.jobId);
+            formDataToSend.append("coverLetter", formData.coverLetter || '');
+            formDataToSend.append("notes", formData.notes || '');
+            if (resumeFile) {
+                formDataToSend.append("resume", resumeFile);
+            }
+
+            await createApplication(formDataToSend);
 
             setSuccessMessage("Application submitted successfully!");
             setTimeout(() => {
@@ -132,16 +160,13 @@ const ApplicationFormDialog: React.FC<Props> = ({
                 onSuccess();
                 onClose();
                 // Reset form
-                setFormData({
-                    jobId: "",
-                    coverLetter: "",
-                    notes: "",
-                    resume: undefined,
-                });
+                setFormData({ jobId: job?._id || "", coverLetter: "", notes: "" });
+                setResumeFile(null);
+                setFieldErrors({});
             }, 2000);
         } catch (error) {
             console.error("Application submission failed:", error);
-            setErrors({ general: error instanceof Error ? error.message : "Failed to submit application" });
+            setGeneralError(error instanceof Error ? error.message : "Failed to submit application");
         } finally {
             setLoading(false);
         }
@@ -171,14 +196,21 @@ const ApplicationFormDialog: React.FC<Props> = ({
         return company?.name || "Company";
     };
 
+    const handleClose = () => {
+        if (!loading) {
+            onClose();
+        }
+    };
+
     if (!job) return null;
 
     return (
         <Dialog
             open={open}
-            onClose={onClose}
+            onClose={handleClose}
             maxWidth="md"
             fullWidth
+            fullScreen={window.innerWidth < 768}
             PaperProps={{
                 sx: {
                     borderRadius: 3,
@@ -186,94 +218,100 @@ const ApplicationFormDialog: React.FC<Props> = ({
                 }
             }}
         >
-            <DialogTitle
-                sx={{
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                    color: "white",
-                    px: 3,
-                    py: 2,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                }}
-            >
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Apply for Position
-                </Typography>
-                <IconButton
-                    onClick={onClose}
-                    sx={{ color: "white" }}
-                >
-                    <CloseIcon />
-                </IconButton>
+            <DialogTitle>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <WorkIcon />
+                        <Typography variant="h6">
+                            Apply for Position
+                        </Typography>
+                    </Box>
+                    <IconButton onClick={handleClose} disabled={loading}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
             </DialogTitle>
 
-            <DialogContent dividers sx={{ p: 0 }}>
+            <DialogContent dividers>
                 {successMessage && (
-                    <Alert severity="success" sx={{ m: 3, mb: 0 }}>
+                    <Alert severity="success" sx={{ mb: 2 }}>
                         {successMessage}
                     </Alert>
                 )}
 
-                {errors.general && (
-                    <Alert severity="error" sx={{ m: 3, mb: 0 }}>
-                        {errors.general}
+                {generalError && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {generalError}
                     </Alert>
                 )}
 
-                <Box sx={{ p: 3 }}>
+                <Grid container spacing={3}>
                     {/* Job Information */}
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: 3,
-                            mb: 3,
-                            borderRadius: 2,
-                            background: "rgba(25, 118, 210, 0.05)",
-                            border: "1px solid rgba(25, 118, 210, 0.1)",
-                        }}
-                    >
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-                            {job.title}
+                    <Grid size={{ xs: 12 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Job Information
                         </Typography>
+                    </Grid>
 
-                        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                            <Chip
-                                icon={<BusinessIcon />}
-                                   label={getCompanyName(job.company)}
-                                color="primary"
-                                variant="outlined"
-                                size="small"
-                            />
-                            <Chip
-                                icon={<WorkIcon />}
-                                label={`${job.jobType} • ${job.experienceLevel}`}
-                                color="secondary"
-                                variant="outlined"
-                                size="small"
-                            />
-                            <Chip
-                                icon={<LocationIcon />}
-                                label={formatLocation(job.location)}
-                                color="default"
-                                variant="outlined"
-                                size="small"
-                            />
-                        </Stack>
+                    <Grid size={{ xs: 12 }}>
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                p: 3,
+                                mb: 3,
+                                borderRadius: 2,
+                                background: "rgba(25, 118, 210, 0.05)",
+                                border: "1px solid rgba(25, 118, 210, 0.1)",
+                            }}
+                        >
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
+                                {job.title}
+                            </Typography>
 
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            💰 {formatSalary(job.salary)}
-                        </Typography>
-                    </Paper>
+                            <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                                <Chip
+                                    icon={<BusinessIcon />}
+                                    label={getCompanyName(job.company)}
+                                    color="primary"
+                                    variant="outlined"
+                                    size="small"
+                                />
+                                <Chip
+                                    icon={<WorkIcon />}
+                                    label={`${job.jobType} • ${job.experienceLevel}`}
+                                    color="secondary"
+                                    variant="outlined"
+                                    size="small"
+                                />
+                                <Chip
+                                    icon={<LocationIcon />}
+                                    label={formatLocation(job.location)}
+                                    color="default"
+                                    variant="outlined"
+                                    size="small"
+                                />
+                            </Stack>
+
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                💰 {formatSalary(job.salary)}
+                            </Typography>
+                        </Paper>
+                    </Grid>
 
                     {/* Application Form */}
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        {/* Resume Upload */}
-                        <Box>
-                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                    <Grid size={{ xs: 12 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Application Details
+                        </Typography>
+                    </Grid>
+
+                    {/* Resume Upload */}
+                    <Grid size={{ xs: 12 }}>
+                        <FormControl fullWidth error={!!fieldErrors.resume}>
+                            <FormLabel component="legend" sx={{ mb: 1 }}>
                                 Resume *
-                            </Typography>
-                            {formData.resume ? (
+                            </FormLabel>
+                            {resumeFile ? (
                                 <Paper
                                     elevation={0}
                                     sx={{
@@ -289,14 +327,19 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                         <AttachFileIcon color="primary" />
                                         <Box>
                                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                                {formData.resume.name}
+                                                {resumeFile.name}
                                             </Typography>
                                             <Typography variant="caption" color="text.secondary">
-                                                {(formData.resume.size / 1024).toFixed(2)} KB
+                                                {(resumeFile.size / 1024).toFixed(2)} KB
                                             </Typography>
                                         </Box>
                                     </Box>
-                                    <IconButton onClick={handleRemoveFile} color="error" size="small">
+                                    <IconButton 
+                                        onClick={handleRemoveFile} 
+                                        color="error" 
+                                        size="small"
+                                        disabled={loading}
+                                    >
                                         <DeleteIcon />
                                     </IconButton>
                                 </Paper>
@@ -306,6 +349,7 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                     component="label"
                                     startIcon={<AttachFileIcon />}
                                     sx={{ width: "100%" }}
+                                    disabled={loading}
                                 >
                                     Upload Resume (PDF, DOC, DOCX)
                                     <input
@@ -316,71 +360,57 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                     />
                                 </Button>
                             )}
-                            {errors.resume && (
-                                <Typography variant="caption" color="error" sx={{ mt: 1, display: "block" }}>
-                                    {errors.resume}
-                                </Typography>
+                            {fieldErrors.resume && (
+                                <FormHelperText>{fieldErrors.resume}</FormHelperText>
                             )}
-                        </Box>
+                        </FormControl>
+                    </Grid>
 
-                        {/* Cover Letter */}
+                    {/* Cover Letter */}
+                    <Grid size={{ xs: 12 }}>
                         <TextField
+                            value={formData.coverLetter}
+                            onChange={(e) => handleInputChange('coverLetter', e.target.value)}
                             label="Cover Letter"
                             multiline
                             rows={6}
-                            value={formData.coverLetter}
-                            onChange={(e) => handleChange("coverLetter", e.target.value)}
-                            error={!!errors.coverLetter}
-                            helperText={errors.coverLetter || `${formData.coverLetter?.length}/2000 characters`}
+                            error={!!fieldErrors.coverLetter}
+                            helperText={fieldErrors.coverLetter || `${formData.coverLetter?.length || 0}/2000 characters`}
                             fullWidth
                             placeholder="Tell us why you're interested in this position and what makes you a great fit..."
+                            disabled={loading}
                         />
+                    </Grid>
 
-                        {/* Notes */}
+                    {/* Notes */}
+                    <Grid size={{ xs: 12 }}>
                         <TextField
+                            value={formData.notes}
+                            onChange={(e) => handleInputChange('notes', e.target.value)}
                             label="Additional Notes (Optional)"
                             multiline
                             rows={3}
-                            value={formData.notes}
-                            onChange={(e) => handleChange("notes", e.target.value)}
-                            error={!!errors.notes}
-                            helperText={errors.notes || `${formData.notes?.length}/500 characters`}
+                            error={!!fieldErrors.notes}
+                            helperText={fieldErrors.notes || `${formData.notes?.length || 0}/500 characters`}
                             fullWidth
                             placeholder="Any additional information you'd like to share..."
+                            disabled={loading}
                         />
-                    </Box>
-                </Box>
+                    </Grid>
+                </Grid>
             </DialogContent>
 
-            <DialogActions sx={{ p: 3, gap: 2 }}>
-                <Button
-                    onClick={onClose}
-                    variant="outlined"
-                    disabled={loading}
-                    sx={{
-                        color: theme.palette.text.secondary,
-                        borderColor: theme.palette.text.secondary,
-                        "&:hover": {
-                            backgroundColor: theme.palette.text.secondary,
-                            color: "white",
-                        },
-                    }}
-                >
+            <DialogActions sx={{ p: 2 }}>
+                <Button onClick={handleClose} disabled={loading}>
                     Cancel
                 </Button>
                 <Button
-                    onClick={handleSubmit}
                     variant="contained"
-                    disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} /> : null}
-                    sx={{
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                        "&:hover": {
-                            background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                        },
-                    }}
+                    onClick={onSubmit}
+                    disabled={loading || !resumeFile}
+                    startIcon={loading ? <CircularProgress size={20} /> : <WorkIcon />}
                 >
-                    {loading ? "Submitting..." : "Submit Application"}
+                    {loading ? 'Submitting...' : 'Submit Application'}
                 </Button>
             </DialogActions>
         </Dialog>

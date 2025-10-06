@@ -77,19 +77,56 @@ const EditUserDialog: React.FC<Props> = ({
     });
   };
 
-  // Validate entire form
   const validateForm = () => {
     try {
       const result = safeParse(profileUpdateSchemaWithConditions, values);
+      let newErrors: ValidationErrors = {};
+
+      // Collect schema errors first
       if (!result.success) {
-        const newErrors: ValidationErrors = {};
         result.issues.forEach(issue => {
           const path = issue.path?.map(p => p.key).join('.') || 'general';
           newErrors[path] = issue.message;
         });
+      }
+
+      // ---- Custom validation for EXPERIENCE ----
+      values.experience?.forEach((exp, i) => {
+        if (exp.company || exp.position || exp.startDate || exp.endDate) {
+          // Require both start and end dates
+          if (!exp.startDate) {
+            newErrors[`experience.${i}.startDate`] = "Start date is required";
+          }
+          if (!exp.endDate) {
+            newErrors[`experience.${i}.endDate`] = "End date is required";
+          }
+          // Compare dates if both present
+          if (exp.startDate && exp.endDate && new Date(exp.startDate) > new Date(exp.endDate)) {
+            newErrors[`experience.${i}.endDate`] = "End date must be after start date";
+          }
+        }
+      });
+
+      // ---- Custom validation for EDUCATION ----
+      values.education?.forEach((edu, i) => {
+        if (edu.institution || edu.degree || edu.fieldOfStudy || edu.startDate || edu.endDate) {
+          if (!edu.startDate) {
+            newErrors[`education.${i}.startDate`] = "Start date is required";
+          }
+          if (!edu.endDate) {
+            newErrors[`education.${i}.endDate`] = "End date is required";
+          }
+          if (edu.startDate && edu.endDate && new Date(edu.startDate) > new Date(edu.endDate)) {
+            newErrors[`education.${i}.endDate`] = "End date must be after start date";
+          }
+        }
+      });
+
+      if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return false;
       }
+
       setErrors({});
       return true;
     } catch (err) {
@@ -100,6 +137,8 @@ const EditUserDialog: React.FC<Props> = ({
       return false;
     }
   };
+
+
 
   const handleChange = (field: keyof User, value: any) => {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -162,22 +201,29 @@ const EditUserDialog: React.FC<Props> = ({
   };
 
   const handleSave = async () => {
-    if (!validateForm()) {
-      // Switch to the first tab with errors
-      const firstErrorTab = Object.keys(errors).find(key =>
-        ['firstName', 'lastName', 'email', 'resumeHeadline', 'skills', 'workStatus'].includes(key)
-      ) ? 0 :
-        Object.keys(errors).find(key => key.includes('experience')) ? 1 :
-          Object.keys(errors).find(key => key.includes('education')) ? 2 :
-            Object.keys(errors).find(key => key.includes('preferences')) ? 3 :
-              Object.keys(errors).find(key => key.includes('location')) ? 4 : 0;
+    const isValid = validateForm();
+    if (!isValid) {
+      // Decide which tab to show based on first error key
+      const firstErrorKey = Object.keys(errors)[0];
 
-      setTab(firstErrorTab);
+      if (firstErrorKey) {
+        if (['firstName', 'lastName', 'email', 'resumeHeadline', 'skills', 'workStatus'].includes(firstErrorKey)) {
+          setTab(0);
+        } else if (firstErrorKey.startsWith('experience')) {
+          setTab(1);
+        } else if (firstErrorKey.startsWith('education')) {
+          setTab(2);
+        } else if (firstErrorKey.startsWith('preferences')) {
+          setTab(3);
+        } else if (firstErrorKey.startsWith('location')) {
+          setTab(4);
+        }
+      }
       return;
     }
 
     try {
-      await onSave(imageFile);
+      onSave(imageFile);
       setSuccessMessage("Profile updated successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
       onClose();
@@ -185,6 +231,7 @@ const EditUserDialog: React.FC<Props> = ({
       console.error("Update failed:", err);
     }
   };
+
 
   const handleDeleteConfirm = async () => {
     if (!onDeleteAccount) return;
@@ -236,12 +283,6 @@ const EditUserDialog: React.FC<Props> = ({
           {successMessage && (
             <Alert severity="success" sx={{ mb: 2 }}>
               {successMessage}
-            </Alert>
-          )}
-
-          {Object.keys(errors).length > 0 && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              Please fix the validation errors below.
             </Alert>
           )}
 

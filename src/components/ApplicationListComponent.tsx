@@ -38,10 +38,13 @@ import {
     LocationOn as LocationIcon,
     CalendarToday as CalendarIcon,
     AttachFile as AttachFileIcon,
+    GetApp as DownloadIcon,
+    Cancel as WithdrawIcon,
+    Warning as WarningIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
-import { ApplicationApi } from "@/lib/api/applicationAPI";
 import { Application, ApplicationFilters, ApplicationStats } from "@/types/Application";
+import { getApplicationStats, getUserApplications, updateApplication } from "@/lib/api/applicationAPI";
 
 
 interface Props {
@@ -66,7 +69,10 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
     const [viewDialogOpen, setViewDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
     const [editNotes, setEditNotes] = useState("");
+    const [coverLetter, setCoverLetter] = useState("");
+    const [withdrawLoading, setWithdrawLoading] = useState(false);
 
     useEffect(() => {
         fetchApplications();
@@ -76,7 +82,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const response = await ApplicationApi.getUserApplications(filters);
+            const response = await getUserApplications(filters);
             setApplications(response.applications);
             setTotalPages(response.totalPages);
             setTotal(response.total);
@@ -89,7 +95,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
 
     const fetchStats = async () => {
         try {
-            const response = await ApplicationApi.getApplicationStats();
+            const response = await getApplicationStats();
             setStats(response);
         } catch (err) {
             console.error("Failed to fetch stats:", err);
@@ -110,44 +116,47 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
         setSelectedApplication(null);
     };
 
-    const handleViewApplication = () => {
-        setViewDialogOpen(true);
-        handleMenuClose();
-    };
-
-    const handleEditApplication = () => {
-        setEditNotes(selectedApplication?.notes || "");
-        setEditDialogOpen(true);
-        handleMenuClose();
-    };
-
     const handleUpdateApplication = async () => {
         if (!selectedApplication) return;
 
         try {
-            await ApplicationApi.updateApplication(selectedApplication._id, {
+            await updateApplication(selectedApplication._id, {
                 notes: editNotes,
+                coverLetter: coverLetter
             });
             setEditDialogOpen(false);
             fetchApplications();
-            onRefresh?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to update application");
         }
+    };
+
+    const handleWithdrawClick = (application: Application) => {
+        setSelectedApplication(application);
+        setWithdrawDialogOpen(true);
     };
 
     const handleWithdrawApplication = async () => {
         if (!selectedApplication) return;
 
         try {
-            await ApplicationApi.updateApplication(selectedApplication._id, {
+            setWithdrawLoading(true);
+            await updateApplication(selectedApplication._id, {
                 status: "withdrawn",
             });
-            handleMenuClose();
+            setWithdrawDialogOpen(false);
             fetchApplications();
-            onRefresh?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to withdraw application");
+        } finally {
+            setWithdrawLoading(false);
+        }
+    };
+
+    const handleViewResume = (application: Application) => {
+        if (application.resume) {
+            const resumeUrl = `${process.env.NEXT_PUBLIC_API_URL}/${application.resume}`;
+            window.open(resumeUrl, '_blank');
         }
     };
 
@@ -434,20 +443,18 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                     size="small"
                                                     sx={{
                                                         fontWeight: 400,
-                                                        bgcolor: "#495866", // ✅ your custom background
-                                                        color: "#fff",      // ✅ text color
+                                                        bgcolor: "#495866",
+                                                        color: "#fff",
                                                         "& .MuiChip-icon": {
-                                                            color: "#fff",    // ✅ make the icon white too
+                                                            color: "#fff",
                                                         },
                                                     }}
                                                 />
-
-
                                                 <Chip
                                                     icon={<LocationIcon />}
                                                     label={formatLocation(application.job.location)}
                                                     color="primary"
-                                                    variant="filled"   // ✅ makes it stand out more
+                                                    variant="filled"
                                                     size="small"
                                                     sx={{
                                                         fontWeight: 400,
@@ -455,7 +462,6 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                         color: "#fff",
                                                     }}
                                                 />
-
                                             </Stack>
                                         </Box>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -465,12 +471,6 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                 size="small"
                                                 sx={{ fontWeight: 600 }}
                                             />
-                                            <IconButton
-                                                onClick={(e) => handleMenuClick(e, application)}
-                                                size="small"
-                                            >
-                                                <MoreVertIcon />
-                                            </IconButton>
                                         </Box>
                                     </Box>
 
@@ -489,27 +489,74 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                     )}
                                 </CardContent>
 
-                                <CardActions sx={{ px: 2, pb: 2 }}>
+                                <CardActions sx={{ px: 2, pb: 2, gap: 1, flexWrap: 'wrap' }}>
+                                    {/* View Details Button */}
                                     <Button
+                                        variant="outlined"
                                         startIcon={<ViewIcon />}
                                         onClick={() => {
                                             setSelectedApplication(application);
                                             setViewDialogOpen(true);
                                         }}
                                         size="small"
+                                        sx={{
+                                            borderColor: theme.palette.info.main,
+                                            color: theme.palette.info.main,
+                                        }}
                                     >
                                         View Details
                                     </Button>
+
+                                    {/* View Resume Button */}
                                     {application.resume && (
                                         <Button
-                                            startIcon={<AttachFileIcon />}
-                                            href={`${process.env.NEXT_PUBLIC_API_URL}/${application.resume}`}
-                                            target="_blank"
+                                            variant="outlined"
+                                            startIcon={<DownloadIcon />}
+                                            onClick={() => handleViewResume(application)}
                                             size="small"
+                                            sx={{
+                                                borderColor: theme.palette.success.main,
+                                                color: theme.palette.success.main,
+                                            }}
                                         >
                                             View Resume
                                         </Button>
                                     )}
+
+                                    {/* Edit Notes Button - Blue Contained */}
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<EditIcon />}
+                                        onClick={() => {
+                                            setSelectedApplication(application);
+                                            setEditNotes(application.notes || "");
+                                            setCoverLetter(application.coverLetter || "");
+                                            setEditDialogOpen(true);
+                                        }}
+                                        size="small"
+                                        sx={{
+                                            backgroundColor: theme.palette.primary.main,
+                                            '&:hover': {
+                                                backgroundColor: theme.palette.primary.dark,
+                                            },
+                                        }}
+                                    >
+                                        Edit Notes
+                                    </Button>
+
+                                    {/* Withdraw Application Button - Red Outline */}
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<WithdrawIcon />}
+                                        onClick={() => handleWithdrawClick(application)}
+                                        size="small"
+                                        sx={{
+                                            borderColor: theme.palette.error.main,
+                                            color: theme.palette.error.main,
+                                        }}
+                                    >
+                                        Withdraw Application
+                                    </Button>
                                 </CardActions>
                             </Card>
                         </Grid>
@@ -594,8 +641,20 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 fullWidth
             >
                 <DialogTitle>
-                    Edit Application Notes
+                    Edit Application
                 </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Notes"
+                        multiline
+                        rows={4}
+                        value={coverLetter}
+                        onChange={(e) => setCoverLetter(e.target.value)}
+                        fullWidth
+                        sx={{ mt: 2 }}
+                        helperText={`${coverLetter.length}/500 characters`}
+                    />
+                </DialogContent>
                 <DialogContent>
                     <TextField
                         label="Notes"
@@ -618,25 +677,61 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 </DialogActions>
             </Dialog>
 
-            {/* Context Menu */}
-            <Menu
-                anchorEl={menuAnchor}
-                open={Boolean(menuAnchor)}
-                onClose={handleMenuClose}
+            {/* Withdraw Confirmation Dialog */}
+            <Dialog
+                open={withdrawDialogOpen}
+                onClose={() => setWithdrawDialogOpen(false)}
+                maxWidth="sm"
+                fullWidth
             >
-                <MenuItem onClick={handleViewApplication}>
-                    <ViewIcon sx={{ mr: 1 }} />
-                    View Details
-                </MenuItem>
-                <MenuItem onClick={handleEditApplication}>
-                    <EditIcon sx={{ mr: 1 }} />
-                    Edit Notes
-                </MenuItem>
-                <MenuItem onClick={handleWithdrawApplication} sx={{ color: "error.main" }}>
-                    <DeleteIcon sx={{ mr: 1 }} />
-                    Withdraw Application
-                </MenuItem>
-            </Menu>
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <WarningIcon color="error" />
+                    Confirm Withdrawal
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1" gutterBottom>
+                        Are you sure you want to withdraw your application for:
+                    </Typography>
+                    {selectedApplication && (
+                        <Box sx={{
+                            p: 2,
+                            bgcolor: 'rgba(244, 67, 54, 0.1)',
+                            borderRadius: 2,
+                            border: '1px solid rgba(244, 67, 54, 0.3)',
+                            mt: 2
+                        }}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'error.main' }}>
+                                {selectedApplication.job.title}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {selectedApplication.company.name}
+                            </Typography>
+                        </Box>
+                    )}
+                    <Alert severity="warning" sx={{ mt: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            This action cannot be undone. Once withdrawn, you will not be able to reapply for this position.
+                        </Typography>
+                    </Alert>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => setWithdrawDialogOpen(false)}
+                        disabled={withdrawLoading}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleWithdrawApplication}
+                        variant="contained"
+                        color="error"
+                        startIcon={withdrawLoading ? <CircularProgress size={20} /> : <WithdrawIcon />}
+                        disabled={withdrawLoading}
+                    >
+                        {withdrawLoading ? 'Withdrawing...' : 'Yes, Withdraw Application'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

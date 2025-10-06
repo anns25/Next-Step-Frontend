@@ -1,168 +1,90 @@
 import { Application, ApplicationFilters, ApplicationStats } from "@/types/Application";
-import { getCookie } from "cookies-next";
+import api from "@/lib/axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Create application
+export async function createApplication(formData: FormData): Promise<Application> {
+    const response = await api.post('/application', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
 
-export class ApplicationApi {
-    private static getAuthHeaders() {
-        const token = getCookie('token');
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        };
-    }
-
-    private static getFormDataHeaders() {
-        const token = getCookie('token');
-        return {
-            'Authorization': `Bearer ${token}`,
-        };
-    }
-
-
-    // Create application
-    static async createApplication(formData: FormData): Promise<Application> {
-        const response = await fetch(`${API_BASE_URL}/application`, {
-            method: 'POST',
-            headers: this.getFormDataHeaders(),
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to create application');
-        }
-
-        return response.json();
-    }
-
-    // Get user applications
-    static async getUserApplications(filters: ApplicationFilters = {}): Promise<{
-        applications: Application[];
-        totalPages: number;
-        currentPage: number;
-        total: number;
-        stats: Record<string, number>;
-    }> {
-        const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value !== undefined) {
-                params.append(key, value.toString());
-            }
-        });
-
-        const response = await fetch(`${API_BASE_URL}/application?${params}`, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch applications');
-        }
-
-        return response.json();
-    }
-
-    // Get application by ID
-    static async getApplicationById(id: string): Promise<Application> {
-        const response = await fetch(`${API_BASE_URL}/application/${id}`, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch application');
-        }
-
-        return response.json();
-    }
-
-    // Update application
-    static async updateApplication(id: string, data: { status?: string; notes?: string }): Promise<Application> {
-        const response = await fetch(`${API_BASE_URL}/application/${id}`, {
-            method: 'PUT',
-            headers: this.getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update application');
-        }
-
-        return response.json();
-    }
-
-    // Delete application (soft delete)
-    static async deleteApplication(id: string): Promise<void> {
-        const response = await fetch(`${API_BASE_URL}/application/${id}`, {
-            method: 'DELETE',
-            headers: this.getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to delete application');
-        }
-    }
-
-    // Get application statistics
-    static async getApplicationStats(): Promise<ApplicationStats> {
-        const response = await fetch(`${API_BASE_URL}/application/stats`, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch application stats');
-        }
-
-        return response.json();
-    }
-
-    // Get job applications (for companies)
-    static async getJobApplications(jobId: string, filters: ApplicationFilters = {}): Promise<{
-        applications: Application[];
-        totalPages: number;
-        currentPage: number;
-        total: number;
-    }> {
-        const params = new URLSearchParams();
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value !== undefined) {
-                params.append(key, value.toString());
-            }
-        });
-
-        const response = await fetch(`${API_BASE_URL}/application/job/${jobId}?${params}`, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to fetch job applications');
-        }
-
-        return response.json();
-    }
-
-    // Update application status (for companies)
-    static async updateApplicationStatus(id: string, data: { status?: string; notes?: string }): Promise<Application> {
-        const response = await fetch(`${API_BASE_URL}/application/${id}/status`, {
-            method: 'PATCH',
-            headers: this.getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to update application status');
-        }
-
-        return response.json();
-    }
+// Restore soft-deleted application (admin only)
+export async function restoreApplication(id: string): Promise<Application> {
+    const response = await api.patch(`/application/${id}/restore`);
+    return response.data;
 }
+
+// Get user applications
+export async function getUserApplications (filters: ApplicationFilters = {}): Promise<{
+    applications: Application[];
+    totalPages: number;
+    currentPage: number;
+    total: number;
+    stats: Record<string, number>;
+}>{
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+            params.append(key, value.toString());
+        }
+    });
+
+    const response = await api.get(`/application?${params}`);
+    return response.data;
+};
+
+// Get application by ID
+export async function getApplicationById (id: string): Promise<Application>{
+    const response = await api.get(`/application/${id}`);
+    return response.data;
+};
+
+// Update application
+export async function updateApplication(id: string, data: { status?: string; notes?: string; coverLetter?: string }): Promise<Application> {
+    const response = await api.patch(`/application/${id}`, data);
+    return response.data;
+};
+
+// Delete application (soft delete)
+export async function deleteApplication(id: string): Promise<void> {
+    await api.delete(`/application/${id}`);
+};
+
+// Get application statistics
+export async function getApplicationStats(): Promise<ApplicationStats> {
+    const response = await api.get('/application/stats');
+    console.log("response stats", response);
+    return response.data;
+};
+
+// Get job applications (for companies)
+export async function getJobApplications(jobId: string, filters: ApplicationFilters = {}): Promise<{
+    applications: Application[];
+    totalPages: number;
+    currentPage: number;
+    total: number;
+}>{
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+            params.append(key, value.toString());
+        }
+    });
+
+    const response = await api.get(`/application/job/${jobId}?${params}`);
+    return response.data;
+};
+
+// Update application status (for companies)
+export async function updateApplicationStatus(id: string, data: { status?: string; notes?: string }): Promise<Application> {
+    console.log("data", data);
+    console.log("id", id);
+    const response = await api.patch(`admin/applications/${id}/status`, data);
+    return response.data;
+};
+
+
+

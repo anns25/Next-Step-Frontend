@@ -42,6 +42,7 @@ import {
 import { Job, JobType, ExperienceLevel } from "@/types/Job";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
+import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 
 export default function FindJobs() {
   const theme = useTheme();
@@ -62,6 +63,12 @@ export default function FindJobs() {
   const [countryFilter, setCountryFilter] = useState("");
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Application dialog state
+  const [applicationDialog, setApplicationDialog] = useState({
+    open: false,
+    job: null as Job | null,
+  });
 
   // Snackbar state
   const [snackbar, setSnackbar] = useState({
@@ -187,9 +194,28 @@ export default function FindJobs() {
     setSavedJobs(newSaved);
   };
 
-  const applyToJob = (jobId: string) => {
-    // Navigate to application page or open application dialog
-    router.push(`/user/apply/${jobId}`);
+  const applyToJob = (job: Job) => {
+    setApplicationDialog({
+      open: true,
+      job: job,
+    });
+  };
+
+  const handleApplicationSuccess = () => {
+    setSnackbar({
+      open: true,
+      message: "Application submitted successfully!",
+      severity: "success",
+    });
+    // Optionally refresh the jobs list to update application counts
+    fetchJobs();
+  };
+
+  const handleCloseApplicationDialog = () => {
+    setApplicationDialog({
+      open: false,
+      job: null,
+    });
   };
 
   const formatSalary = (salary: Job["salary"]) => {
@@ -629,7 +655,7 @@ export default function FindJobs() {
                       variant="contained"
                       fullWidth
                       startIcon={<SendIcon />}
-                      onClick={() => applyToJob(job._id)}
+                      onClick={() => applyToJob(job)}
                       size={isMobile ? "small" : "medium"}
                     >
                       Apply Now
@@ -684,6 +710,14 @@ export default function FindJobs() {
           )}
         </Paper>
       </Box>
+
+      {/* Application Dialog */}
+      <ApplicationFormDialog
+        open={applicationDialog.open}
+        onClose={handleCloseApplicationDialog}
+        job={applicationDialog.job}
+        onSuccess={handleApplicationSuccess}
+      />
 
       {/* Snackbar */}
       <Snackbar

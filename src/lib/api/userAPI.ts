@@ -71,17 +71,21 @@ function appendFormData(formData: FormData, key: string, value: any) {
     value.forEach((item, index) => {
       if (typeof item === "object" && item !== null) {
         Object.entries(item).forEach(([subKey, subVal]) => {
-          formData.append(`${key}[${index}][${subKey}]`, String(subVal));
+          if (subVal !== undefined && subVal !== null && subVal !== '') {
+            formData.append(`${key}[${index}][${subKey}]`, String(subVal));
+          }
         });
-      } else {
+      } else if (item !== undefined && item !== null && item !== '') {
         formData.append(`${key}[${index}]`, String(item));
       }
     });
   } else if (typeof value === "object" && value !== null) {
     Object.entries(value).forEach(([subKey, subVal]) => {
-      appendFormData(formData, `${key}[${subKey}]`, subVal);
+      if (subVal !== undefined && subVal !== null && subVal !== '') {
+        appendFormData(formData, `${key}[${subKey}]`, subVal);
+      }
     });
-  } else {
+  } else if (value !== undefined && value !== null && value !== '') {
     formData.append(key, String(value));
   }
 }

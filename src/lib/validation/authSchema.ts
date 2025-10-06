@@ -1,33 +1,49 @@
-import { object, string, minLength, nonEmpty, pipe, email, custom, literal, union, minValue, maxValue, number, boolean, array, regex, maxLength, InferOutput, optional } from 'valibot';
+import {
+    object, string, minLength, nonEmpty, pipe, email,
+    custom, literal, union, number, boolean, array,
+    regex, maxLength, InferOutput, optional
+} from 'valibot';
 
-//Date Validation helpers
-const getCurrentYear = () => new Date().getFullYear();
-const getMinBirthYear = () => getCurrentYear() - 80;
-const getMaxStartYear = () => getCurrentYear() + 2;
-const getMinStartYear = () => getCurrentYear() - 60;
-
+// --- LOGIN ---
 export const loginSchema = object({
-    email: pipe(string(), email('Must be a valid email address'), nonEmpty('Email is required'),),
-    password: pipe(string(), minLength(6, 'Password must be at least 6 characters'), nonEmpty('Password is required')),
+    email: pipe(string(), email('Please enter a valid email'), nonEmpty('Email is required')),
+    password: pipe(string(), nonEmpty('Password is required')),
 });
 
+// --- SIGNUP (USER) ---
 export const signupSchema = object({
-    firstName: pipe(string(), nonEmpty('First name is required'),),
-    lastName: pipe(string(), nonEmpty('Last name is required'),),
-    password: pipe(string(), minLength(6, 'Password must be at least 6 characters'), nonEmpty('Password is required'),),
-    email: pipe(string(), email('Must be a valid email address'), nonEmpty('Email is required'),),
-    image: custom(
-        (file) => file instanceof File && file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024,
-        'Profile image is required and must be an image less than 5MB'),
+    firstName: pipe(string(), nonEmpty('First name is required')),
+    lastName: pipe(string(), nonEmpty('Last name is required')),
+    email: pipe(string(), email('Please enter a valid email'), nonEmpty('Email is required')),
+    password: pipe(string(), minLength(6, 'Password must be at least 6 characters'), nonEmpty('Password is required')),
+    role: optional(literal('user')), // must equal "user" if provided
+    image: optional(string()), // handled by controller (file upload)
 });
 
+// --- SIGNUP (ADMIN) ---
+export const adminSignupSchema = object({
+    firstName: pipe(string(), nonEmpty('First name is required')),
+    lastName: pipe(string(), nonEmpty('Last name is required')),
+    email: pipe(string(), email('Please enter a valid email'), nonEmpty('Email is required')),
+    password: pipe(string(), minLength(6, 'Password must be at least 6 characters'), nonEmpty('Password is required')),
+    role: literal('admin'),
+    image: optional(string()), // handled by controller
+});
+
+// --- JOB TYPES ---
 export const jobTypeSchema = union([
     literal('full-time'),
     literal('part-time'),
     literal('contract'),
     literal('internship'),
-    literal('remote')
+    literal('remote'),
 ]);
+
+
+const getYearBounds = () => {
+    const currentYear = new Date().getFullYear();
+    return { min: currentYear - 60, max: currentYear + 2 };
+};
 
 export const experienceSchema = object({
     company: pipe(string(), nonEmpty('Company name is required')),
@@ -35,189 +51,131 @@ export const experienceSchema = object({
     startDate: pipe(
         string(),
         nonEmpty('Start date is required'),
-        custom((value) => {
-            if (typeof value !== "string") {
-                throw new Error("Invalid start date");
-            }
-            const date = new Date(value);
-            const year = date.getFullYear();
-            if (year < getMinStartYear() || year > getCurrentYear()) {
-                throw new Error(`Start date must be between ${getMinStartYear()} and ${getCurrentYear()}`);
-            }
-            return true;
+        custom((value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return year >= min && year <= max; // true = valid, false = invalid
+        }, (value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return `Start date must be between ${min} and ${max}`;
         })
     ),
     endDate: pipe(
         string(),
-        custom((value) => {
-            if (!value || value === '') return true; // Allow empty end dates
-            if (typeof value !== "string") {
-                throw new Error("Invalid end date");
-            }
-            const date = new Date(value);
-            const year = date.getFullYear();
-            if (year < getMinStartYear() || year > getMaxStartYear()) {
-                throw new Error(`End date must be between ${getMinStartYear()} and ${getMaxStartYear()}`);
-            }
-            return true;
-        })
-    )
+        custom((value: unknown) => {
+            if (!value) return true;
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return year >= min && year <= max;
+        }, (value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return `End date must be between ${min} and ${max}`;
+        }),
+    ),
 });
 
+
+
+// --- EDUCATION ---
 export const educationSchema = object({
-    institution: pipe(string(), nonEmpty('Institution name is required')),
+    institution: pipe(string(), nonEmpty('Institution is required')),
     degree: pipe(string(), nonEmpty('Degree is required')),
-    fieldOfStudy: pipe(string(), nonEmpty('Field of Study is required')),
+    fieldOfStudy: pipe(string(), nonEmpty('Field of study is required')),
     startDate: pipe(
         string(),
-        nonEmpty('Start Date is required'),
-        custom(
-            (value) => {
-                if (typeof value !== "string") return false;
-                const year = new Date(value).getFullYear();
-                return year >= getMinStartYear() && year <= getCurrentYear();
-            },
-            `Start date must be between ${getMinStartYear()} and ${getCurrentYear()}`
-        )
+        nonEmpty('Start date is required'),
+        custom((value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return year >= min && year <= max; // true = valid, false = invalid
+        }, (value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return `Start date must be between ${min} and ${max}`;
+        })
     ),
     endDate: pipe(
         string(),
-        custom(
-            (value) => {
-                if (!value || value === '') return true; // Allow empty end dates
-                if (typeof value !== "string") return false;
-                const year = new Date(value).getFullYear();
-                return year >= getMinStartYear() && year <= getMaxStartYear();
-            },
-            `End date must be between ${getMinStartYear()} and ${getMaxStartYear()}`
-        ),
-    )
+        custom((value: unknown) => {
+            if (!value) return true;
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return year >= min && year <= max;
+        }, (value: unknown) => {
+            const year = new Date(value as string).getFullYear();
+            const { min, max } = getYearBounds();
+            return `End date must be between ${min} and ${max}`;
+        })
+    ),
 });
 
+// --- LOCATION ---
 export const locationSchema = object({
-    city: pipe(string(), nonEmpty('City is required')),
-    state: pipe(string(), nonEmpty('State is required')),
-    country: pipe(string(), nonEmpty('Country is required')),
+    city: optional(string()),
+    state: optional(string()),
+    country: optional(string()),
 });
 
+// --- PREFERENCES ---
 export const salaryRangeSchema = object({
-    min: pipe(
-        number(),
-        minValue(0, 'Minimum salary must be positive'),
-        maxValue(10000000, 'Minimum salary seems too high')
-    ),
-    max: pipe(
-        number(),
-        minValue(0, 'Maximum salary must be positive'),
-        maxValue(10000000, 'Maximum salary seems too high')
-    ),
-    currency: pipe(string(), nonEmpty('Currency is required'))
+    min: optional(number()),
+    max: optional(number()),
+    currency: optional(string()),
 });
 
 export const preferencesSchema = object({
-    jobTypes: array(jobTypeSchema),
-    salaryRange: salaryRangeSchema,
-    remoteWork: boolean(),
-    notifications: object({
-        email: boolean(),
-        push: boolean()
-    })
+    jobTypes: optional(array(jobTypeSchema)),
+    salaryRange: optional(salaryRangeSchema),
+    remoteWork: optional(boolean()),
+    notifications: optional(object({
+        email: optional(boolean()),
+        push: optional(boolean()),
+    })),
 });
 
-// Main profile update schema - Updated to match EditUserDialog structure
+// --- PROFILE UPDATE (USER) ---
 export const profileUpdateSchema = object({
-    firstName: pipe(
-        string(),
-        nonEmpty('First name is required'),
-        minLength(2, 'First name must be at least 2 characters'),
-        regex(/^[a-zA-Z\s]+$/, 'First name can only contain letters and spaces')
-    ),
-    lastName: pipe(
-        string(),
-        nonEmpty('Last name is required'),
-        minLength(2, 'Last name must be at least 2 characters'),
-        regex(/^[a-zA-Z\s]+$/, 'Last name can only contain letters and spaces')
-    ),
-    email: pipe(
-        string(),
-        email('Must be a valid email address'),
-        nonEmpty('Email is required')
-    ),
-    resumeHeadline: pipe(
-        string(),
-        maxLength(500, 'Resume headline cannot exceed 500 characters')
-    ),
-    workStatus: union([
-        literal('fresher'),
-        literal('experienced'),
-    ]),
-    skills: array(
-        pipe(
-            string(),
-            nonEmpty('Skill cannot be empty'),
-            minLength(2, 'Skill must be at least 2 characters')
-        )
-    ),
-    experience: array(experienceSchema),
-    education: array(educationSchema),
-    location: locationSchema,
-    preferences: preferencesSchema,
+    firstName: optional(string()),
+    lastName: optional(string()),
+    email: optional(pipe(string(), email('Please enter a valid email'))),
+    password: optional(pipe(string(), minLength(6, 'Password must be at least 6 characters'))),
+    workStatus: optional(union([literal('fresher'), literal('experienced')])),
+    skills: optional(array(string())),
+    experience: optional(array(experienceSchema)),
+    education: optional(array(educationSchema)),
+    location: optional(locationSchema),
+    preferences: optional(preferencesSchema),
 });
 
-// Conditional validation for experienced users
+// Conditional: experienced users must have at least one experience
 type ProfileUpdate = InferOutput<typeof profileUpdateSchema>;
 export const profileUpdateSchemaWithConditions = pipe(
     profileUpdateSchema,
     custom((data) => {
         const profile = data as ProfileUpdate;
-        
-        // If work status is experienced, require at least one experience
-        if (profile.workStatus === 'experienced' && (!profile.experience || profile.experience.length === 0)) {
-            throw new Error('At least one experience entry is required for experienced users');
-        }
-
-        // Validate that experience entries have required fields
-        if (profile.experience) {
-            profile.experience.forEach((exp, index) => {
-                if (!exp.company || !exp.position || !exp.startDate) {
-                    throw new Error(`Experience entry #${index + 1} must have company, position, and startDate`);
-                }
-            });
-        }
-
-        // Validate salary range
-        if (profile.preferences?.salaryRange?.min && profile.preferences?.salaryRange?.max) {
-            if (profile.preferences.salaryRange.min > profile.preferences.salaryRange.max) {
-                throw new Error('Minimum salary cannot be greater than maximum salary');
+        if (profile.workStatus === 'experienced') {
+            if (!profile.experience || profile.experience.length === 0) {
+                throw new Error('At least one experience entry is required for experienced users');
             }
-        }
-
-        // Validate date ranges in experience
-        if (profile.experience) {
-            profile.experience.forEach((exp, index) => {
-                if (exp.startDate && exp.endDate) {
-                    const startDate = new Date(exp.startDate);
-                    const endDate = new Date(exp.endDate);
-                    if (startDate >= endDate) {
-                        throw new Error(`Experience ${index + 1}: Start date must be before end date`);
-                    }
+            profile.experience.forEach((exp, i) => {
+                if (!exp.company || !exp.position || !exp.startDate) {
+                    throw new Error(`Experience #${i + 1} must include company, position, and startDate`);
                 }
             });
         }
-
-        // Validate date ranges in education
-        if (profile.education) {
-            profile.education.forEach((edu, index) => {
-                if (edu.startDate && edu.endDate) {
-                    const startDate = new Date(edu.startDate);
-                    const endDate = new Date(edu.endDate);
-                    if (startDate >= endDate) {
-                        throw new Error(`Education ${index + 1}: Start date must be before end date`);
-                    }
-                }
-            });
+        if (profile.workStatus === 'fresher' && profile.experience?.length) {
+            throw new Error('Freshers cannot have experience entries');
         }
-
         return true;
     })
 );
+
+// --- PROFILE UPDATE (ADMIN) ---
+export const adminUpdateSchema = object({
+    firstName: optional(string()),
+    lastName: optional(string()),
+    email: optional(pipe(string(), email('Please enter a valid email'))),
+    password: optional(pipe(string(), minLength(6, 'Password must be at least 6 characters'))),
+});
