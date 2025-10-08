@@ -27,6 +27,7 @@ import {
     InputLabel,
     Select,
     Divider,
+    useMediaQuery,
 } from "@mui/material";
 import {
     MoreVert as MoreVertIcon,
@@ -73,6 +74,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
     const [editNotes, setEditNotes] = useState("");
     const [coverLetter, setCoverLetter] = useState("");
     const [withdrawLoading, setWithdrawLoading] = useState(false);
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         fetchApplications();

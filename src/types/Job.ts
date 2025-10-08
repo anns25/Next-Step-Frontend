@@ -237,38 +237,80 @@ export type ApplicationFormData = {
     source?: string;
 };
 
-// ===================
+/// ===================
 // JOB ALERT TYPES
 // ===================
+
+export type NotificationFrequency = 'immediate' | 'daily' | 'weekly' | 'monthly';
+
+export type JobAlertLocation = {
+    type: 'remote' | 'on-site' | 'hybrid' | 'any';
+    city?: string;
+    state?: string;
+    country?: string;
+    radius?: number;
+};
 
 export type JobAlert = {
     _id: string;
     user: string;
     name: string;
-    keywords?: string[];
-    jobTypes?: JobType[];
-    experienceLevels?: ExperienceLevel[];
-    locations?: string[];
-    salaryMin?: number;
-    salaryMax?: number;
+    keywords: string[];
+    skills: string[];
+    location: JobAlertLocation;
+    jobTypes: JobType[];
+    experienceLevels: ExperienceLevel[];
+    salaryRange?: {
+        min?: number;
+        max?: number;
+        currency?: string;
+    };
+    industries: string[];
+    companies: string[] | JobCompany[];
+    excludeCompanies: string[] | JobCompany[];
     isActive: boolean;
-    frequency: 'daily' | 'weekly' | 'monthly';
-    lastSent?: string; // ISO date string
-    createdAt?: string;
-    updatedAt?: string;
+    notificationFrequency: NotificationFrequency;
+    notificationPreferences: {
+        email: boolean;
+        push: boolean;
+        sms: boolean;
+    };
+    lastChecked?: string;
+    totalMatches: number;
+    lastNotificationSent?: string;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type JobAlertFormData = {
     name: string;
     keywords?: string[];
+    skills?: string[];
+    location?: JobAlertLocation;
     jobTypes?: JobType[];
     experienceLevels?: ExperienceLevel[];
-    locations?: string[];
-    salaryMin?: number;
-    salaryMax?: number;
-    frequency: 'daily' | 'weekly' | 'monthly';
+    salaryRange?: {
+        min?: number;
+        max?: number;
+        currency?: string;
+    };
+    industries?: string[];
+    companies?: string[];
+    excludeCompanies?: string[];
+    notificationFrequency?: NotificationFrequency;
+    notificationPreferences?: {
+        email: boolean;
+        push: boolean;
+        sms: boolean;
+    };
 };
 
+export type JobAlertListResponse = {
+    jobAlerts: JobAlert[];
+    totalPages: number;
+    currentPage: number;
+    total: number;
+};
 // ===================
 // JOB INTERVIEW TYPES
 // ===================

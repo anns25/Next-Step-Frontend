@@ -936,54 +936,6 @@ export default function JobFormDialog({
                         </Typography>
                     </Grid>
 
-                    <Grid size={{ xs: 12 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                            Skills
-                        </Typography>
-                        <Box display="flex" gap={1} mb={2}>
-                            <TextField
-                                size="small"
-                                placeholder="Add skill..."
-                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const target = e.target as HTMLInputElement;
-                                        if (target.value.trim()) {
-                                            addArrayItem('requirements.skills', target.value);
-                                            target.value = '';
-                                        }
-                                    }
-                                }}
-                                disabled={loading}
-                            />
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                startIcon={<AddIcon />}
-                                onClick={() => {
-                                    const input = document.querySelector('input[placeholder="Add skill..."]') as HTMLInputElement;
-                                    if (input && input.value.trim()) {
-                                        addArrayItem('requirements.skills', input.value);
-                                        input.value = '';
-                                    }
-                                }}
-                                disabled={loading}
-                            >
-                                Add
-                            </Button>
-                        </Box>
-                        <Box display="flex" flexWrap="wrap" gap={1}>
-                            {getArrayItems('requirements.skills').map((skill, index) => (
-                                <Chip
-                                    key={index}
-                                    label={skill}
-                                    onDelete={() => removeArrayItem('requirements.skills', index)}
-                                    disabled={loading}
-                                />
-                            ))}
-                        </Box>
-                    </Grid>
-
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                             fullWidth
@@ -1002,6 +954,53 @@ export default function JobFormDialog({
                             onChange={(e) => handleInputChange('requirements.experience', e.target.value)}
                             disabled={loading}
                         />
+                    </Grid>
+
+                    {/* Skills */}
+                    <Grid size={{ xs: 12 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Skills
+                        </Typography>
+                        <Box display="flex" gap={1} mb={2}>
+                            <TextField
+                                size="small"
+                                placeholder="Add skills..."
+                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const target = e.target as HTMLInputElement;
+                                        addArrayItem('skills', target.value);
+                                        target.value = '';
+                                    }
+                                }}
+                                disabled={loading}
+                            />
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<AddIcon />}
+                                onClick={() => {
+                                    const input = document.querySelector('input[placeholder="Add skills..."]') as HTMLInputElement;
+                                    if (input) {
+                                        addArrayItem('skills', input.value);
+                                        input.value = '';
+                                    }
+                                }}
+                                disabled={loading}
+                            >
+                                Add
+                            </Button>
+                        </Box>
+                        <Box display="flex" flexWrap="wrap" gap={1}>
+                            {getArrayItems('skills').map((skill, index) => (
+                                <Chip
+                                    key={index}
+                                    label={skill}
+                                    onDelete={() => removeArrayItem('skills', index)}
+                                    disabled={loading}
+                                />
+                            ))}
+                        </Box>
                     </Grid>
 
                     {/* Responsibilities */}

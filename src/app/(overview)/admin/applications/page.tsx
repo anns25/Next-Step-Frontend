@@ -373,7 +373,7 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
             {/* Filters */}
             <Paper
                 sx={{
-                    p: 3,
+                    p: { xs: 2, sm: 3 },
                     mb: 3,
                     borderRadius: 3,
                     backdropFilter: "blur(12px)",
@@ -382,51 +382,57 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                     boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
                 }}
             >
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                            value={filters.status || ""}
-                            onChange={(e) => handleFilterChange("status", e.target.value || undefined)}
-                            label="Status"
-                        >
-                            <MenuItem value="">All</MenuItem>
-                            <MenuItem value="applied">Applied</MenuItem>
-                            <MenuItem value="under-review">Under Review</MenuItem>
-                            <MenuItem value="shortlisted">Shortlisted</MenuItem>
-                            <MenuItem value="interview-scheduled">Interview Scheduled</MenuItem>
-                            <MenuItem value="interviewed">Interviewed</MenuItem>
-                            <MenuItem value="rejected">Rejected</MenuItem>
-                            <MenuItem value="accepted">Accepted</MenuItem>
-                            <MenuItem value="withdrawn">Withdrawn</MenuItem>
-                        </Select>
-                    </FormControl>
+                <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                                value={filters.status || ""}
+                                onChange={(e) => handleFilterChange("status", e.target.value || undefined)}
+                                label="Status"
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <MenuItem value="applied">Applied</MenuItem>
+                                <MenuItem value="under-review">Under Review</MenuItem>
+                                <MenuItem value="shortlisted">Shortlisted</MenuItem>
+                                <MenuItem value="interview-scheduled">Interview Scheduled</MenuItem>
+                                <MenuItem value="interviewed">Interviewed</MenuItem>
+                                <MenuItem value="rejected">Rejected</MenuItem>
+                                <MenuItem value="accepted">Accepted</MenuItem>
+                                <MenuItem value="withdrawn">Withdrawn</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
 
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <InputLabel>Sort By</InputLabel>
-                        <Select
-                            value={filters.sortBy || "applicationDate"}
-                            onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                            label="Sort By"
-                        >
-                            <MenuItem value="applicationDate">Date</MenuItem>
-                            <MenuItem value="status">Status</MenuItem>
-                            <MenuItem value="company">Company</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Sort By</InputLabel>
+                            <Select
+                                value={filters.sortBy || "applicationDate"}
+                                onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                                label="Sort By"
+                            >
+                                <MenuItem value="applicationDate">Date</MenuItem>
+                                <MenuItem value="status">Status</MenuItem>
+                                <MenuItem value="company">Company</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
 
-                    <FormControl size="small" sx={{ minWidth: 100 }}>
-                        <InputLabel>Order</InputLabel>
-                        <Select
-                            value={filters.sortOrder || "desc"}
-                            onChange={(e) => handleFilterChange("sortOrder", e.target.value)}
-                            label="Order"
-                        >
-                            <MenuItem value="desc">Newest</MenuItem>
-                            <MenuItem value="asc">Oldest</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Stack>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Order</InputLabel>
+                            <Select
+                                value={filters.sortOrder || "desc"}
+                                onChange={(e) => handleFilterChange("sortOrder", e.target.value)}
+                                label="Order"
+                            >
+                                <MenuItem value="desc">Newest</MenuItem>
+                                <MenuItem value="asc">Oldest</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
             </Paper>
 
             {/* Applications Table */}
@@ -457,8 +463,8 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                                     <TableCell>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                             <Avatar
-                                                src={application.user.profilePicture ? 
-                                                    `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.user.profilePicture}` : 
+                                                src={application.user.profilePicture ?
+                                                    `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.user.profilePicture}` :
                                                     undefined
                                                 }
                                                 sx={{ width: 40, height: 40 }}
@@ -595,8 +601,8 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                                     </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                                         <Avatar
-                                            src={selectedApplication.user.profilePicture ? 
-                                                `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${selectedApplication.user.profilePicture}` : 
+                                            src={selectedApplication.user.profilePicture ?
+                                                `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${selectedApplication.user.profilePicture}` :
                                                 undefined
                                             }
                                             sx={{ width: 60, height: 60 }}
@@ -711,8 +717,8 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                     <Button onClick={() => setEditDialogOpen(false)}>
                         Cancel
                     </Button>
-                    <Button 
-                        onClick={handleUpdateApplication} 
+                    <Button
+                        onClick={handleUpdateApplication}
                         variant="contained"
                         disabled={actionLoading}
                         startIcon={actionLoading ? <CircularProgress size={20} /> : null}
@@ -738,12 +744,12 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                         Are you sure you want to permanently delete this application?
                     </Typography>
                     {selectedApplication && (
-                        <Box sx={{ 
-                            p: 2, 
-                            bgcolor: 'rgba(244, 67, 54, 0.1)', 
-                            borderRadius: 2, 
+                        <Box sx={{
+                            p: 2,
+                            bgcolor: 'rgba(244, 67, 54, 0.1)',
+                            borderRadius: 2,
                             border: '1px solid rgba(244, 67, 54, 0.3)',
-                            mt: 2 
+                            mt: 2
                         }}>
                             <Typography variant="h6" sx={{ fontWeight: 600, color: 'error.main' }}>
                                 {selectedApplication.job.title}
@@ -760,7 +766,7 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                     </Alert>
                 </DialogContent>
                 <DialogActions>
-                    <Button 
+                    <Button
                         onClick={() => setDeleteDialogOpen(false)}
                         disabled={actionLoading}
                     >
@@ -815,7 +821,7 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                         <ListItemText>Restore Application</ListItemText>
                     </MenuItem>
                 )}
-                <MenuItem 
+                <MenuItem
                     onClick={() => {
                         setDeleteDialogOpen(true);
                         handleMenuClose();

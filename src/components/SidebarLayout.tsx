@@ -31,7 +31,7 @@ import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
-import { Description } from "@mui/icons-material";
+import { Description, Subscriptions } from "@mui/icons-material";
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
@@ -44,8 +44,8 @@ const menuItems = [
   { text: "Companies", icon: <BusinessIcon />, link: "/user/companies" },
   { text: "Interviews", icon: <EventIcon />, link: "/user/interviews" },
   { text: "Job Alerts", icon: <NotificationsIcon />, link: "/user/alerts" },
+  { text: "Subscriptions", icon: <Subscriptions />, link: "/user/subscriptions"},
   { text: "Profile", icon: <PersonIcon />, link: "/user/profile" },
-  { text: "Settings", icon: <SettingsIcon />, link: "/user/settings" },
 ];
 
 

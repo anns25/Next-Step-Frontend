@@ -90,6 +90,14 @@ const EditUserDialog: React.FC<Props> = ({
         });
       }
 
+      // ---- Custom validation for WORK STATUS & EXPERIENCE ----
+      if (values.workStatus === 'experienced') {
+        if (!values.experience || values.experience.length === 0) {
+          newErrors['experience'] = 'At least one experience entry is required for experienced users';
+          newErrors['workStatus'] = 'Add experience entries or change to Fresher';
+        }
+      }
+
       // ---- Custom validation for EXPERIENCE ----
       values.experience?.forEach((exp, i) => {
         if (exp.company || exp.position || exp.startDate || exp.endDate) {
@@ -288,7 +296,7 @@ const EditUserDialog: React.FC<Props> = ({
 
           <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
             <Tab label="Basic Info" />
-            <Tab label="Experience" />
+            <Tab label="Experience" disabled={values.workStatus === "fresher"} />
             <Tab label="Education" />
             <Tab label="Preferences" />
             <Tab label="Location" />
@@ -403,7 +411,13 @@ const EditUserDialog: React.FC<Props> = ({
                 select
                 label="Work Status"
                 value={values.workStatus ?? "fresher"}
-                onChange={(e) => handleChange("workStatus", e.target.value)}
+                onChange={(e) => {
+                  const newStatus = e.target.value;
+                  handleChange("workStatus", newStatus);
+                  if (newStatus === "fresher" && values.experience && values.experience.length > 0) {
+                    handleChange("experience", []);
+                  }
+                }}
                 error={!!errors.workStatus}
                 helperText={errors.workStatus}
                 fullWidth
@@ -412,6 +426,15 @@ const EditUserDialog: React.FC<Props> = ({
                 <MenuItem value="fresher">Fresher</MenuItem>
                 <MenuItem value="experienced">Experienced</MenuItem>
               </TextField>
+              {/* Add visual alert if experienced but no experience */}
+              {values.workStatus === "experienced" && (!values.experience || values.experience.length === 0) && (
+                <Alert severity="warning" sx={{ mt: 1 }}>
+                  <Typography variant="body2">
+                    You selected "Experienced" but haven't added any experience entries yet.
+                    Please go to the <strong>Experience tab</strong> to add your work history.
+                  </Typography>
+                </Alert>
+              )}
             </Box>
           )}
 
@@ -773,6 +796,7 @@ const EditUserDialog: React.FC<Props> = ({
               onClick={handleSave}
               variant="contained"
               color="primary"
+              disabled = {values.workStatus === "experienced" && (!values.experience || values.experience.length === 0)}
             >
               Save Changes
             </Button>
