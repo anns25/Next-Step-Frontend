@@ -40,7 +40,6 @@ const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, link: "/user/dashboard" },
   { text: "Find Jobs", icon: <SearchIcon />, link: "/user/jobs" },
   { text: "My Applications", icon: <Description />, link: "/user/applications" },
-  { text: "Saved Jobs", icon: <BookmarkIcon />, link: "/user/saved" },
   { text: "Companies", icon: <BusinessIcon />, link: "/user/companies" },
   { text: "Interviews", icon: <EventIcon />, link: "/user/interviews" },
   { text: "Job Alerts", icon: <NotificationsIcon />, link: "/user/alerts" },

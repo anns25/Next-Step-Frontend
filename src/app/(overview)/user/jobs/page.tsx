@@ -34,11 +34,12 @@ import {
   Refresh as RefreshIcon,
   Business as BusinessIcon,
   LocationOn as LocationIcon,
+  Visibility as ViewIcon,
   Bookmark as BookmarkIcon,
   BookmarkBorder as BookmarkBorderIcon,
   Send as SendIcon,
 } from "@mui/icons-material";
-
+import JobViewDialog from "@/components/JobViewDialog";
 import { Job, JobType, ExperienceLevel } from "@/types/Job";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
@@ -47,8 +48,11 @@ import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 export default function FindJobs() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
   const [jobTypeFilter, setJobTypeFilter] = useState("");
@@ -57,6 +61,7 @@ export default function FindJobs() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit] = useState(12);
+  const SAVED_JOBS_KEY = 'savedJobs';
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
@@ -174,25 +179,26 @@ export default function FindJobs() {
     setCurrentPage(page);
   };
 
-  const toggleSaveJob = (jobId: string) => {
-    const newSaved = new Set(savedJobs);
-    if (newSaved.has(jobId)) {
-      newSaved.delete(jobId);
-      setSnackbar({
-        open: true,
-        message: "Job removed from saved",
-        severity: "info",
-      });
-    } else {
-      newSaved.add(jobId);
-      setSnackbar({
-        open: true,
-        message: "Job saved successfully",
-        severity: "success",
-      });
-    }
-    setSavedJobs(newSaved);
+  // Open dialog to view job details
+  const handleViewJob = (job: Job) => {
+    setSelectedJob(job);
+    setViewDialogOpen(true);
   };
+
+  // Close dialog
+  const handleCloseDialog = () => {
+    setViewDialogOpen(false);
+    setSelectedJob(null);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
 
   const applyToJob = (job: Job) => {
     setApplicationDialog({
@@ -654,21 +660,21 @@ export default function FindJobs() {
                     <Button
                       variant="contained"
                       fullWidth
-                      startIcon={<SendIcon />}
+                      startIcon={!isSmall ? <ViewIcon /> : null}
+                      onClick={() => handleViewJob(job)}
+                      size={isMobile ? "small" : "medium"}
+                    >
+                      View Details
+                    </Button>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      startIcon={!isSmall ? <SendIcon /> : null}
                       onClick={() => applyToJob(job)}
                       size={isMobile ? "small" : "medium"}
                     >
                       Apply Now
                     </Button>
-                    <Tooltip title={savedJobs.has(job._id) ? "Remove from saved" : "Save job"}>
-                      <IconButton
-                        onClick={() => toggleSaveJob(job._id)}
-                        color="primary"
-                        size={isMobile ? "small" : "medium"}
-                      >
-                        {savedJobs.has(job._id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                      </IconButton>
-                    </Tooltip>
                   </CardActions>
                 </Card>
               </Grid>
@@ -717,6 +723,13 @@ export default function FindJobs() {
         onClose={handleCloseApplicationDialog}
         job={applicationDialog.job}
         onSuccess={handleApplicationSuccess}
+      />
+
+      {/* Job View Dialog */}
+      <JobViewDialog
+        open={viewDialogOpen}
+        onClose={handleCloseDialog}
+        job={selectedJob}
       />
 
       {/* Snackbar */}

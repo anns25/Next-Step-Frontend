@@ -49,7 +49,7 @@ export default function UserCompanies() {
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [limit] = useState(12);
-    const [savedCompanies, setSavedCompanies] = useState<Set<string>>(new Set());
+   
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [companyJobs, setCompanyJobs] = useState<Job[]>([]);
     const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
@@ -132,27 +132,6 @@ export default function UserCompanies() {
         setCurrentPage(page);
     };
 
-    const toggleSaveCompany = (companyId: string) => {
-        const newSaved = new Set(savedCompanies);
-        if (newSaved.has(companyId)) {
-            newSaved.delete(companyId);
-            setSnackbar({
-                open: true,
-                message: "Company removed from saved",
-                severity: "info",
-            });
-        } else {
-            newSaved.add(companyId);
-            setSnackbar({
-                open: true,
-                message: "Company saved successfully",
-                severity: "success",
-            });
-        }
-        setSavedCompanies(newSaved);
-    };
-
-
     const viewCompany = async (company: Company) => {
         setSelectedCompany(company);
         setCompanyDialogOpen(true);
@@ -198,11 +177,6 @@ export default function UserCompanies() {
     const handleSaveJob = (jobId: string) => {
         toggleSaveJob(jobId);
     };
-
-    const handleSaveCompany = (companyId: string) => {
-        toggleSaveCompany(companyId);
-    };
-
 
     return (
         <>
@@ -414,13 +388,6 @@ export default function UserCompanies() {
                                         >
                                             View Details
                                         </Button>
-                                        <Button
-                                            variant="outlined"
-                                            onClick={() => toggleSaveCompany(company._id)}
-                                            startIcon={savedCompanies.has(company._id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                                        >
-                                            {savedCompanies.has(company._id) ? "Saved" : "Save"}
-                                        </Button>
                                     </CardActions>
                                 </Card>
                             </Grid>
@@ -472,10 +439,7 @@ export default function UserCompanies() {
                 company={selectedCompany}
                 jobs={companyJobs}
                 onApplyToJob={handleApplyToJob}
-                onSaveJob={handleSaveJob}
-                onSaveCompany={handleSaveCompany}
                 savedJobs={savedJobs}
-                savedCompanies={savedCompanies}
             />
 
             {/* Snackbar */}

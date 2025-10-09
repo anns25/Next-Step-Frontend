@@ -36,6 +36,8 @@ import {
 } from "@mui/material";
 import {
     Notifications as NotificationsIcon,
+    Visibility as ViewIcon,
+    Send as SendIcon,
     Add as AddIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
@@ -50,6 +52,7 @@ import {
     AttachMoney as MoneyIcon,
     Search as SearchIcon,
 } from "@mui/icons-material";
+import JobViewDialog from "@/components/JobViewDialog";
 import { JobAlert, NotificationFrequency, Job } from "@/types/Job";
 import {
     getMyJobAlerts,
@@ -60,6 +63,7 @@ import {
     getMatchingJobsForAlert,
 } from "@/lib/api/jobAlertAPI";
 import { useRouter } from "next/navigation";
+import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 
 export default function JobAlertsPage() {
     const router = useRouter();
@@ -69,7 +73,9 @@ export default function JobAlertsPage() {
     const [matchingJobs, setMatchingJobs] = useState<Record<string, Job[]>>({});
     const [loadingJobs, setLoadingJobs] = useState<Record<string, boolean>>({});
 
-    // Dialog states
+    // Dialog state
+    const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+    const [viewDialogOpen, setViewDialogOpen] = useState(false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedAlert, setSelectedAlert] = useState<JobAlert | null>(null);
@@ -81,6 +87,28 @@ export default function JobAlertsPage() {
         skills: "",
         notificationFrequency: "immediate" as NotificationFrequency,
     });
+
+    // Application dialog state
+    const [applicationDialog, setApplicationDialog] = useState({
+        open: false,
+        job: null as Job | null,
+    });
+
+    const handleApplicationSuccess = () => {
+        setSnackbar({
+            open: true,
+            message: "Application submitted successfully!",
+            severity: "success",
+        });
+    };
+
+    const handleCloseApplicationDialog = () => {
+        setApplicationDialog({
+            open: false,
+            job: null,
+        });
+    };
+
 
     // Snackbar state
     const [snackbar, setSnackbar] = useState({
@@ -111,7 +139,7 @@ export default function JobAlertsPage() {
     const fetchMatchingJobs = async (alertId: string) => {
         setLoadingJobs((prev) => ({ ...prev, [alertId]: true }));
         try {
-            const response = await getMatchingJobsForAlert(alertId);
+            const response = await getMatchingJobsForAlert(alertId, { limit: 100 });
             if (response) {
                 setMatchingJobs((prev) => ({ ...prev, [alertId]: response.jobs }));
             }
@@ -140,6 +168,25 @@ export default function JobAlertsPage() {
                 fetchMatchingJobs(alertId);
             }
         }
+    };
+
+    // Open dialog to view job details
+    const handleViewJob = (job: Job) => {
+        setSelectedJob(job);
+        setViewDialogOpen(true);
+    };
+
+    // Close dialog
+    const handleCloseDialog = () => {
+        setViewDialogOpen(false);
+        setSelectedJob(null);
+    };
+
+    const applyToJob = (job: Job) => {
+        setApplicationDialog({
+            open: true,
+            job: job,
+        });
     };
 
     const handleToggleStatus = async (alertId: string, event: React.MouseEvent) => {
@@ -245,6 +292,16 @@ export default function JobAlertsPage() {
         const max = salary.max ? `${salary.currency || "$"}${salary.max.toLocaleString()}` : "";
         return `${min}${min && max ? " - " : ""}${max}`;
     };
+
+
+
+    if (loading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ position: "relative", zIndex: 2 }}>
@@ -469,17 +526,19 @@ export default function JobAlertsPage() {
                                                         <CardActions sx={{ px: 2, pb: 2 }}>
                                                             <Button
                                                                 variant="contained"
+                                                                startIcon={<ViewIcon />}
+                                                                onClick={() => handleViewJob(job)}
                                                                 size="small"
-                                                                onClick={() => router.push(`/user/jobs/${job._id}`)}
                                                             >
                                                                 View Details
                                                             </Button>
                                                             <Button
-                                                                variant="outlined"
+                                                                variant="contained"
+                                                                startIcon={<SendIcon />}
+                                                                onClick={() => applyToJob(job)}
                                                                 size="small"
-                                                                onClick={() => router.push(`/user/apply/${job._id}`)}
                                                             >
-                                                                Apply Now
+                                                                Apply
                                                             </Button>
                                                         </CardActions>
                                                     </Card>
@@ -570,6 +629,21 @@ export default function JobAlertsPage() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Job View Dialog */}
+            <JobViewDialog
+                open={viewDialogOpen}
+                onClose={handleCloseDialog}
+                job={selectedJob}
+            />
+
+            {/* Application Dialog */}
+            <ApplicationFormDialog
+                open={applicationDialog.open}
+                onClose={handleCloseApplicationDialog}
+                job={applicationDialog.job}
+                onSuccess={handleApplicationSuccess}
+            />
 
             {/* Snackbar */}
             <Snackbar
