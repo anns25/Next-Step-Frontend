@@ -90,6 +90,29 @@ const EditUserDialog: React.FC<Props> = ({
         });
       }
 
+      // ---- Custom validation for MIN & MAX SALARY ----
+      if (values.preferences?.salaryRange) {
+        const { min, max } = values.preferences.salaryRange;
+
+        // If min is provided but max is missing
+        if (min && !max) {
+          newErrors["preferences.salaryRange.max"] = "Maximum salary is required";
+        }
+
+        // If max is provided but min is missing
+        if (max && !min) {
+          newErrors["preferences.salaryRange.min"] = "Minimum salary is required";
+        }
+
+        // If both are provided, check the relationship
+        if (min && max && Number(max) <= Number(min)) {
+          newErrors["preferences.salaryRange.max"] =
+            "Maximum salary must be greater than minimum salary";
+        }
+      }
+
+
+
       // ---- Custom validation for WORK STATUS & EXPERIENCE ----
       if (values.workStatus === 'experienced') {
         if (!values.experience || values.experience.length === 0) {
@@ -796,7 +819,7 @@ const EditUserDialog: React.FC<Props> = ({
               onClick={handleSave}
               variant="contained"
               color="primary"
-              disabled = {values.workStatus === "experienced" && (!values.experience || values.experience.length === 0)}
+              disabled={values.workStatus === "experienced" && (!values.experience || values.experience.length === 0)}
             >
               Save Changes
             </Button>

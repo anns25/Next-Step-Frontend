@@ -105,9 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     router.push('/login');
-    deleteCookie('token');
-    deleteCookie('userData');
-    setUser(null);
+    // Wait briefly for navigation to start, then clear state
+    setTimeout(() => {
+      deleteCookie('token');
+      deleteCookie('userData');
+      setUser(null);
+    }, 50);
   };
 
   useEffect(() => {

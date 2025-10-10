@@ -46,7 +46,31 @@ const theme = createTheme({
                 },
             },
         },
-    },
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    '& input:-webkit-autofill': {
+                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset !important',
+                        WebkitTextFillColor: '#000000 !important',
+                        transition: 'background-color 5000s ease-in-out 0s',
+                    },
+                    '& input:-webkit-autofill:hover': {
+                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset !important',
+                        WebkitTextFillColor: '#000000 !important',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset !important',
+                        WebkitTextFillColor: '#000000 !important',
+                    },
+                    '& input:-webkit-autofill:active': {
+                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset !important',
+                        WebkitTextFillColor: '#000000 !important',
+                    },
+                }
+
+            },
+        }
+    }
 });
 
 export default theme;
