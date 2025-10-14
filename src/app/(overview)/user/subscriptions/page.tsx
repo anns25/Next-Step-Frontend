@@ -46,6 +46,7 @@ import {
 } from "@/lib/api/subscriptionAPI";
 import { getAllCompanies } from "@/lib/api/companyAPI";
 import { Company } from "@/types/Company";
+import { AxiosError } from "axios";
 
 export default function SubscriptionsPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -159,13 +160,19 @@ export default function SubscriptionsPage() {
                 setSelectedCompany(null);
                 fetchSubscriptions();
             }
-        } catch (error: any) {
-            setSnackbar({
-                open: true,
-                message: error.response?.data?.message || "Failed to subscribe",
-                severity: "error",
-            });
-        }
+        } catch (error: unknown) {
+        const errorMessage = error instanceof AxiosError
+            ? (error.response?.data?.message || error.message)
+            : error instanceof Error
+            ? error.message
+            : "Failed to subscribe";
+            
+        setSnackbar({
+            open: true,
+            message: errorMessage,
+            severity: "error",
+        });
+    }
     };
 
     const handleDeleteSubscription = async () => {

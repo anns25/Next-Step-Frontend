@@ -104,7 +104,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
         }
     };
 
-    const handleFilterChange = (field: keyof ApplicationFilters, value: any) => {
+    const handleFilterChange = (field: keyof ApplicationFilters, value: string | number | undefined) => {
         setFilters(prev => ({ ...prev, [field]: value, page: 1 }));
     };
 
@@ -335,7 +335,10 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         <InputLabel>Status</InputLabel>
                         <Select
                             value={filters.status || ""}
-                            onChange={(e) => handleFilterChange("status", e.target.value || undefined)}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                handleFilterChange("status", newValue === "" ? undefined : newValue);
+                            }}
                             label="Status"
                         >
                             <MenuItem value="">All</MenuItem>
@@ -396,7 +399,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         No applications found
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        You haven't applied to any jobs yet
+                        You haven&apos;t applied to any jobs yet
                     </Typography>
                 </Paper>
             ) : (
@@ -486,7 +489,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
 
                                     {application.coverLetter && (
                                         <Typography variant="body2" sx={{ mt: 2, fontStyle: "italic" }}>
-                                            "{application.coverLetter.substring(0, 150)}..."
+                                            &quot;{application.coverLetter.substring(0, 150)}...&quot;
                                         </Typography>
                                     )}
                                 </CardContent>

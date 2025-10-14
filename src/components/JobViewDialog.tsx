@@ -36,7 +36,7 @@ import {
     Home as HomeIcon,
     BusinessCenter as BusinessIcon2,
 } from '@mui/icons-material';
-import { Job, JobCompany } from '@/types/Job';
+import { Job, JobCompany, JobSalary } from '@/types/Job';
 
 interface JobViewDialogProps {
     open: boolean;
@@ -55,7 +55,7 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
         });
     };
 
-    const formatSalary = (salary: any) => {
+    const formatSalary = (salary: JobSalary | undefined) => {
         if (!salary) return 'Not specified';
 
         const { min, max, period, currency = 'USD' } = salary;
@@ -103,8 +103,13 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
         }
     };
 
-    const getIsActiveStatus = (isActive: boolean) => {
-        return isActive ? { label: "Active", color: "success" } : { label: "Inactive", color: "default" };
+    const getIsActiveStatus = (isActive: boolean): {
+        label: string;
+        color: 'success' | 'default'
+    } => {
+        return isActive
+            ? { label: "Active", color: "success" as const }
+            : { label: "Inactive", color: "default" as const };
     };
 
     const getExperienceLevelColor = (level: string) => {
@@ -116,21 +121,6 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
             case 'senior':
                 return 'warning';
             case 'executive':
-                return 'error';
-            default:
-                return 'default';
-        }
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active':
-                return 'success';
-            case 'inactive':
-                return 'default';
-            case 'draft':
-                return 'warning';
-            case 'expired':
                 return 'error';
             default:
                 return 'default';
@@ -241,7 +231,7 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
                                         </Typography>
                                         <Chip
                                             label={getIsActiveStatus(job.isActive).label}
-                                            color={getIsActiveStatus(job.isActive).color as any}
+                                            color={getIsActiveStatus(job.isActive).color}
                                             size="small"
                                             variant="outlined"
                                         />

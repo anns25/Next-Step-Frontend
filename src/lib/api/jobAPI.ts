@@ -1,5 +1,6 @@
-import { JobListResponse } from "@/types/Job";
+import { Job, JobListResponse } from "@/types/Job";
 import api from "../axios";
+import { PaginatedResponse } from "@/types/Api";
 
 export async function getAllJobs(params?: {
     page?: number;
@@ -33,10 +34,10 @@ export async function getAllJobs(params?: {
 
 }
 
-export async function getJobsByCompany(companyId: string, params?: {
-    page?: number;
-    limit?: number;
-}): Promise<any> {
+export async function getJobsByCompany(
+  companyId: string,
+  params?: { page?: number; limit?: number }
+): Promise<PaginatedResponse<Job> | null > {
     try {
         const queryParams = new URLSearchParams();
         if (params?.page) queryParams.append('page', params.page.toString());

@@ -1,7 +1,19 @@
 import { Company, CompanyListResponse } from "@/types/Company";
 import api from "../axios";
 import { AdminStats } from "@/types/Admin";
-import { JobListResponse } from "@/types/Job";
+import { Job, JobListResponse } from "@/types/Job";
+import { InterviewStats } from "@/types/Interview";
+import { AxiosError } from "axios";
+import { Application } from "@/types/Application";
+import { User } from "@/types/User";
+
+type JobUpdateData = Partial<Omit<Job, "_id" | "createdAt" | "updatedAt">>;
+export interface PaginatedUserResponse {
+    users: User[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+}
 
 // Add these functions to your existing adminAPI.ts file
 
@@ -17,36 +29,48 @@ export async function deleteUserByAdmin(userId: string): Promise<boolean> {
 
 // User Management Functions
 export async function getAllUsersByAdmin(params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  role?: string;
-  emailVerified?: boolean;
-}): Promise<any> {
-  try {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.role) queryParams.append('role', params.role);
-    if (params?.emailVerified !== undefined) queryParams.append('emailVerified', params.emailVerified.toString());
+    page?: number;
+    limit?: number;
+    search?: string;
+    role?: string;
+    emailVerified?: boolean;
+}): Promise<PaginatedUserResponse | null> {
+    try {
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.limit) queryParams.append('limit', params.limit.toString());
+        if (params?.search) queryParams.append('search', params.search);
+        if (params?.role) queryParams.append('role', params.role);
+        if (params?.emailVerified !== undefined) queryParams.append('emailVerified', params.emailVerified.toString());
 
-    const response = await api.get(`/admin/users?${queryParams.toString()}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching users", error);
-    return null;
-  }
+        const response = await api.get(`/admin/users?${queryParams.toString()}`);
+        return response.data;
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Error fetching users:", err.response.data);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
+        } else if (err instanceof Error) {
+            console.error("Request setup error:", err.message);
+        } else {
+            console.error("Unknown error fetching users");
+        }
+
+        return null;
+    }
 }
 
-export async function getUserByIdByAdmin(userId: string): Promise<any> {
-  try {
-    const response = await api.get(`/admin/users/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return null;
-  }
+
+export async function getUserByIdByAdmin(userId: string): Promise<User | null> {
+    try {
+        const response = await api.get(`/admin/users/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
 }
 
 
@@ -93,15 +117,17 @@ export async function createCompany(companyData: FormData): Promise<Company | nu
             },
         });
         return response.data.company;
-    } catch (error: any) {
-        if (error.response) {
-            console.error("Error updating company:", error.response.data); // 👈 full backend response
-            console.error("Status:", error.response.status);
-            console.error("Headers:", error.response.headers);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Error updating company:", err.response.data); // 👈 full backend response
+            console.error("Status:", err.response.status);
+            console.error("Headers:", err.response.headers);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
         } else {
-            console.error("Request setup error:", error.message);
+            console.error("Request setup error:", (error as Error).message);
         }
         throw error;
     }
@@ -117,15 +143,16 @@ export async function updateCompany(companyId: string, companyData: FormData): P
             },
         });
         return response.data.company;
-    } catch (error: any) {
-        if (error.response) {
-            console.error("Error updating company:", error.response.data); // 👈 full backend response
-            console.error("Status:", error.response.status);
-            console.error("Headers:", error.response.headers);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+        if (err.response) {
+            console.error("Error updating company:", err.response.data); // 👈 full backend response
+            console.error("Status:", err.response.status);
+            console.error("Headers:", err.response.headers);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
         } else {
-            console.error("Request setup error:", error.message);
+            console.error("Request setup error:", err.message);
         }
         throw error;
     }
@@ -138,12 +165,17 @@ export const deleteCompany = async (companyId: string) => {
         // Log success if needed
         console.log("Delete success:", response.status);
         return true;
-    } catch (error: any) {
-        if (error.response) {
-            console.error("Backend error:", error.response.data);
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Backend error:", err.response.data);
+        } else if (err instanceof Error) {
+            console.error("Error deleting company:", err.message);
         } else {
-            console.error("Error deleting company:", error.message);
+            console.error("Unknown error deleting company");
         }
+
         return false;
     }
 };
@@ -161,11 +193,9 @@ export async function getAdminDashboardStats(): Promise<AdminStats | null> {
 
 //Job Management for Companies
 
-export async function createJob(jobData: { company: string, data: FormData }): Promise<any> {
+export async function createJob(jobData: { company: string, data: FormData }): Promise<Job | null> {
     try {
         // extract company from formData
-
-
         const { company, data } = jobData
         console.log("****", data);
         const response = await api.post(`/admin/companies/${company}/jobs`, data, { headers: { "Content-Type": "application/json" } });
@@ -194,19 +224,29 @@ export async function getAllJobsByAdmin(params?: {
         if (params?.jobType) queryParams.append('jobType', params.jobType);
         if (params?.company) queryParams.append('company', params.company);
         if (params?.experienceLevel) queryParams.append('experienceLevel', params.experienceLevel);
-         if (params?.isActive !== undefined) {
+        if (params?.isActive !== undefined) {
             queryParams.append('isActive', params.isActive.toString());
-        }        
+        }
         const response = await api.get(`/admin/jobs/?${queryParams.toString()}`);
         return response.data;
-    } catch (error) {
-        console.error("Error fetching companies", error)
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Error fetching jobs:", err.response.data);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
+        } else if (err instanceof Error) {
+            console.error("Request setup error:", err.message);
+        } else {
+            console.error("Unknown error fetching jobs");
+        }
+
         return null;
     }
-
 }
 
-export async function updateJob(jobId: string, jobData: any): Promise<any> {
+export async function updateJob(jobId: string, jobData: JobUpdateData): Promise<Job | null> {
     try {
         console.log('Updating job with data:', jobData);
         const response = await api.patch(`/admin/jobs/${jobId}`, jobData, {
@@ -215,16 +255,21 @@ export async function updateJob(jobId: string, jobData: any): Promise<any> {
             },
         });
         return response.data.job;
-    } catch (error: any) {
-        if (error.response) {
-            console.error("Error updating job:", error.response.data);
-            console.error("Status:", error.response.status);
-            console.error("Headers:", error.response.headers);
-        } else if (error.request) {
-            console.error("No response received:", error.request);
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Error updating job:", err.response.data);
+            console.error("Status:", err.response.status);
+            console.error("Headers:", err.response.headers);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
+        } else if (err instanceof Error) {
+            console.error("Request setup error:", err.message);
         } else {
-            console.error("Request setup error:", error.message);
+            console.error("Unknown error updating job");
         }
+
         throw error;
     }
 }
@@ -249,4 +294,37 @@ export async function getJobById(id: string): Promise<Company | null> {
         return null;
     }
 
+}
+
+// Get applications for a specific user (Admin only)
+export async function getUserApplicationsByAdmin(userId: string, params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+}): Promise<{
+    applications: Application[];
+    totalPages: number;
+    currentPage: number;
+    total: number;
+} | null> {
+    try {
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.limit) queryParams.append('limit', params.limit.toString());
+        if (params?.status) queryParams.append('status', params.status);
+
+        const response = await api.get(`/admin/users/${userId}/applications?${queryParams.toString()}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user applications:", error);
+        return null;
+    }
+}
+
+//Interview Stats for Admin
+
+// Get interview statistics
+export async function getAdminInterviewStats(): Promise<InterviewStats> {
+    const response = await api.get('admin/interview/stats');
+    return response.data;
 }

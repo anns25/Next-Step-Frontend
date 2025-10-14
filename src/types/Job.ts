@@ -87,6 +87,8 @@ export type Job = {
     externalUrl?: string;
     applicationInstructions?: string;
     is_deleted?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
 };
 
 // ===================

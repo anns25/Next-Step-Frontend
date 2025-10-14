@@ -34,10 +34,32 @@ import { jobCreationSchemaWithConditions, jobValidationSchema } from '@/lib/vali
 interface JobFormDialogProps {
     open: boolean;
     onClose: () => void;
-    onSave: (formData: any) => Promise<void>;
+    onSave: (formData: FormData | JobFormData) => Promise<void>;
     initialData?: Job | null;
     companyId?: string; // Add this prop
 }
+
+// Add after imports, before the component
+
+interface ValidationRule {
+    value: number | RegExp;
+    message: string;
+}
+
+interface FieldValidationSchema {
+    required?: string;
+    minLength?: ValidationRule;
+    maxLength?: ValidationRule;
+    pattern?: ValidationRule;
+    min?: ValidationRule;
+    max?: ValidationRule;
+    validate?: (value: unknown) => boolean | string;
+}
+
+// Type guard to check if value is FieldValidationSchema
+const isFieldValidationSchema = (value: unknown): value is FieldValidationSchema => {
+    return value !== null && typeof value === 'object';
+};
 
 const jobTypes = [
     'full-time',
@@ -209,28 +231,50 @@ export default function JobFormDialog({
         }
     }, [open, initialData, companyId]);
 
-    const getNestedProperty = (obj: any, path: string): any => {
-        return path.split('.').reduce((current, key) => current?.[key], obj);
+    const getNestedProperty = (obj: object, path: string): unknown => {
+        return path.split('.').reduce((current, key) => {
+            if (current && typeof current === 'object') {
+                return (current as Record<string, unknown>)[key];
+            }
+            return undefined;
+        }, obj as unknown);
     };
 
-    const validateField = (name: string, value: any): string => {
+    const validateField = (name: string, value: unknown): string => {
         const fieldSchema = getNestedProperty(jobValidationSchema, name);
-        if (!fieldSchema) return '';
+        // Type guard check
+        if (!isFieldValidationSchema(fieldSchema)) return '';
+
+        // Type assertion for value when needed
+        const stringValue = typeof value === 'string' ? value : String(value || '');
 
         if (fieldSchema.required && (!value || value.toString().trim() === '')) {
             return fieldSchema.required;
         }
 
-        if (value && fieldSchema.minLength && value.length < fieldSchema.minLength.value) {
-            return fieldSchema.minLength.message;
+        // MinLength check - only if value exists and is string-like
+        if (value && fieldSchema.minLength) {
+            const valueLength = typeof value === 'string' ? value.length : stringValue.length;
+            if (valueLength < (fieldSchema.minLength.value as number)) {
+                return fieldSchema.minLength.message;
+            }
         }
 
-        if (value && fieldSchema.maxLength && value.length > fieldSchema.maxLength.value) {
-            return fieldSchema.maxLength.message;
+        // MaxLength check - only if value exists and is string-like
+        if (value && fieldSchema.maxLength) {
+            const valueLength = typeof value === 'string' ? value.length : stringValue.length;
+            if (valueLength > (fieldSchema.maxLength.value as number)) {
+                return fieldSchema.maxLength.message;
+            }
         }
 
-        if (value && fieldSchema.pattern && !fieldSchema.pattern.value.test(value)) {
-            return fieldSchema.pattern.message;
+        // Pattern check - ensure it's a RegExp before calling test()
+        if (value && fieldSchema.pattern) {
+            const regex = fieldSchema.pattern.value;
+            // Type guard to check if it's a RegExp
+            if (regex instanceof RegExp && !regex.test(stringValue)) {
+                return fieldSchema.pattern.message;
+            }
         }
 
         if (value && fieldSchema.validate && typeof fieldSchema.validate === 'function') {
@@ -240,16 +284,22 @@ export default function JobFormDialog({
             }
         }
 
-        // Fix: Handle numeric validation properly
+        // Numeric min/max validation
         if (value !== null && value !== undefined && value !== '') {
             const numValue = Number(value);
             if (!isNaN(numValue)) {
-                if (fieldSchema.min && numValue < fieldSchema.min.value) {
-                    return fieldSchema.min.message;
+                if (fieldSchema.min) {
+                    const minValue = fieldSchema.min.value;
+                    if (typeof minValue === 'number' && numValue < minValue) {
+                        return fieldSchema.min.message;
+                    }
                 }
 
-                if (fieldSchema.max && numValue > fieldSchema.max.value) {
-                    return fieldSchema.max.message;
+                if (fieldSchema.max) {
+                    const maxValue = fieldSchema.max.value;
+                    if (typeof maxValue === 'number' && numValue > maxValue) {
+                        return fieldSchema.max.message;
+                    }
                 }
             }
         }
@@ -351,28 +401,28 @@ export default function JobFormDialog({
         return d.toISOString().split("T")[0]; // yyyy-MM-dd
     };
 
-    const handleInputChange = (field: string, value: any) => {
+    const handleInputChange = (field: string, value: unknown) => {
         setFormData(prev => {
             const newData = { ...prev };
 
             // Handle nested object updates safely
             if (field.includes('.')) {
                 const keys = field.split('.');
-                let current = newData as any;
+                let current: Record<string, unknown> = newData as unknown as Record<string, unknown>;
 
                 // Navigate to the parent object
                 for (let i = 0; i < keys.length - 1; i++) {
                     if (!current[keys[i]]) {
                         current[keys[i]] = {};
                     }
-                    current = current[keys[i]];
+                    current = current[keys[i]] as Record<string, unknown>;
                 }
 
                 // Set the final value
                 current[keys[keys.length - 1]] = value;
             } else {
                 // Handle top-level properties
-                (newData as any)[field] = value;
+                (newData as unknown as Record<string, unknown>)[field] = value;
             }
 
             return newData;
@@ -391,20 +441,21 @@ export default function JobFormDialog({
         if (value.trim()) {
             setFormData(prev => {
                 const keys = field.split('.');
-                let current = prev as any;
+                let current: Record<string, unknown> = prev as unknown as Record<string, unknown>;
 
                 for (let i = 0; i < keys.length - 1; i++) {
                     if (!current[keys[i]]) {
                         current[keys[i]] = {};
                     }
-                    current = current[keys[i]];
+                    current = current[keys[i]] as Record<string, unknown>;
                 }
 
                 const arrayField = keys[keys.length - 1];
                 if (!current[arrayField]) {
                     current[arrayField] = [];
                 }
-                current[arrayField] = [...current[arrayField], value.trim()];
+                const currentArray = current[arrayField] as string[];
+                current[arrayField] = [...currentArray, value.trim()];
                 return { ...prev };
             });
         }
@@ -413,14 +464,15 @@ export default function JobFormDialog({
     const removeArrayItem = (field: string, index: number) => {
         setFormData(prev => {
             const keys = field.split('.');
-            let current = prev as any;
+            let current: Record<string, unknown> = prev as unknown as Record<string, unknown>;
 
             for (let i = 0; i < keys.length - 1; i++) {
-                current = current[keys[i]];
+                current = current[keys[i]] as Record<string, unknown>;
             }
 
             const arrayField = keys[keys.length - 1];
-            current[arrayField] = current[arrayField].filter((_: any, i: number) => i !== index);
+            const currentArray = current[arrayField] as string[];
+            current[arrayField] = currentArray.filter((_item: string, i: number) => i !== index);
             return { ...prev };
         });
     };
@@ -612,9 +664,12 @@ export default function JobFormDialog({
             }
 
             onClose();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving job:', error);
-            setSubmitError(error.message || 'Failed to save job. Please try again.');
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Failed to save job. Please try again.';
+            setSubmitError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -629,11 +684,11 @@ export default function JobFormDialog({
     // Helper function to get array items safely
     const getArrayItems = (field: string): string[] => {
         const keys = field.split('.');
-        let current = formData as any;
+        let current: unknown = formData;
         for (const key of keys) {
-            current = current?.[key];
+            current = (current as Record<string, unknown>)[key];
         }
-        return current || [];
+        return Array.isArray(current) ? current : [];
     };
 
     return (

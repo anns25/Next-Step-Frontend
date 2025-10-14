@@ -35,28 +35,7 @@ import {
 } from "@mui/icons-material";
 import { Company } from "@/types/Company";
 import { useTheme } from "@mui/material/styles";
-
-interface Job {
-    _id: string;
-    title: string;
-    jobType: string;
-    experienceLevel: string;
-    location: {
-        type: string;
-        city?: string;
-        state?: string;
-        country?: string;
-    };
-    salary?: {
-        min?: number;
-        max?: number;
-        currency: string;
-        period: string;
-    };
-    isActive: boolean;
-    createdAt: string;
-    applicationCount: number;
-}
+import { Job } from "@/types/Job";
 
 type Props = {
     open: boolean;
@@ -596,7 +575,7 @@ const CompanyViewDialog: React.FC<Props> = ({
                                                 No jobs posted yet
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                This company hasn't posted any job openings
+                                                This company hasn&apos;t posted any job openings
                                             </Typography>
                                         </Paper>
                                     ) : (

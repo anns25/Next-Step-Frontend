@@ -2,7 +2,7 @@ import { AdminDashboardData, AdminStats } from "./Admin";
 import { Company, CompanyStatus } from "./Company";
 
 // Generic API response wrapper
-export type ApiResponse<T = any> = {
+export type ApiResponse<T = unknown> = {
     success: boolean;
     data?: T;
     message?: string;

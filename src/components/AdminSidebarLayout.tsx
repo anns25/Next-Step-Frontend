@@ -319,19 +319,15 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WorkIcon from "@mui/icons-material/Work";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BusinessIcon from "@mui/icons-material/Business";
 import EventIcon from "@mui/icons-material/Event";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import theme from "@/theme";
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
-import { BusinessCenter, Description, People } from "@mui/icons-material";
+import { Description, People } from "@mui/icons-material";
 
 
 const drawerWidth = 240;
@@ -343,7 +339,7 @@ const menuItems = [
   { text: "Users", icon: <People />, link: "/admin/users" },
   { text: "Jobs", icon: <WorkIcon />, link: "/admin/jobs" },
   { text: "Applications", icon: <Description />, link: "/admin/applications"},
-  { text: "Interviews", icon: <BusinessCenter />, link: "/admin/interviews" },
+  { text: "Interviews", icon: <EventIcon />, link: "/admin/interviews" },
   { text: "Profile", icon: <PersonIcon />, link: "/admin/profile" },
 ];
 

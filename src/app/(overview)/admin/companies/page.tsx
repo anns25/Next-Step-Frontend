@@ -57,9 +57,10 @@ import {
 import CompanyViewDialog from "@/components/CompanyViewDialog";
 import CompanyFormDialog from "@/components/CompanyFormDialog";
 import JobFormDialog from "@/components/JobFormDialog";
-import { Job } from "@/types/Job";
+import { Job, JobFormData } from "@/types/Job";
 import { useAuth } from "@/contexts/authContext";
 import { getJobsByCompany } from "@/lib/api/jobAPI";
+import { AxiosError } from "axios";
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -82,7 +83,7 @@ export default function AdminCompanies() {
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [editingCompany, setEditingCompany] = useState<Company | null>(null);
     const [editingJob, setEditingJob] = useState<Job | null>(null);
-    const [companyJobs, setCompanyJobs] = useState<any[]>([]);
+    const [companyJobs, setCompanyJobs] = useState<Job[]>([]);
 
     const { user } = useAuth();
 
@@ -178,7 +179,7 @@ export default function AdminCompanies() {
         try {
             const jobsResponse = await getJobsByCompany(company._id, { page: 1, limit: 10 });
             if (jobsResponse) {
-                setCompanyJobs(jobsResponse.jobs || []);
+                setCompanyJobs(jobsResponse.data || []);
             }
         } catch (error) {
             console.error("Error fetching company jobs:", error);
@@ -277,11 +278,12 @@ export default function AdminCompanies() {
             // Refresh the companies list
             fetchCompanies();
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving company:', error);
             setSnackbar({
                 open: true,
-                message: error.message || "Failed to save company",
+                message: error instanceof Error
+                    ? error.message : "Failed to save company",
                 severity: "error",
             });
             throw error; // Re-throw to prevent dialog from closing on error
@@ -289,7 +291,7 @@ export default function AdminCompanies() {
     };
 
 
-    const handleJobSave = async (formData: FormData) => {
+    const handleJobSave = async (formData: FormData | JobFormData) => {
         try {
             if (!selectedCompany?._id) {
                 throw new Error("No company selected to attach the job to");
@@ -299,28 +301,41 @@ export default function AdminCompanies() {
                 throw new Error("User is not logged in");
             }
 
+            // Type guard: check if it's FormData
+            const isFormData = formData instanceof FormData;
+            if (isFormData) {
+                // Add createdBy field
+                formData.append('createdBy', user._id);
 
-            // Add createdBy field
-            formData.append('createdBy', user._id);
+                console.log("formData", formData);
 
-            console.log("formData", formData);
+                // Pass companyId + formData to the API
+                await createJob({
+                    company: selectedCompany._id,
+                    data: formData// Use the new FormData object
+                });
 
-            // Pass companyId + formData to the API
-            await createJob({
-                company: selectedCompany._id,
-                data: formData// Use the new FormData object
-            });
-
-            setSnackbar({
-                open: true,
-                message: "Job created successfully",
-                severity: "success",
-            });
-        } catch (error: any) {
+                setSnackbar({
+                    open: true,
+                    message: "Job created successfully",
+                    severity: "success",
+                });
+            } else {
+                // Handle JobFormData (for future update functionality)
+                throw new Error("Job update functionality not implemented yet");
+            }
+        } catch (error: unknown) { // ✅ Changed from error: any
             console.error("Error saving job:", error);
+
+            const errorMessage = error instanceof AxiosError
+                ? (error.response?.data?.message || error.message)
+                : error instanceof Error
+                    ? error.message
+                    : "Failed to save job";
+
             setSnackbar({
                 open: true,
-                message: error.message || "Failed to save job",
+                message: errorMessage,
                 severity: "error",
             });
             throw error; // keep dialog open on error

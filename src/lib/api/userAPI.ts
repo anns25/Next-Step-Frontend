@@ -2,6 +2,8 @@ import { AuthResponse, LoginCredentials, RegisterCredentials, User } from "../..
 import api from "../axios";
 import axios, { AxiosError } from "axios";
 
+type FormValue = string | number | boolean | null | undefined | FormValue[] | { [key: string]: FormValue };
+
 //Authentication API functions
 export async function loginUser(credentials: LoginCredentials): Promise<AuthResponse | null> {
   try {
@@ -66,7 +68,7 @@ export async function getMyProfile(): Promise<User | null> {
   }
 }
 
-function appendFormData(formData: FormData, key: string, value: any) {
+function appendFormData(formData: FormData, key: string, value: FormValue) {
   if (Array.isArray(value)) {
     value.forEach((item, index) => {
       if (typeof item === "object" && item !== null) {
@@ -110,7 +112,7 @@ export async function updateMyProfile(values: Partial<User>, file?: File): Promi
     );
 
     return response.data ?? null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       console.error("Update profile error:", {
         status: err.response?.status,
@@ -134,13 +136,23 @@ export const deleteUserAccount = async (): Promise<void> => {
       throw new Error('Failed to delete account');
     }
   }
-  catch (err: any) {
-    console.error("Delete account error : ", {
-      status: err.response?.status,
-      data: err.response?.data,
-      message: err.message,
-    });
-    throw err.response?.data || err;
+  catch (error: unknown) {
+    const err = error as AxiosError;
+
+    if (err.response) {
+      console.error("Delete account error:", {
+        status: err.response.status,
+        data: err.response.data,
+        message: err.message,
+      });
+      throw err.response.data || err;
+    } else if (err instanceof Error) {
+      console.error("Delete account error (non-Axios):", err.message);
+      throw err;
+    } else {
+      console.error("Unknown error deleting account:", err);
+      throw err;
+    }
   }
 };
 

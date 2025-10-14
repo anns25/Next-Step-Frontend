@@ -80,7 +80,7 @@ const EditUserDialog: React.FC<Props> = ({
   const validateForm = () => {
     try {
       const result = safeParse(profileUpdateSchemaWithConditions, values);
-      let newErrors: ValidationErrors = {};
+      const newErrors: ValidationErrors = {};
 
       // Collect schema errors first
       if (!result.success) {
@@ -171,19 +171,19 @@ const EditUserDialog: React.FC<Props> = ({
 
 
 
-  const handleChange = (field: keyof User, value: any) => {
+  const handleChange = (field: keyof User, value: unknown) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     clearFieldError(field.toString());
   };
 
-  const handleNestedChange = (path: string, value: any) => {
+  const handleNestedChange = (path: string, value: unknown) => {
     const keys = path.split(".");
-    const updated: any = { ...values };
-    let curr = updated;
+    const updated: Partial<User> = { ...values };
+    let curr: Record<string, unknown> = updated as Record<string, unknown>;
     for (let i = 0; i < keys.length - 1; i++) {
       curr[keys[i]] = curr[keys[i]] ?? {};
-      curr = curr[keys[i]];
+      curr = curr[keys[i]] as Record<string, unknown>;
     }
     curr[keys[keys.length - 1]] = value;
     setValues(updated);
@@ -453,7 +453,7 @@ const EditUserDialog: React.FC<Props> = ({
               {values.workStatus === "experienced" && (!values.experience || values.experience.length === 0) && (
                 <Alert severity="warning" sx={{ mt: 1 }}>
                   <Typography variant="body2">
-                    You selected "Experienced" but haven't added any experience entries yet.
+                    You selected &quot;Experienced&quot; but haven&apos;t added any experience entries yet.
                     Please go to the <strong>Experience tab</strong> to add your work history.
                   </Typography>
                 </Alert>

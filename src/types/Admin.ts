@@ -1,3 +1,5 @@
+export type MetadataValue = string | number | boolean | null | MetadataValue[] | { [key: string]: MetadataValue };
+
 // Admin dashboard statistics
 export type AdminStats = {
     totalCompanies: number;
@@ -19,7 +21,7 @@ export type AdminActivity = {
     adminId: string;
     adminName: string;
     timestamp: string;
-    metadata?: Record<string, any>; // Additional data about the action
+    metadata?: Record<string, MetadataValue>; // Additional data about the action
 };
 
 // Admin dashboard overview

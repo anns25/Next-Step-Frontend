@@ -598,7 +598,7 @@ const UserCompanyViewDialog: React.FC<UserCompanyViewDialogProps> = ({
                                                 No open positions
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                This company doesn't have any open positions at the moment
+                                                This company doesn&apos;t have any open positions at the moment
                                             </Typography>
                                         </Paper>
                                     ) : (

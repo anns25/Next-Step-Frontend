@@ -306,7 +306,7 @@ const Login = () => {
                             </form>
 
                             <Typography variant="body2" mt={2}>
-                                Don't have an account?{" "}
+                                Don&apos;t have an account?{" "}
                                 <Link href="/signup" underline="hover">
                                     Sign Up
                                 </Link>

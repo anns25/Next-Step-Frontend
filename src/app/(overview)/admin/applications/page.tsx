@@ -72,7 +72,12 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [applications, setApplications] = useState<Application[]>([]);
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<{
+        totalApplications: number;
+        underReview: number;
+        accepted: number;
+        rejected: number;
+    } | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
     const [filters, setFilters] = useState<ApplicationFilters>({
@@ -123,7 +128,7 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
         }
     };
 
-    const handleFilterChange = (field: keyof ApplicationFilters, value: any) => {
+    const handleFilterChange = (field: keyof ApplicationFilters, value: string | number | undefined) => {
         setFilters(prev => ({ ...prev, [field]: value, page: 1 }));
     };
 
@@ -813,7 +818,7 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
                                         <MenuItem value="interviewed">Interviewed</MenuItem>
                                         <MenuItem value="rejected">Rejected</MenuItem>
                                         <MenuItem value="accepted">Accepted</MenuItem>
-                                        <MenuItem value="withdrawn">Withdrawn</MenuItem>
+
                                     </Select>
                                 </FormControl>
 

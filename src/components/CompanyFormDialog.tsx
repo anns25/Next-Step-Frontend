@@ -25,7 +25,6 @@ import {
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Delete as DeleteIcon,
   Business as BusinessIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
@@ -38,6 +37,24 @@ interface CompanyFormDialogProps {
   onSave: (formData: FormData) => Promise<void>;
   initialData?: Company | null;
 }
+
+interface ValidationRule {
+  value: number | RegExp;
+  message: string;
+}
+
+interface FieldValidationSchema {
+  required?: string;
+  minLength?: ValidationRule;
+  maxLength?: ValidationRule;
+  pattern?: ValidationRule;
+  min?: ValidationRule;
+  max?: ValidationRule;
+}
+
+const isFieldValidationSchema = (value: unknown): value is FieldValidationSchema => {
+  return value !== null && typeof value === 'object';
+};
 
 const industries = [
   'Technology',
@@ -165,36 +182,60 @@ export default function CompanyFormDialog({
   }, [open, initialData]);
 
 
-  const getNestedProperty = (obj: any, path: string): any => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  const getNestedProperty = (obj: object, path: string): unknown => {
+    return path.split('.').reduce((current, key) => {
+      if (current && typeof current === 'object') {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj as unknown);
   };
 
-  const validateField = (name: string, value: any): string => {
-    const fieldSchema = getNestedProperty(companyValidationSchema, name);
-    if (!fieldSchema) return '';
 
-    if (fieldSchema.required && (!value || value.toString().trim() === '')) {
+  const validateField = (name: string, value: unknown): string => {
+    const fieldSchema = getNestedProperty(companyValidationSchema, name);
+
+    if (!isFieldValidationSchema(fieldSchema)) return '';
+
+    const stringValue = typeof value === 'string' ? value : String(value || '');
+
+    if (fieldSchema.required && (!value || stringValue.trim() === '')) {
       return fieldSchema.required;
     }
 
-    if (value && fieldSchema.minLength && value.length < fieldSchema.minLength.value) {
-      return fieldSchema.minLength.message;
+    if (value && fieldSchema.minLength) {
+      const valueLength = typeof value === 'string' ? value.length : stringValue.length;
+      if (valueLength < (fieldSchema.minLength.value as number)) {
+        return fieldSchema.minLength.message;
+      }
     }
 
-    if (value && fieldSchema.maxLength && value.length > fieldSchema.maxLength.value) {
-      return fieldSchema.maxLength.message;
+    if (value && fieldSchema.maxLength) {
+      const valueLength = typeof value === 'string' ? value.length : stringValue.length;
+      if (valueLength > (fieldSchema.maxLength.value as number)) {
+        return fieldSchema.maxLength.message;
+      }
     }
 
-    if (value && fieldSchema.pattern && !fieldSchema.pattern.value.test(value)) {
-      return fieldSchema.pattern.message;
+    if (value && fieldSchema.pattern) {
+      const regex = fieldSchema.pattern.value;
+      if (regex instanceof RegExp && !regex.test(stringValue)) {
+        return fieldSchema.pattern.message;
+      }
     }
 
-    if (value && fieldSchema.min && Number(value) < fieldSchema.min.value) {
-      return fieldSchema.min.message;
+    if (value && fieldSchema.min) {
+      const minValue = fieldSchema.min.value;
+      if (typeof minValue === 'number' && Number(value) < minValue) {
+        return fieldSchema.min.message;
+      }
     }
 
-    if (value && fieldSchema.max && Number(value) > fieldSchema.max.value) {
-      return fieldSchema.max.message;
+    if (value && fieldSchema.max) {
+      const maxValue = fieldSchema.max.value;
+      if (typeof maxValue === 'number' && Number(value) > maxValue) {
+        return fieldSchema.max.message;
+      }
     }
 
     return '';
@@ -264,28 +305,28 @@ export default function CompanyFormDialog({
 
   // Replace the handleInputChange function with this improved version:
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData(prev => {
       const newData = { ...prev };
 
       // Handle nested object updates safely
       if (field.includes('.')) {
         const keys = field.split('.');
-        let current = newData as any;
+        let current: Record<string, unknown> = newData as unknown as Record<string, unknown>;
 
         // Navigate to the parent object
         for (let i = 0; i < keys.length - 1; i++) {
           if (!current[keys[i]]) {
             current[keys[i]] = {};
           }
-          current = current[keys[i]];
+          current = current[keys[i]] as Record<string, unknown>;
         }
 
         // Set the final value
         current[keys[keys.length - 1]] = value;
       } else {
         // Handle top-level properties
-        (newData as any)[field] = value;
+        (newData as unknown as Record<string, unknown>)[field] = value;
       }
 
       return newData;
@@ -430,9 +471,12 @@ export default function CompanyFormDialog({
 
       await onSave(submitData);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving company:', error);
-      setSubmitError(error.message || 'Failed to save company. Please try again.');
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to save company. Please try again.';
+      setSubmitError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -751,7 +795,7 @@ export default function CompanyFormDialog({
               >
                 {statusOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
-                    <Chip label={option.label} color={option.color as any} size="small" />
+                    <Chip label={option.label} color={option.color as 'success' | 'error' | 'warning'} size="small" />
                   </MenuItem>
                 ))}
               </Select>

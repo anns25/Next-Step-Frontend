@@ -1,5 +1,12 @@
+import { AxiosError } from "axios";
 import api from "../axios";
 import { Job, JobAlert, JobAlertFormData, JobAlertListResponse } from "@/types/Job";
+
+export interface TestJobAlertResponse {
+    message: string;
+    totalRecentJobs: number;
+    matchingJobs: Job[];
+}
 
 export async function getMyJobAlerts(params?: {
     page?: number;
@@ -11,7 +18,7 @@ export async function getMyJobAlerts(params?: {
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.limit) queryParams.append('limit', params.limit.toString());
         if (params?.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
-        
+
         const response = await api.get(`/job-alert?${queryParams.toString()}`);
         return response.data;
     } catch (error) {
@@ -70,7 +77,7 @@ export async function toggleJobAlertStatus(id: string): Promise<{ message: strin
     }
 }
 
-export async function testJobAlert(id: string): Promise<{ message: string; totalRecentJobs: number; matchingJobs: number; jobs: any[] } | null> {
+export async function testJobAlert(id: string): Promise<TestJobAlertResponse | null> {
     try {
         const response = await api.post(`/job-alert/${id}/test`);
         return response.data;
@@ -89,7 +96,7 @@ export async function getMatchingJobsForAlert(alertId: string, params?: {
         const queryParams = new URLSearchParams();
         if (params?.page) queryParams.append('page', params.page.toString());
         if (params?.limit) queryParams.append('limit', params.limit.toString());
-        
+
         const response = await api.post(`/job-alert/${alertId}/test?${queryParams.toString()}`);
         return {
             jobs: response.data.jobs || [],
@@ -97,8 +104,19 @@ export async function getMatchingJobsForAlert(alertId: string, params?: {
             totalPages: Math.ceil((response.data.matchingJobs || 0) / (params?.limit || 10)),
             currentPage: params?.page || 1,
         };
-    } catch (error) {
-        console.error("Error fetching matching jobs:", error);
+    } catch (error: unknown) {
+        const err = error as AxiosError;
+
+        if (err.response) {
+            console.error("Error fetching matching jobs:", err.response.data);
+        } else if (err.request) {
+            console.error("No response received:", err.request);
+        } else if (err instanceof Error) {
+            console.error("Request setup error:", err.message);
+        } else {
+            console.error("Unknown error fetching matching jobs");
+        }
+
         return null;
     }
 }

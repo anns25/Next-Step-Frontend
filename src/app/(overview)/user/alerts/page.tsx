@@ -53,7 +53,7 @@ import {
     Search as SearchIcon,
 } from "@mui/icons-material";
 import JobViewDialog from "@/components/JobViewDialog";
-import { JobAlert, NotificationFrequency, Job } from "@/types/Job";
+import { JobAlert, NotificationFrequency, Job, JobSalary } from "@/types/Job";
 import {
     getMyJobAlerts,
     createJobAlert,
@@ -189,7 +189,7 @@ export default function JobAlertsPage() {
         });
     };
 
-    const handleToggleStatus = async (alertId: string, event: React.MouseEvent) => {
+    const handleToggleStatus = async (alertId: string, event: React.ChangeEvent<HTMLInputElement>) => {
         event.stopPropagation();
         try {
             const response = await toggleJobAlertStatus(alertId);
@@ -238,10 +238,10 @@ export default function JobAlertsPage() {
                 setFormData({ name: "", keywords: "", skills: "", notificationFrequency: "immediate" });
                 fetchJobAlerts();
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             setSnackbar({
                 open: true,
-                message: error.response?.data?.message || "Failed to create job alert",
+                message: error instanceof Error ? error.message : "Failed to create job alert",
                 severity: "error",
             });
         }
@@ -286,7 +286,7 @@ export default function JobAlertsPage() {
         }
     };
 
-    const formatSalary = (salary: any) => {
+    const formatSalary = (salary: JobSalary | undefined) => {
         if (!salary?.min && !salary?.max) return "Not specified";
         const min = salary.min ? `${salary.currency || "$"}${salary.min.toLocaleString()}` : "";
         const max = salary.max ? `${salary.currency || "$"}${salary.max.toLocaleString()}` : "";
@@ -618,7 +618,7 @@ export default function JobAlertsPage() {
                 <DialogTitle>Delete Job Alert</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Are you sure you want to delete "{selectedAlert?.name}"? This action cannot be
+                        Are you sure you want to delete &quot;{selectedAlert?.name}&quot;? This action cannot be
                         undone.
                     </Typography>
                 </DialogContent>
