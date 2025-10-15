@@ -211,7 +211,7 @@ export default function LocationFilter({ onFilterChange, currentFilters }: Locat
         <InputLabel>Location Type</InputLabel>
         <Select
           value={locationType}
-          onChange={(e) => handleLocationTypeChange(e.target.value as any)}
+          onChange={(e) => handleLocationTypeChange(e.target.value as LocationFilters['locationType'])}
           label="Location Type"
           disabled={remoteOnly}
         >
