@@ -134,6 +134,10 @@ export type JobFilters = {
     limit?: number;
     sortBy?: 'createdAt' | 'title' | 'applicationCount' | 'viewCount' | 'applicationDeadline';
     sortOrder?: 'asc' | 'desc';
+    remoteOnly?: boolean;
+    latitude?: number;
+    longitude?: number;
+    radius?: number;
 };
 
 export type JobSearchParams = {

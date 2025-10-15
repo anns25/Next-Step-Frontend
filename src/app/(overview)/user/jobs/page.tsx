@@ -98,7 +98,7 @@ function JobsPageContent() {
     "executive"
   ];
 
-  const getJobTypeColor = (jobType: JobType): "success" | "warning" | "error" | "default" | "info" => {
+    const getJobTypeColor = (jobType: JobType): "success" | "warning" | "error" | "default" | "info" => {
     switch (jobType) {
       case "full-time": return "success";
       case "part-time": return "info";

@@ -6,7 +6,7 @@ export default async function AuthCheck() {
   const token = cookieStore.get('token');
   
   if (!token) {
-    redirect('/');
+    redirect('/login');
   }
   
   return null; // This component doesn't render anything
