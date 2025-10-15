@@ -37,6 +37,7 @@ import {
     BusinessCenter as BusinessIcon2,
 } from '@mui/icons-material';
 import { Job, JobCompany, JobSalary } from '@/types/Job';
+import JobShareButtons from './JobShareButtons';
 
 interface JobViewDialogProps {
     open: boolean;
@@ -169,9 +170,12 @@ const JobViewDialog: React.FC<JobViewDialogProps> = ({ open, onClose, job }) => 
                             </Typography>
                         </Box>
                     </Box>
-                    <IconButton onClick={onClose} size="small">
-                        <CloseIcon />
-                    </IconButton>
+                    <Box display="flex" alignItems="center" gap={1}>
+                        <JobShareButtons job={job} variant="menu" />
+                        <IconButton onClick={onClose} size="small">
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
                 </Box>
             </DialogTitle>
 

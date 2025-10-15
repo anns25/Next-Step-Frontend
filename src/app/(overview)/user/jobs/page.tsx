@@ -44,6 +44,7 @@ import { Job, JobType, ExperienceLevel } from "@/types/Job";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
 import ApplicationFormDialog from "@/components/ApplicationFormDialog";
+import JobShareButtons from "@/components/JobShareButtons";
 
 function JobsPageContent() {
   const theme = useTheme();
@@ -497,7 +498,10 @@ function JobsPageContent() {
                     },
                   }}
                 >
-                  <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2, md: 3 } }}>
+                  <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2, md: 3 }, position: 'relative' }}>
+                    <Box sx={{ position: 'absolute', top: { xs: 8, sm: 12 }, right: { xs: 8, sm: 12 } }}>
+                      <JobShareButtons job={job} variant="menu" />
+                    </Box>
                     {job.isFeatured && (
                       <Chip
                         label="Featured"

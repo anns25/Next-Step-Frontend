@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import Providers from "@/providers";
+import ShareThis from "@/components/ShareThis";
 
 export const metadata: Metadata = {
     title: "NextStep",
@@ -17,6 +18,7 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <Providers>
+                    <ShareThis propertyId="68ef34339ac1bf93b5eb2057" />
                     {children}
                 </Providers>
             </body>

@@ -437,14 +437,6 @@ export default function AdminUsers() {
 
                                         {/* User Details */}
                                         <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                            <Box sx={{ display: "flex", gap: 0.5, mb: 1, flexWrap: "wrap" }}>
-                                                <Chip
-                                                    label={user.emailVerified ? "Verified" : "Unverified"}
-                                                    color={getVerificationColor(user.emailVerified || false)}
-                                                    size="small"
-                                                    sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
-                                                />
-                                            </Box>
 
                                             <Typography
                                                 variant="body2"
