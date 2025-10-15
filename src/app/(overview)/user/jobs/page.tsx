@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import {
   Box,
   Typography,
@@ -45,7 +45,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
 import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 
-export default function FindJobs() {
+function JobsPageContent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmall = useMediaQuery(theme.breakpoints.down('md'));
@@ -748,5 +748,17 @@ export default function FindJobs() {
         </Alert>
       </Snackbar>
     </>
+  );
+}
+
+export default function FindJobs() {
+  return (
+    <Suspense fallback={
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <CircularProgress />
+      </Box>
+    }>
+      <JobsPageContent />
+    </Suspense>
   );
 }

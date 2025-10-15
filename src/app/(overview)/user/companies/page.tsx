@@ -141,7 +141,7 @@ export default function UserCompanies() {
         try {
             const jobsResponse = await getJobsByCompany(company._id);
             if (jobsResponse) {
-                setCompanyJobs(jobsResponse.jobs || []);
+                setCompanyJobs(jobsResponse.data || []);
             }
         } catch (error) {
             console.error("Error fetching company jobs:", error);

@@ -64,11 +64,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { Application, ApplicationFilters } from "@/types/Application";
 import { deleteApplication, getApplicationStats, getUserApplications, restoreApplication, updateApplicationStatus } from "@/lib/api/applicationAPI";
 
-interface Props {
-    onRefresh?: () => void;
-}
 
-const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
+const AdminApplicationsList: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [applications, setApplications] = useState<Application[]>([]);
@@ -166,7 +163,6 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
             setEditDialogOpen(false);
             fetchApplications();
             fetchStats();
-            onRefresh?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to update application");
         } finally {
@@ -182,7 +178,6 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
             await deleteApplication(selectedApplication._id);
             setDeleteDialogOpen(false);
             fetchApplications();
-            onRefresh?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to delete application");
         } finally {
@@ -198,7 +193,6 @@ const AdminApplicationsList: React.FC<Props> = ({ onRefresh }) => {
             await restoreApplication(selectedApplication._id);
             handleMenuClose();
             fetchApplications();
-            onRefresh?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to restore application");
         } finally {
