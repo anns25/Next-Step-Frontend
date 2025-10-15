@@ -5,12 +5,13 @@ import { Box, Typography, Button, Fab, Paper } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 import ApplicationList from "@/components/ApplicationListComponent";
+import { Job } from "@/types/Job";
 
 const ApplicationsPage: React.FC = () => {
     const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
-    const [selectedJob, setSelectedJob] = useState(null);
+    const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-    const handleOpenApplicationDialog = (job: any) => {
+    const handleOpenApplicationDialog = (job: Job | null) => {
         setSelectedJob(job);
         setApplicationDialogOpen(true);
     };

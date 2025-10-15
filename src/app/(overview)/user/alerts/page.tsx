@@ -431,7 +431,7 @@ export default function JobAlertsPage() {
                                 >
                                     <Switch
                                         checked={alert.isActive}
-                                        onChange={(e) => handleToggleStatus(alert._id, e as any)}
+                                        onChange={(e) => handleToggleStatus(alert._id, e)}
                                         size="small"
                                     />
                                     <Tooltip title="Delete alert">

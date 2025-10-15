@@ -123,7 +123,7 @@ const AdminInterviewsPage: React.FC = () => {
     }
   };
 
-  const handleFilterChange = (field: keyof InterviewFilters, value: any) => {
+  const handleFilterChange = (field: keyof InterviewFilters, value: string | number | boolean | undefined) => {
     setFilters((prev) => ({ ...prev, [field]: value, page: 1 }));
   };
 

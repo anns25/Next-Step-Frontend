@@ -135,7 +135,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
         }
     }, [selectedUser]);
 
-    const validateField = (fieldName: string, value: any) => {
+    const validateField = (fieldName: string, value: string | number) => {
         // Build a partial object for validation
         const testData = {
             ...formData,
@@ -157,10 +157,20 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 const path = issue.path?.map(p => p.key).join('.');
                 return path === fieldName || path?.startsWith(`${fieldName}.`);
             });
-            if (fieldError) {
+            if (fieldError) {          
+                let errorMessage = fieldError.message;
+                 // Handle NaN/number validation errors for the round field
+                if (fieldName === 'round' && (
+                    errorMessage.toLowerCase().includes('nan') || 
+                    errorMessage.toLowerCase().includes('expected number') ||
+                    errorMessage.toLowerCase().includes('invalid type')
+                )) {
+                    errorMessage = 'Please enter a valid number for the interview round';
+                }
+                
                 setFieldErrors(prev => ({
                     ...prev,
-                    [fieldName]: fieldError.message
+                    [fieldName]: errorMessage
                 }));
             } else {
                 // Clear error if no longer present
@@ -181,7 +191,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
     };
 
     // Handle form field changes with validation
-    const handleFieldChange = (field: string, value: any) => {
+    const handleFieldChange = (field: string, value: string | number) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
         // Validate after a short delay (debounce)

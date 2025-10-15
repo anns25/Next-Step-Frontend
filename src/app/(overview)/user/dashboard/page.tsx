@@ -27,7 +27,7 @@ import {
 } from "@mui/icons-material";
 
 import { useAuth } from "@/contexts/authContext";
-import { ApplicationStats } from "@/types/Application";
+import { Application, ApplicationStats } from "@/types/Application";
 import { getApplicationStats, getUserApplications } from "@/lib/api/applicationAPI";
 
 // Define stats interface
@@ -44,7 +44,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<ApplicationStats | null>(null);
-  const [recentApplications, setRecentApplications] = useState<any[]>([]);
+  const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const theme = useTheme();
 
   useEffect(() => {

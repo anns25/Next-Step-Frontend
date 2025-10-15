@@ -49,7 +49,7 @@ import {
     Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 
-import { Job, JobListResponse, JobFilters } from "@/types/Job";
+import { Job, JobListResponse, JobFilters, JobFormData } from "@/types/Job";
 import {
     deleteJob,
     getAllJobsByAdmin,
@@ -256,11 +256,12 @@ export default function AdminJobs() {
         setCurrentPage(page);
     };
 
-    const handleJobSave = async (jobData: any) => {
+    const handleJobSave = async (jobData: FormData | JobFormData) => {
         try {
             if (editingJob) {
                 console.log('Updating job:', editingJob._id, 'with data:', jobData);
-                await updateJob(editingJob._id, jobData);
+                // Cast the jobData to the expected type for updateJob
+                await updateJob(editingJob._id, jobData as Partial<Omit<Job, "_id" | "createdAt" | "updatedAt">>);
                 setSnackbar({
                     open: true,
                     message: "Job updated successfully",
@@ -271,20 +272,29 @@ export default function AdminJobs() {
             // Refresh the jobs list
             fetchJobs();
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error saving job:', error);
             let errorMessage = "Failed to save job";
 
-            // Handle backend validation errors
-            if (error.response?.data?.errors) {
-                const errors = error.response.data.errors;
-                if (Array.isArray(errors)) {
-                    errorMessage = errors.map(err => err.msg || err.message).join(', ');
+            // Type guard to check if error has the expected structure
+            if (error && typeof error === 'object') {
+                // Check for axios error with response
+                if ('response' in error && error.response && typeof error.response === 'object') {
+                    const response = error.response as { data?: { errors?: Array<{ msg?: string; message?: string }>; message?: string } };
+
+                    if (response.data?.errors && Array.isArray(response.data.errors)) {
+                        errorMessage = response.data.errors
+                            .map(err => err.msg || err.message)
+                            .filter(Boolean)
+                            .join(', ');
+                    } else if (response.data?.message) {
+                        errorMessage = response.data.message;
+                    }
                 }
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
+                // Check for standard Error object
+                else if ('message' in error && typeof error.message === 'string') {
+                    errorMessage = error.message;
+                }
             }
 
             setSnackbar({
