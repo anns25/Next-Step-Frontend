@@ -7,6 +7,7 @@ import { getCookie, deleteCookie, setCookie } from 'cookies-next';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { loginUser, registerUser } from '../lib/api/userAPI';
+import { mutate } from 'swr';
 
 interface AuthContextType {
   user: User | null;
@@ -104,14 +105,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    // Navigate FIRST - user still sees current page
     router.push('/login');
-    // Wait briefly for navigation to start, then clear state
+
+    // THEN cleanup after navigation starts (in next tick)
+    // This prevents the dashboard from breaking during transition
     setTimeout(() => {
+      // Clear user state
+      setUser(null);
+
+      // Clear cookies
       deleteCookie('token');
       deleteCookie('userData');
-      setUser(null);
-    }, 50);
+
+      // Clear all SWR cache
+      mutate(
+        () => true,           // Match all keys
+        undefined,            // Clear data
+        { revalidate: false } // Don't refetch
+      );
+
+      // Show success message
+      toast.success("Logged out successfully");
+    }, 50); // Small delay ensures navigation has started
   };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     checkAuth();

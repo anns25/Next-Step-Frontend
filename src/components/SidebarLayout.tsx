@@ -18,13 +18,10 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import WorkIcon from "@mui/icons-material/Work";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BusinessIcon from "@mui/icons-material/Business";
 import EventIcon from "@mui/icons-material/Event";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import theme from "@/theme";
 import { SearchIcon } from "lucide-react";
@@ -32,6 +29,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 import { Description, Subscriptions } from "@mui/icons-material";
+import LogoutConfirmDialog from "./LogoutConfirmDialog";
 
 const drawerWidth = 240;
 const collapsedWidth = 64;
@@ -53,15 +51,33 @@ const menuItems = [
 const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
   const pathname = usePathname();
   const { logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-  }
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
 
-  // Drawer content (shared between desktop + mobile)
+  const handleLogoutConfirm = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setLoggingOut(false);
+      setLogoutDialogOpen(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
+  };
+
+
   // Drawer content (shared between desktop + mobile)
   const drawerContent = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -137,7 +153,7 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Sign Out at bottom */}
       <ListItem disablePadding sx={{ display: "block" }}>
         <ListItemButton
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           sx={{
             minHeight: 48,
             justifyContent: open ? "initial" : "center",
@@ -153,7 +169,7 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
               minWidth: 0,
               mr: open ? 2 : "auto",
               justifyContent: "center",
-              color: "#b71c1c", 
+              color: "#b71c1c",
             }}
           >
             <ExitToAppIcon />
@@ -176,129 +192,138 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
 
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundImage: "url('/office.jpeg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        position: "relative",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background: "rgba(0,0,0,0.4)",
-          zIndex: 0,
-        },
-      }}
-    >
-      {/* MOBILE: Hamburger + Temporary Drawer */}
-      {isXs ? (
-        <>
-          <AppBar
-            position="fixed"
-            sx={{
-              background: "rgba(255,255,255,0.12)",
-              backdropFilter: "blur(18px) saturate(180%)",
-              WebkitBackdropFilter: "blur(18px) saturate(180%)",
-              zIndex: theme.zIndex.drawer + 1,
-            }}
-          >
-            <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={() => setMobileOpen(!mobileOpen)}
-              >
-                <MenuIcon />
-              </IconButton>
-              {/* <Box
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+          backgroundImage: "url('/office.jpeg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "relative",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.4)",
+            zIndex: 0,
+          },
+        }}
+      >
+        {/* MOBILE: Hamburger + Temporary Drawer */}
+        {isXs ? (
+          <>
+            <AppBar
+              position="fixed"
+              sx={{
+                background: "rgba(255,255,255,0.12)",
+                backdropFilter: "blur(18px) saturate(180%)",
+                WebkitBackdropFilter: "blur(18px) saturate(180%)",
+                zIndex: theme.zIndex.drawer + 1,
+              }}
+            >
+              <Toolbar>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                >
+                  <MenuIcon />
+                </IconButton>
+                {/* <Box
                 component="img"
                 src="/NextStepLogo.png"
                 alt="NextStep"
                 sx={{ width: 40, height: 40, borderRadius: "8px" }}
               /> */}
-              <Box display="flex" alignItems="center" ml={1}>
-                <Typography variant="h6" fontWeight="bold" color="text.primary">
-                  Next
-                </Typography>
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  sx={{ color: "#fff", ml: 0.3 }}
-                >
-                  Step
-                </Typography>
-              </Box>
-            </Toolbar>
-          </AppBar>
+                <Box display="flex" alignItems="center" ml={1}>
+                  <Typography variant="h6" fontWeight="bold" color="text.primary">
+                    Next
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    sx={{ color: "#fff", ml: 0.3 }}
+                  >
+                    Step
+                  </Typography>
+                </Box>
+              </Toolbar>
+            </AppBar>
 
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={() => setMobileOpen(false)}
+              ModalProps={{ keepMounted: true }}
+              sx={{
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  background: "rgba(255,255,255,0.12)",
+                  backdropFilter: "blur(18px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(18px) saturate(180%)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                },
+              }}
+            >
+              {drawerContent}
+            </Drawer>
+          </>
+        ) : (
+          // DESKTOP: Collapsible Permanent Drawer
           <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={() => setMobileOpen(false)}
-            ModalProps={{ keepMounted: true }}
+            variant="permanent"
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
             sx={{
+              width: open ? drawerWidth : collapsedWidth,
+              flexShrink: 0,
+              whiteSpace: "nowrap",
+              transition: "width 0.3s ease",
               "& .MuiDrawer-paper": {
-                width: drawerWidth,
+                width: open ? drawerWidth : collapsedWidth,
                 boxSizing: "border-box",
-                background: "rgba(255,255,255,0.12)",
+                borderRight: "none",
+                overflowX: "hidden",
+                transition: "width 0.3s ease",
+                background: "rgba(255, 255, 255, 0.12)",
                 backdropFilter: "blur(18px) saturate(180%)",
                 WebkitBackdropFilter: "blur(18px) saturate(180%)",
                 border: "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: "4px 0 20px rgba(20,30,60,0.12)",
               },
             }}
           >
             {drawerContent}
           </Drawer>
-        </>
-      ) : (
-        // DESKTOP: Collapsible Permanent Drawer
-        <Drawer
-          variant="permanent"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+        )}
+
+        {/* Main Content */}
+        <Box
+          component="main"
           sx={{
-            width: open ? drawerWidth : collapsedWidth,
-            flexShrink: 0,
-            whiteSpace: "nowrap",
-            transition: "width 0.3s ease",
-            "& .MuiDrawer-paper": {
-              width: open ? drawerWidth : collapsedWidth,
-              boxSizing: "border-box",
-              borderRight: "none",
-              overflowX: "hidden",
-              transition: "width 0.3s ease",
-              background: "rgba(255, 255, 255, 0.12)",
-              backdropFilter: "blur(18px) saturate(180%)",
-              WebkitBackdropFilter: "blur(18px) saturate(180%)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              boxShadow: "4px 0 20px rgba(20,30,60,0.12)",
-            },
+            flexGrow: 1,
+            p: 3,
+            transition: "margin-left 0.3s ease",
+            ml: "5px",
+            mt: isXs ? "64px" : 0, // push content below AppBar on mobile
           }}
         >
-          {drawerContent}
-        </Drawer>
-      )}
-
-      {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          transition: "margin-left 0.3s ease",
-          ml: "5px",
-          mt: isXs ? "64px" : 0, // push content below AppBar on mobile
-        }}
-      >
-        {children}
+          {children}
+        </Box>
       </Box>
-    </Box>
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmDialog
+        open={logoutDialogOpen}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+        loading={loggingOut}
+      />
+    </>
   );
 };
 
