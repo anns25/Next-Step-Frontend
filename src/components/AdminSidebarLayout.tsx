@@ -173,7 +173,7 @@
 //           >
 //             <MenuIcon />
 //           </IconButton>
-          
+
 //           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
 //             Welcome back, {user?.firstName}
 //           </Typography>
@@ -184,7 +184,7 @@
 //                 <NotificationsIcon />
 //               </Badge>
 //             </IconButton>
-            
+
 //             <IconButton
 //               onClick={handleProfileMenuOpen}
 //               sx={{ p: 0 }}
@@ -338,7 +338,7 @@ const menuItems = [
   { text: "Companies", icon: <BusinessIcon />, link: "/admin/companies" },
   { text: "Users", icon: <People />, link: "/admin/users" },
   { text: "Jobs", icon: <WorkIcon />, link: "/admin/jobs" },
-  { text: "Applications", icon: <Description />, link: "/admin/applications"},
+  { text: "Applications", icon: <Description />, link: "/admin/applications" },
   { text: "Interviews", icon: <EventIcon />, link: "/admin/interviews" },
   { text: "Profile", icon: <PersonIcon />, link: "/admin/profile" },
 ];
@@ -449,16 +449,18 @@ const AdminSidebarLayout = ({ children }: { children: React.ReactNode }) => {
               minWidth: 0,
               mr: open ? 2 : "auto",
               justifyContent: "center",
+              color: "#b71c1c",
             }}
           >
-            <ExitToAppIcon color="error" />
+            <ExitToAppIcon />
           </ListItemIcon>
+
           {(open || isXs) && (
             <ListItemText
               primary="Sign Out"
               primaryTypographyProps={{
                 fontWeight: 600,
-                color: "error.main",
+                sx: { color: "#b71c1c" },
               }}
             />
           )}

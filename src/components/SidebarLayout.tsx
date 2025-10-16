@@ -43,7 +43,7 @@ const menuItems = [
   { text: "Companies", icon: <BusinessIcon />, link: "/user/companies" },
   { text: "Interviews", icon: <EventIcon />, link: "/user/interviews" },
   { text: "Job Alerts", icon: <NotificationsIcon />, link: "/user/alerts" },
-  { text: "Subscriptions", icon: <Subscriptions />, link: "/user/subscriptions"},
+  { text: "Subscriptions", icon: <Subscriptions />, link: "/user/subscriptions" },
   { text: "Profile", icon: <PersonIcon />, link: "/user/profile" },
 ];
 
@@ -153,19 +153,22 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
               minWidth: 0,
               mr: open ? 2 : "auto",
               justifyContent: "center",
+              color: "#b71c1c", 
             }}
           >
-            <ExitToAppIcon color="error" />
+            <ExitToAppIcon />
           </ListItemIcon>
+
           {(open || isXs) && (
             <ListItemText
               primary="Sign Out"
               primaryTypographyProps={{
                 fontWeight: 600,
-                color: "error.main",
+                sx: { color: "#b71c1c" },
               }}
             />
           )}
+
         </ListItemButton>
       </ListItem>
     </Box>

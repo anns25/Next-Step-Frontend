@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense } from "react";
 import {
   Box,
   Grid,
@@ -8,7 +8,6 @@ import {
   Paper,
   Avatar,
   Chip,
-  CircularProgress,
   useTheme,
   Stack,
   Divider,
@@ -22,13 +21,14 @@ import {
   CheckCircle as CheckCircleIcon,
   TrendingUp as TrendingUpIcon,
   EventAvailable as EventAvailableIcon,
-  Bookmark as BookmarkIcon,
   Error as ErrorIcon,
 } from "@mui/icons-material";
-
+import useSWR from "swr";
 import { useAuth } from "@/contexts/authContext";
 import { Application, ApplicationStats } from "@/types/Application";
 import { getApplicationStats, getUserApplications } from "@/lib/api/applicationAPI";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+
 
 // Define stats interface
 interface StatItem {
@@ -39,38 +39,35 @@ interface StatItem {
   color: string;
 }
 
-export default function UserDashboard() {
+// Separate component for dashboard content
+function DashboardContent() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<ApplicationStats | null>(null);
-  const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const theme = useTheme();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Fetch application stats and recent applications in parallel
-      const [statsResponse, applicationsResponse] = await Promise.all([
-        getApplicationStats(),
-        getUserApplications({ limit: 5, sortBy: 'applicationDate', sortOrder: 'desc' })
-      ]);
-
-      setStats(statsResponse);
-      setRecentApplications(applicationsResponse.applications);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
-    } finally {
-      setLoading(false);
+  // Fetch stats with SWR
+  const { data: stats, error: statsError } = useSWR<ApplicationStats>(
+    'application-stats',
+    getApplicationStats,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000, // Cache for 30 seconds
     }
-  };
+  );
+
+  // Fetch recent applications with SWR
+  const { data: applicationsData, error: applicationsError } = useSWR(
+    'recent-applications',
+    () => getUserApplications({ limit: 5, sortBy: 'applicationDate', sortOrder: 'desc' }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000,
+    }
+  );
+
+  const recentApplications = applicationsData?.applications || [];
+  const error = statsError || applicationsError;
 
   // Calculate derived stats
   const getStatsData = (): StatItem[] => {
@@ -137,20 +134,12 @@ export default function UserDashboard() {
     if (total === 0) return { applied: 0, underReview: 0, interview: 0, offers: 0 };
 
     return {
-      applied: 100, // All applications start as applied
+      applied: 100,
       underReview: Math.round(((stats.underReview || 0) / total) * 100),
       interview: Math.round(((stats.interviewScheduled || 0) + (stats.interviewed || 0)) / total * 100),
       offers: Math.round(((stats.accepted || 0) / total) * 100),
     };
   };
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (error) {
     return (
@@ -167,7 +156,7 @@ export default function UserDashboard() {
           }}
         >
           <Alert severity="error" icon={<ErrorIcon />}>
-            {error}
+            {error instanceof Error ? error.message : 'Failed to load dashboard data'}
           </Alert>
         </Paper>
       </Box>
@@ -377,7 +366,7 @@ export default function UserDashboard() {
               Recent Applications
             </Typography>
             <Stack spacing={2}>
-              {recentApplications.slice(0, 3).map((application, index) => (
+              {recentApplications.slice(0, 3).map((application) => (
                 <Box key={application._id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2 }}>
                   <Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -399,5 +388,14 @@ export default function UserDashboard() {
         )}
       </Paper>
     </Box>
+  );
+}
+
+// Main component with Suspense
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
