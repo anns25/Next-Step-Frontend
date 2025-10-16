@@ -40,7 +40,7 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import JobViewDialog from "@/components/JobViewDialog";
-import { Job, JobType, ExperienceLevel } from "@/types/Job";
+import { Job, JobType, ExperienceLevel, JobFilters } from "@/types/Job";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
 import ApplicationFormDialog from "@/components/ApplicationFormDialog";
@@ -193,7 +193,7 @@ const JobsPageContent = () => {
   }, [currentPage, limit, searchTerm, companyFilter, jobTypeFilter, experienceFilter, locationFilter, cityFilter, countryFilter]);
 
   // Fetcher function for SWR
-  const fetcher = async ([_, params]: [string, any]) => {
+  const fetcher = async ([_, params]: [string, JobFilters]) => {
     console.log('Fetching jobs with params:', params);
     const response = await getAllJobs(params);
     return response;
