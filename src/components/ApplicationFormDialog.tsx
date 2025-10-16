@@ -173,7 +173,11 @@ const ApplicationFormDialog: React.FC<Props> = ({
             // Type guard to check if error is an object with expected properties
             const isAxiosError = (err: unknown): err is {
                 response?: {
-                    data?: any;
+                    data?: {
+                        message?: string;
+                        errors?: Record<string, string>;
+                        [key: string]: unknown;
+                    };
                     status?: number;
                     statusText?: string;
                 };
@@ -189,7 +193,13 @@ const ApplicationFormDialog: React.FC<Props> = ({
 
             // Get the error message from various possible locations
             const responseData = error?.response?.data;
-            const backendMessage = responseData?.message || responseData || '';
+            // Extract backend message as string
+            let backendMessage = '';
+            if (typeof responseData === 'string') {
+                backendMessage = responseData;
+            } else if (responseData?.message && typeof responseData.message === 'string') {
+                backendMessage = responseData.message;
+            }
             const errorMessage = error?.message?.toLowerCase() || '';
             const backendMessageLower = backendMessage.toLowerCase();
             if (
@@ -296,10 +306,10 @@ const ApplicationFormDialog: React.FC<Props> = ({
                         }}
                     >
                         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            You've Already Applied! 🎉
+                            You&apos;ve Already Applied! 🎉
                         </Typography>
                         <Typography variant="body2">
-                            Good news! You've already submitted an application for this position.
+                            Good news! You&apos;e already submitted an application for this position.
                             The employer has received your information and will review it soon.
                             You can track your application status in your dashboard.
                         </Typography>
@@ -307,7 +317,7 @@ const ApplicationFormDialog: React.FC<Props> = ({
                             <Button
                                 size="small"
                                 variant="outlined"
-                                onClick={()=> router.push('/user/applications')}
+                                onClick={() => router.push('/user/applications')}
                                 sx={{ mr: 1 }}
                             >
                                 View My Applications
