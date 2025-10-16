@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -45,28 +45,37 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getAllJobs } from "@/lib/api/jobAPI";
 import ApplicationFormDialog from "@/components/ApplicationFormDialog";
 import JobShareButtons from "@/components/JobShareButtons";
+import useSWR from "swr";
 
-function JobsPageContent() {
+const JobsPageContent = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmall = useMediaQuery(theme.breakpoints.down('md'));
-  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+
+  // Separate input states (what user types) from filter states (what's used for fetching)
+  const [searchInput, setSearchInput] = useState("");
+  const [companyInput, setCompanyInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
+  const [countryInput, setCountryInput] = useState("");
+
+  // Debounced filter states (used for actual API calls)
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
-  const [jobTypeFilter, setJobTypeFilter] = useState("");
-  const [experienceFilter, setExperienceFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [limit] = useState(12);
-  const SAVED_JOBS_KEY = 'savedJobs';
-  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
-  const [locationFilter, setLocationFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [countryFilter, setCountryFilter] = useState("");
+
+  // Other filter states (no debouncing needed for dropdowns)
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [experienceFilter, setExperienceFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit] = useState(12);
+
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const SAVED_JOBS_KEY = 'savedJobs';
+  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -83,6 +92,46 @@ function JobsPageContent() {
     severity: "success" as "success" | "error" | "warning" | "info",
   });
 
+  // Debounce effect for search input (waits 500ms after user stops typing)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(searchInput);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Debounce effect for company filter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCompanyFilter(companyInput);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [companyInput]);
+
+  // Debounce effect for city filter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCityFilter(cityInput);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [cityInput]);
+
+  // Debounce effect for country filter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCountryFilter(countryInput);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [countryInput]);
+
   const jobTypes: JobType[] = [
     "full-time",
     "part-time",
@@ -98,7 +147,7 @@ function JobsPageContent() {
     "executive"
   ];
 
-    const getJobTypeColor = (jobType: JobType): "success" | "warning" | "error" | "default" | "info" => {
+  const getJobTypeColor = (jobType: JobType): "success" | "warning" | "error" | "default" | "info" => {
     switch (jobType) {
       case "full-time": return "success";
       case "part-time": return "info";
@@ -121,44 +170,59 @@ function JobsPageContent() {
 
   const locationTypes = ["remote", "on-site", "hybrid"];
 
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page: currentPage,
-        limit,
-        search: searchTerm || undefined,
-        company: companyFilter || undefined,
-        jobType: jobTypeFilter || undefined,
-        experienceLevel: experienceFilter || undefined,
-        locationType: locationFilter || undefined,
-        city: cityFilter || undefined,
-        country: countryFilter || undefined,
-      };
+  // Create SWR key based on current filters
+  const swrKey = useMemo(() => {
+    const params = {
+      page: currentPage,
+      limit,
+      search: searchTerm || undefined,
+      company: companyFilter || undefined,
+      jobType: jobTypeFilter || undefined,
+      experienceLevel: experienceFilter || undefined,
+      locationType: locationFilter || undefined,
+      city: cityFilter || undefined,
+      country: countryFilter || undefined,
+    };
 
-      console.log('Fetching jobs with params:', params);
-      const response = await getAllJobs(params);
+    // Only include defined parameters
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== undefined)
+    );
 
-      if (response) {
-        setJobs(response.jobs);
-        setTotalPages(response.totalPages);
-        setTotal(response.total);
-      }
-    } catch (error) {
+    return ['jobs', filteredParams];
+  }, [currentPage, limit, searchTerm, companyFilter, jobTypeFilter, experienceFilter, locationFilter, cityFilter, countryFilter]);
+
+  // Fetcher function for SWR
+  const fetcher = async ([_, params]: [string, any]) => {
+    console.log('Fetching jobs with params:', params);
+    const response = await getAllJobs(params);
+    return response;
+  };
+
+  // Use SWR for data fetching with keepPreviousData
+  const { data, error, isLoading, isValidating, mutate } = useSWR(swrKey, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+    dedupingInterval: 5000,
+    keepPreviousData: true, // This prevents flickering and losing focus
+  });
+
+  // Extract data from SWR response
+  const jobs = data?.jobs || [];
+  const totalPages = data?.totalPages || 1;
+  const total = data?.total || 0;
+
+  useEffect(() => {
+    if (error) {
       console.error("Error fetching jobs:", error);
       setSnackbar({
         open: true,
         message: "Failed to fetch jobs",
         severity: "error",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, [currentPage, searchTerm, companyFilter, jobTypeFilter, experienceFilter, locationFilter, cityFilter, countryFilter]);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -192,7 +256,9 @@ function JobsPageContent() {
     setSelectedJob(null);
   };
 
-  if (loading) {
+  const isInitialLoading = isLoading && !data;
+
+  if (isInitialLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
         <CircularProgress />
@@ -214,8 +280,8 @@ function JobsPageContent() {
       message: "Application submitted successfully!",
       severity: "success",
     });
-    // Optionally refresh the jobs list to update application counts
-    fetchJobs();
+    // Revalidate the jobs list to update application counts
+    mutate();
   };
 
   const handleCloseApplicationDialog = () => {
@@ -251,25 +317,26 @@ function JobsPageContent() {
     return company.logo || null;
   };
 
+
   const handleLocationFilter = (value: string) => {
     setLocationFilter(value);
     setCurrentPage(1);
-    // Clear city and country when switching to remote
     if (value === "remote") {
+      setCityInput("");
+      setCountryInput("");
       setCityFilter("");
       setCountryFilter("");
     }
   };
 
-  const handleCityFilter = (value: string) => {
-    setCityFilter(value);
-    setCurrentPage(1);
-  };
-
-  const handleCountryFilter = (value: string) => {
-    setCountryFilter(value);
-    setCurrentPage(1);
-  };
+  // Show loading state only on initial load
+  if (isLoading && !data) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -319,12 +386,13 @@ function JobsPageContent() {
             }}
           >
             <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
-              {/* Search Jobs */}
+              {/* Search Jobs - Now uses searchInput */}
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
                   placeholder="Search jobs..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
+                  spellCheck={false}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -343,7 +411,10 @@ function JobsPageContent() {
                   <InputLabel>Job Type</InputLabel>
                   <Select
                     value={jobTypeFilter}
-                    onChange={(e) => setJobTypeFilter(e.target.value)}
+                    onChange={(e) => {
+                      setJobTypeFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     label="Job Type"
                   >
                     <MenuItem value="">All Types</MenuItem>
@@ -362,7 +433,10 @@ function JobsPageContent() {
                   <InputLabel>Experience</InputLabel>
                   <Select
                     value={experienceFilter}
-                    onChange={(e) => setExperienceFilter(e.target.value)}
+                    onChange={(e) => {
+                      setExperienceFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     label="Experience"
                   >
                     <MenuItem value="">All Levels</MenuItem>
@@ -375,15 +449,13 @@ function JobsPageContent() {
                 </FormControl>
               </Grid>
 
-              {/* Company Search */}
+              {/* Company Search - Now uses companyInput */}
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
                   placeholder="Search by Company"
-                  value={companyFilter}
-                  onChange={(e) => {
-                    setCompanyFilter(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  value={companyInput}
+                  spellCheck={false}
+                  onChange={(e) => setCompanyInput(e.target.value)}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -395,7 +467,6 @@ function JobsPageContent() {
                   size={isMobile ? "small" : "medium"}
                 />
               </Grid>
-
 
               {/* Location Type Filter */}
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -416,26 +487,28 @@ function JobsPageContent() {
                 </FormControl>
               </Grid>
 
-              {/* City Filter - Only show for non-remote */}
+              {/* City Filter - Now uses cityInput */}
               {locationFilter && locationFilter !== "remote" && (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <TextField
                     placeholder="City"
-                    value={cityFilter}
-                    onChange={(e) => handleCityFilter(e.target.value)}
+                    spellCheck={false}
+                    value={cityInput}
+                    onChange={(e) => setCityInput(e.target.value)}
                     fullWidth
                     size={isMobile ? "small" : "medium"}
                   />
                 </Grid>
               )}
 
-              {/* Country Filter - Only show for non-remote */}
+              {/* Country Filter - Now uses countryInput */}
               {locationFilter && locationFilter !== "remote" && (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <TextField
                     placeholder="Country"
-                    value={countryFilter}
-                    onChange={(e) => handleCountryFilter(e.target.value)}
+                    spellCheck={false}
+                    value={countryInput}
+                    onChange={(e) => setCountryInput(e.target.value)}
                     fullWidth
                     size={isMobile ? "small" : "medium"}
                   />
@@ -459,7 +532,7 @@ function JobsPageContent() {
 
           <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
 
-          {/* Results Summary */}
+          {/* Results Summary with loading indicator */}
           <Box sx={{
             mb: { xs: 2, sm: 3 },
             display: "flex",
@@ -469,7 +542,7 @@ function JobsPageContent() {
             gap: { xs: 1, sm: 0 }
           }}>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
-              Showing {jobs.length} of {total} jobs
+              Showing {jobs.length} of {total} jobs {isLoading && "..."}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
               Page {currentPage} of {totalPages}
@@ -499,17 +572,6 @@ function JobsPageContent() {
                   }}
                 >
                   <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2, md: 3 }, position: 'relative' }}>
-                    <Box sx={{ position: 'absolute', top: { xs: 8, sm: 12 }, right: { xs: 8, sm: 12 } }}>
-                      <JobShareButtons job={job} variant="menu" />
-                    </Box>
-                    {job.isFeatured && (
-                      <Chip
-                        label="Featured"
-                        color="primary"
-                        size="small"
-                        sx={{ mb: 1, fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
-                      />
-                    )}
 
                     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                       <Avatar
@@ -568,21 +630,31 @@ function JobsPageContent() {
 
                     {/* Job Details */}
                     <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                      <Box sx={{ display: "flex", gap: 0.5, mb: 1, flexWrap: "wrap" }}>
-                        <Chip
-                          label={job.jobType}
-                          color={getJobTypeColor(job.jobType)}
-                          size="small"
-                          sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
-                        />
-                        <Chip
-                          label={job.experienceLevel}
-                          color={getExperienceColor(job.experienceLevel)}
-                          size="small"
-                          sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
-                        />
-                      </Box>
+                      <Box sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                        flexWrap: "wrap",
+                        gap: 0.5,
+                      }}>
+                        <Box sx={{ display: "flex", gap: 0.5, mb: 1, flexWrap: "wrap" }}>
+                          <Chip
+                            label={job.jobType}
+                            color={getJobTypeColor(job.jobType)}
+                            size="small"
+                            sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
+                          />
+                          <Chip
+                            label={job.experienceLevel}
+                            color={getExperienceColor(job.experienceLevel)}
+                            size="small"
+                            sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}
+                          />
 
+                        </Box>
+                        <JobShareButtons job={job} variant="menu" />
+                      </Box>
                       <Typography
                         variant="body2"
                         color="text.secondary"
@@ -719,10 +791,10 @@ function JobsPageContent() {
             </Box>
           )}
         </Paper>
-      </Box>
+      </Box >
 
       {/* Application Dialog */}
-      <ApplicationFormDialog
+      < ApplicationFormDialog
         open={applicationDialog.open}
         onClose={handleCloseApplicationDialog}
         job={applicationDialog.job}
@@ -730,17 +802,18 @@ function JobsPageContent() {
       />
 
       {/* Job View Dialog */}
-      <JobViewDialog
+      < JobViewDialog
         open={viewDialogOpen}
         onClose={handleCloseDialog}
         job={selectedJob}
       />
 
       {/* Snackbar */}
-      <Snackbar
+      < Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        onClose={() => setSnackbar({ ...snackbar, open: false })
+        }
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
@@ -750,7 +823,7 @@ function JobsPageContent() {
         >
           {snackbar.message}
         </Alert>
-      </Snackbar>
+      </Snackbar >
     </>
   );
 }

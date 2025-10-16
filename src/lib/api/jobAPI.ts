@@ -50,3 +50,13 @@ export async function getJobsByCompany(
         return null;
     }
 }
+
+export async function getJobById(jobId: string): Promise<Job | null> {
+    try {
+        const response = await api.get(`/job/${jobId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching job by ID:", error);
+        return null;
+    }
+}

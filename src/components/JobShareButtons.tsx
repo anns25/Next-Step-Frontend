@@ -21,7 +21,7 @@ export default function JobShareButtons({ job, variant = 'menu' }: JobShareButto
     const [copySuccess, setCopySuccess] = React.useState(false);
 
     const jobUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/jobs/${job._id}`
+        ? `${window.location.origin}/user/jobs/${job._id}`
         : '';
 
     const jobTitle = `${job.title} at ${typeof job.company === 'string' ? job.company : job.company.name}`;

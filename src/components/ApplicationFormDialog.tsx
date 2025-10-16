@@ -34,6 +34,8 @@ import { parse, ValiError } from 'valibot';
 import { ApplicationFormData, Job } from "@/types/Job";
 import { applicationCreationSchema } from "@/lib/validation/applicationAuthSchema";
 import { createApplication } from "@/lib/api/applicationAPI";
+import { CheckCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Props {
     open: boolean;
@@ -49,9 +51,11 @@ const ApplicationFormDialog: React.FC<Props> = ({
     onSuccess,
 }) => {
     const theme = useTheme();
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [generalError, setGeneralError] = useState("");
+    const [alreadyApplied, setAlreadyApplied] = useState(false);
     const [formData, setFormData] = useState<ApplicationFormData>({
         jobId: job?._id || "",
         coverLetter: "",
@@ -109,9 +113,9 @@ const ApplicationFormDialog: React.FC<Props> = ({
 
     const validateForm = (): boolean => {
         try {
-            const dataToValidate = { 
-                ...formData, 
-                resume: resumeFile 
+            const dataToValidate = {
+                ...formData,
+                resume: resumeFile
             };
             parse(applicationCreationSchema, dataToValidate);
             setFieldErrors({});
@@ -135,7 +139,8 @@ const ApplicationFormDialog: React.FC<Props> = ({
         e.preventDefault();
         setLoading(true);
         setGeneralError("");
-        
+        setAlreadyApplied(false);
+
         try {
             // Validate the form data with valibot
             if (!validateForm()) {
@@ -164,9 +169,49 @@ const ApplicationFormDialog: React.FC<Props> = ({
                 setResumeFile(null);
                 setFieldErrors({});
             }, 2000);
-        } catch (error) {
-            console.error("Application submission failed:", error);
-            setGeneralError(error instanceof Error ? error.message : "Failed to submit application");
+        } catch (error: unknown) {
+            // Type guard to check if error is an object with expected properties
+            const isAxiosError = (err: unknown): err is {
+                response?: {
+                    data?: any;
+                    status?: number;
+                    statusText?: string;
+                };
+                message?: string;
+            } => {
+                return typeof err === 'object' && err !== null;
+            };
+
+            if (!isAxiosError(error)) {
+                setGeneralError("An unexpected error occurred. Please try again.");
+                return;
+            }
+
+            // Get the error message from various possible locations
+            const responseData = error?.response?.data;
+            const backendMessage = responseData?.message || responseData || '';
+            const errorMessage = error?.message?.toLowerCase() || '';
+            const backendMessageLower = backendMessage.toLowerCase();
+            if (
+                backendMessageLower.includes('already applied') ||
+                errorMessage.includes('already applied') ||
+                backendMessageLower.includes('duplicate') ||
+                error?.response?.status === 400
+            ) {
+                setGeneralError("");
+                setAlreadyApplied(true);
+            }
+            else if (error?.response?.status === 401) {
+                setGeneralError("You must be logged in to apply for jobs");
+            } else if (error?.response?.status === 404) {
+                setGeneralError("Job not found or no longer available");
+            } else {
+                setGeneralError(
+                    backendMessage ||
+                    error?.message ||
+                    "Failed to submit application. Please try again."
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -236,6 +281,44 @@ const ApplicationFormDialog: React.FC<Props> = ({
                 {successMessage && (
                     <Alert severity="success" sx={{ mb: 2 }}>
                         {successMessage}
+                    </Alert>
+                )}
+                {/* User-friendly duplicate application alert */}
+                {alreadyApplied && (
+                    <Alert
+
+                        severity="info"
+                        icon={<CheckCircleIcon />}
+                        sx={{
+                            mb: 2,
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderLeft: '4px solid #2196f3',
+                        }}
+                    >
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            You've Already Applied! 🎉
+                        </Typography>
+                        <Typography variant="body2">
+                            Good news! You've already submitted an application for this position.
+                            The employer has received your information and will review it soon.
+                            You can track your application status in your dashboard.
+                        </Typography>
+                        <Box sx={{ mt: 1.5 }}>
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={()=> router.push('/user/applications')}
+                                sx={{ mr: 1 }}
+                            >
+                                View My Applications
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={handleClose}
+                            >
+                                Close
+                            </Button>
+                        </Box>
                     </Alert>
                 )}
 
@@ -334,9 +417,9 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                             </Typography>
                                         </Box>
                                     </Box>
-                                    <IconButton 
-                                        onClick={handleRemoveFile} 
-                                        color="error" 
+                                    <IconButton
+                                        onClick={handleRemoveFile}
+                                        color="error"
                                         size="small"
                                         disabled={loading}
                                     >
