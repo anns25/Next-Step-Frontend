@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     // Navigate FIRST - user still sees current page
-    router.push('/login');
+    window.location.href='/login';
 
     // THEN cleanup after navigation starts (in next tick)
     // This prevents the dashboard from breaking during transition
@@ -117,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear cookies
       deleteCookie('token');
       deleteCookie('userData');
+      setUser(null);
 
       // Clear all SWR cache
       mutate(
