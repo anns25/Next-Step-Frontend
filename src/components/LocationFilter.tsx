@@ -95,7 +95,7 @@ export default function JobFilters({ onFilterChange, initialFilters }: JobFilter
     }
   };
 
-  const handleFilterChange = (key: keyof JobFilters, value: any) => {
+  const handleFilterChange = (key: keyof JobFilters, value: string | number | boolean) => {
     const newFilters = { ...filters, [key]: value };
     
     // If remote only is enabled, clear location filters
