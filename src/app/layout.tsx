@@ -15,6 +15,9 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
+    // Add this temporarily to check if the key is loaded
+    console.log('Google Maps API Key loaded:', !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    console.log('Google Maps API Key value:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
     return (
         <html lang="en">
             <head>

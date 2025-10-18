@@ -1,299 +1,283 @@
-"use client";
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
-  FormControl,
-  InputLabel,
   Select,
   MenuItem,
-  Chip,
-  Stack,
-  Paper,
+  FormControl,
+  InputLabel,
+  Slider,
   Typography,
+  Button,
+  Chip,
   Switch,
   FormControlLabel,
-  Slider,
+  Grid,
   Autocomplete,
+  CircularProgress
 } from '@mui/material';
-import {
-  LocationOn as LocationIcon,
-  MyLocation as MyLocationIcon,
-  Public as RemoteIcon,
-} from '@mui/icons-material';
-import { useLoadScript } from '@react-google-maps/api';
+import LocationAutocomplete from './LocationAutocomplete';
 
-const libraries: ("places")[] = ["places"];
-
-interface LocationFilterProps {
-  onFilterChange: (filters: LocationFilters) => void;
-  currentFilters: LocationFilters;
+interface JobFiltersProps {
+  onFilterChange: (filters: JobFilters) => void;
+  initialFilters?: Partial<JobFilters>;
 }
 
-export interface LocationFilters {
-  locationType: 'all' | 'remote' | 'hybrid' | 'on-site';
-  city?: string;
-  country?: string;
-  radius?: number; // in miles
+export interface JobFilters {
+  search: string;
+  jobType: string;
+  experienceLevel: string;
+  locationType: string;
+  city: string;
+  state: string;
+  country: string;
+  remoteOnly: boolean;
   latitude?: number;
   longitude?: number;
-  remoteOnly?: boolean;
+  radius?: number; // in km
 }
 
-export default function LocationFilter({ onFilterChange, currentFilters }: LocationFilterProps) {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-    libraries,
+export default function JobFilters({ onFilterChange, initialFilters }: JobFiltersProps) {
+  const [filters, setFilters] = useState<JobFilters>({
+    search: '',
+    jobType: '',
+    experienceLevel: '',
+    locationType: '',
+    city: '',
+    state: '',
+    country: '',
+    remoteOnly: false,
+    radius: 50,
+    ...initialFilters
   });
 
-  const [remoteOnly, setRemoteOnly] = useState(currentFilters.remoteOnly || false);
-  const [locationType, setLocationType] = useState(currentFilters.locationType || 'all');
-  const [searchRadius, setSearchRadius] = useState(currentFilters.radius || 50);
-  const [selectedLocation, setSelectedLocation] = useState<google.maps.places.PlaceResult | null>(null);
+  const [locationInput, setLocationInput] = useState('');
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
-  // Auto-complete for location search
-  const autocompleteRef = React.useRef<google.maps.places.Autocomplete | null>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (isLoaded && inputRef.current && !autocompleteRef.current) {
-      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-        types: ['(cities)'],
-        fields: ['geometry', 'formatted_address', 'address_components'],
-      });
-
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place?.geometry?.location) {
-          setSelectedLocation(place);
-          handleLocationSelect(place);
-        }
-      });
-    }
-  }, [isLoaded]);
-
-  const handleLocationSelect = (place: google.maps.places.PlaceResult) => {
-    const lat = place.geometry?.location?.lat();
-    const lng = place.geometry?.location?.lng();
-
-    let city = '';
-    let country = '';
-
-    place.address_components?.forEach((component) => {
-      if (component.types.includes('locality')) {
-        city = component.long_name;
-      }
-      if (component.types.includes('country')) {
-        country = component.long_name;
-      }
-    });
-
-    onFilterChange({
-      ...currentFilters,
-      city,
-      country,
-      latitude: lat,
-      longitude: lng,
-      radius: searchRadius,
-    });
-  };
-
-  const handleRemoteOnlyToggle = (checked: boolean) => {
-    setRemoteOnly(checked);
-    onFilterChange({
-      ...currentFilters,
-      remoteOnly: checked,
-      locationType: checked ? 'remote' : currentFilters.locationType,
-    });
-  };
-
-  const handleLocationTypeChange = (type: 'all' | 'remote' | 'hybrid' | 'on-site') => {
-    setLocationType(type);
-    onFilterChange({
-      ...currentFilters,
-      locationType: type,
-      remoteOnly: type === 'remote',
-    });
-  };
-
-  const handleRadiusChange = (_event: Event, value: number | number[]) => {
-    const radius = Array.isArray(value) ? value[0] : value;
-    setSearchRadius(radius);
-    onFilterChange({
-      ...currentFilters,
-      radius,
-    });
-  };
-
+  // Get user's current location
   const getCurrentLocation = () => {
+    setLoadingLocation(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          
-          // Reverse geocode to get city name
-          const geocoder = new google.maps.Geocoder();
-          geocoder.geocode(
-            { location: { lat: latitude, lng: longitude } },
-            (results, status) => {
-              if (status === 'OK' && results?.[0]) {
-                let city = '';
-                let country = '';
-
-                results[0].address_components?.forEach((component) => {
-                  if (component.types.includes('locality')) {
-                    city = component.long_name;
-                  }
-                  if (component.types.includes('country')) {
-                    country = component.long_name;
-                  }
-                });
-
-                if (inputRef.current) {
-                  inputRef.current.value = `${city}, ${country}`;
-                }
-
-                onFilterChange({
-                  ...currentFilters,
-                  city,
-                  country,
-                  latitude,
-                  longitude,
-                  radius: searchRadius,
-                });
-              }
-            }
-          );
+        (position) => {
+          const newFilters = {
+            ...filters,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          setFilters(newFilters);
+          setUseCurrentLocation(true);
+          setLoadingLocation(false);
+          onFilterChange(newFilters);
         },
         (error) => {
           console.error('Error getting location:', error);
+          setLoadingLocation(false);
+          alert('Unable to get your location. Please enter it manually.');
         }
       );
     }
   };
 
-  if (loadError) {
-    return <Typography color="error">Error loading maps</Typography>;
-  }
+  const handleLocationSelect = (address: string, coordinates?: { lat: number; lng: number }) => {
+    setLocationInput(address);
+    if (coordinates) {
+      const newFilters = {
+        ...filters,
+        latitude: coordinates.lat,
+        longitude: coordinates.lng
+      };
+      setFilters(newFilters);
+      onFilterChange(newFilters);
+    }
+  };
 
-  if (!isLoaded) {
-    return <Typography>Loading location services...</Typography>;
-  }
+  const handleFilterChange = (key: keyof JobFilters, value: any) => {
+    const newFilters = { ...filters, [key]: value };
+    
+    // If remote only is enabled, clear location filters
+    if (key === 'remoteOnly' && value === true) {
+      newFilters.city = '';
+      newFilters.state = '';
+      newFilters.country = '';
+      newFilters.latitude = undefined;
+      newFilters.longitude = undefined;
+      newFilters.radius = undefined;
+      newFilters.locationType = 'remote';
+      setLocationInput('');
+      setUseCurrentLocation(false);
+    }
+    
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  const handleReset = () => {
+    const resetFilters: JobFilters = {
+      search: '',
+      jobType: '',
+      experienceLevel: '',
+      locationType: '',
+      city: '',
+      state: '',
+      country: '',
+      remoteOnly: false,
+      radius: 50
+    };
+    setFilters(resetFilters);
+    setLocationInput('');
+    setUseCurrentLocation(false);
+    onFilterChange(resetFilters);
+  };
 
   return (
-    <Paper sx={{ p: 3, borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-        Location Preferences
-      </Typography>
+    <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2 }}>
+      <Grid container spacing={3}>
+        {/* Search */}
+        <Grid size={{xs:12}}>
+          <TextField
+            fullWidth
+            label="Search Jobs"
+            placeholder="Job title, keywords, or company"
+            value={filters.search}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
+          />
+        </Grid>
 
-      {/* Remote Only Toggle */}
-      <Box sx={{ mb: 3 }}>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={remoteOnly}
-              onChange={(e) => handleRemoteOnlyToggle(e.target.checked)}
-              color="primary"
-            />
-          }
-          label={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <RemoteIcon />
-              <Typography>Remote Jobs Only</Typography>
-            </Box>
-          }
-        />
-      </Box>
-
-      {/* Location Type */}
-      <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel>Location Type</InputLabel>
-        <Select
-          value={locationType}
-          onChange={(e) => handleLocationTypeChange(e.target.value as LocationFilters['locationType'])}
-          label="Location Type"
-          disabled={remoteOnly}
-        >
-          <MenuItem value="all">All Locations</MenuItem>
-          <MenuItem value="remote">Remote Only</MenuItem>
-          <MenuItem value="hybrid">Hybrid</MenuItem>
-          <MenuItem value="on-site">On-Site</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* Location Search (disabled if remote only) */}
-      {!remoteOnly && (
-        <>
-          <Box sx={{ mb: 2 }}>
-            <TextField
-              inputRef={inputRef}
-              fullWidth
-              label="Search Location"
-              placeholder="Enter city or location"
-              InputProps={{
-                endAdornment: (
-                  <MyLocationIcon
-                    sx={{ cursor: 'pointer', color: 'primary.main' }}
-                    onClick={getCurrentLocation}
-                  />
-                ),
-              }}
-              disabled={remoteOnly}
-            />
-          </Box>
-
-          {/* Distance Radius */}
-          {selectedLocation && (
-            <Box sx={{ mt: 3 }}>
-              <Typography gutterBottom>
-                Search Radius: {searchRadius} miles
-              </Typography>
-              <Slider
-                value={searchRadius}
-                onChange={handleRadiusChange}
-                min={5}
-                max={100}
-                step={5}
-                marks={[
-                  { value: 5, label: '5mi' },
-                  { value: 25, label: '25mi' },
-                  { value: 50, label: '50mi' },
-                  { value: 100, label: '100mi' },
-                ]}
-                valueLabelDisplay="auto"
-              />
-            </Box>
-          )}
-        </>
-      )}
-
-      {/* Current Filters Display */}
-      {(currentFilters.city || currentFilters.remoteOnly) && (
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="caption" color="text.secondary" gutterBottom>
-            Active Filters:
-          </Typography>
-          <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
-            {currentFilters.remoteOnly && (
-              <Chip
-                label="Remote Only"
-                icon={<RemoteIcon />}
+        {/* Remote Only Toggle */}
+        <Grid size={{xs:12}}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={filters.remoteOnly}
+                onChange={(e) => handleFilterChange('remoteOnly', e.target.checked)}
                 color="primary"
-                size="small"
               />
-            )}
-            {currentFilters.city && !currentFilters.remoteOnly && (
-              <Chip
-                label={`${currentFilters.city}${currentFilters.radius ? ` (${currentFilters.radius}mi)` : ''}`}
-                icon={<LocationIcon />}
-                color="secondary"
-                size="small"
+            }
+            label="Remote Jobs Only"
+          />
+        </Grid>
+
+        {/* Location Type */}
+        {!filters.remoteOnly && (
+          <Grid size={{xs:12, sm:6}}>
+            <FormControl fullWidth>
+              <InputLabel>Location Type</InputLabel>
+              <Select
+                value={filters.locationType}
+                label="Location Type"
+                onChange={(e) => handleFilterChange('locationType', e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="remote">Remote</MenuItem>
+                <MenuItem value="on-site">On-site</MenuItem>
+                <MenuItem value="hybrid">Hybrid</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+
+        {/* Job Type */}
+        <Grid size={{xs:12, sm:6}}>
+          <FormControl fullWidth>
+            <InputLabel>Job Type</InputLabel>
+            <Select
+              value={filters.jobType}
+              label="Job Type"
+              onChange={(e) => handleFilterChange('jobType', e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="full-time">Full-time</MenuItem>
+              <MenuItem value="part-time">Part-time</MenuItem>
+              <MenuItem value="contract">Contract</MenuItem>
+              <MenuItem value="internship">Internship</MenuItem>
+              <MenuItem value="temporary">Temporary</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {/* Experience Level */}
+        <Grid size={{xs:12, sm:6}}>
+          <FormControl fullWidth>
+            <InputLabel>Experience Level</InputLabel>
+            <Select
+              value={filters.experienceLevel}
+              label="Experience Level"
+              onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="entry">Entry Level</MenuItem>
+              <MenuItem value="mid">Mid Level</MenuItem>
+              <MenuItem value="senior">Senior Level</MenuItem>
+              <MenuItem value="executive">Executive</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {/* Location-based Search - Only show if not remote only */}
+        {!filters.remoteOnly && (
+          <>
+            <Grid size={{xs:12}}>
+              <Typography variant="subtitle2" gutterBottom>
+                Location-based Search
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={getCurrentLocation}
+                  disabled={loadingLocation}
+                >
+                  {loadingLocation ? <CircularProgress size={20} /> : 'Use Current Location'}
+                </Button>
+                {useCurrentLocation && (
+                  <Chip label="Using current location" color="primary" size="small" />
+                )}
+              </Box>
+              
+              <LocationAutocomplete
+                label="Search Location"
+                value={locationInput}
+                onChange={handleLocationSelect}
+                types={['(cities)', '(regions)']}
+                disabled={filters.remoteOnly}
               />
+            </Grid>
+
+            {/* Radius Slider - Only show if coordinates are set */}
+            {(filters.latitude && filters.longitude) && (
+              <Grid size={{xs:12}}>
+                <Typography gutterBottom>
+                  Search Radius: {filters.radius} km
+                </Typography>
+                <Slider
+                  value={filters.radius || 50}
+                  onChange={(_, value) => handleFilterChange('radius', value)}
+                  min={5}
+                  max={200}
+                  step={5}
+                  marks={[
+                    { value: 5, label: '5km' },
+                    { value: 50, label: '50km' },
+                    { value: 100, label: '100km' },
+                    { value: 200, label: '200km' }
+                  ]}
+                  valueLabelDisplay="auto"
+                />
+              </Grid>
             )}
-          </Stack>
-        </Box>
-      )}
-    </Paper>
+          </>
+        )}
+
+        {/* Reset Button */}
+        <Grid size={{xs:12}}>
+          <Button variant="outlined" onClick={handleReset} fullWidth>
+            Reset Filters
+          </Button>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
