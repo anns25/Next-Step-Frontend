@@ -286,13 +286,25 @@ const AdminInterviewsPage: React.FC = () => {
         <Paper
           elevation={6}
           sx={{
-            p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
-            borderRadius: { xs: 2, md: 3 },
+            p: { xs: 0.5, sm: 1, md: 2, lg: 3 },
+            borderRadius: { xs: 0, sm: 2, md: 3 },
             backdropFilter: "blur(12px)",
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
             boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
-            mx: { xs: 1, sm: 2, md: 0 },
+            mx: { xs: 0, sm: 1, md: 0 },
+            minHeight: { xs: '100vh', sm: 'auto' },
+            // Custom breakpoints for very small screens
+            '@media (max-width: 600px)': {
+              p: 0.75,
+            },
+            '@media (max-width: 480px)': {
+              p: 0.5,
+            },
+            '@media (max-width: 350px)': {
+              p: 0.375,
+              background: 'rgba(255,255,255,0.95)'
+            }
           }}
         >
           {/* Header */}
@@ -302,16 +314,45 @@ const AdminInterviewsPage: React.FC = () => {
               flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
               alignItems: { xs: "flex-start", sm: "center" },
-              mb: { xs: 2, sm: 3 },
-              gap: { xs: 2, sm: 0 },
+              mb: { xs: 1.5, sm: 2, md: 3 },
+              gap: { xs: 1.5, sm: 0 },
+              p: { xs: 0.5, sm: 0 },
+              // Custom breakpoints
+              '@media (max-width: 600px)': {
+                mb: 1.25,
+                p: 0.25
+              },
+              '@media (max-width: 480px)': {
+                mb: 1,
+                p: 0.25
+              },
+              '@media (max-width: 350px)': {
+                mb: 0.75,
+                p: 0.25
+              }
             }}
           >
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem", lg: "2.125rem" },
+                fontSize: {
+                  xs: "1.1rem",
+                  sm: "1.5rem",
+                  md: "1.75rem",
+                  lg: "2rem"
+                },
                 lineHeight: 1.2,
+                // Custom breakpoints
+                '@media (max-width: 600px)': {
+                  fontSize: '1rem'
+                },
+                '@media (max-width: 480px)': {
+                  fontSize: '0.9rem'
+                },
+                '@media (max-width: 350px)': {
+                  fontSize: '0.8rem'
+                }
               }}
             >
               Interview Management
@@ -325,6 +366,16 @@ const AdminInterviewsPage: React.FC = () => {
                 "&:hover": {
                   backgroundColor: theme.palette.primary.dark,
                 },
+                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' },
+                px: { xs: 1, sm: 2 },
+                py: { xs: 0.5, sm: 1 },
+                minWidth: { xs: 'auto', sm: 'auto' },
+                // Custom breakpoints
+                '@media (max-width: 350px)': {
+                  fontSize: '0.65rem',
+                  px: 0.75,
+                  py: 0.375
+                }
               }}
             >
               Schedule Interview
@@ -340,63 +391,183 @@ const AdminInterviewsPage: React.FC = () => {
           <Box>
             {/* Stats Cards */}
             {stats && (
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid size={{xs:12, md:4}}>
+              <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: { xs: 2, sm: 2, md: 3 } }}>
+                <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                   <Paper
                     sx={{
-                      p: 3,
-                      borderRadius: 3,
+                      p: { xs: 1.25, sm: 2, md: 3 },
+                      borderRadius: { xs: 1.5, sm: 2, md: 3 },
                       backdropFilter: "blur(12px)",
                       background:
                         "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                       boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
                       textAlign: "center",
+                      minHeight: { xs: '70px', sm: 'auto' },
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      // Custom breakpoints
+                      '@media (max-width: 600px)': {
+                        p: 1,
+                      },
+                      '@media (max-width: 350px)': {
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                        backdropFilter: "blur(8px)",
+                        p: 0.75
+                      }
                     }}
                   >
-                    <Typography variant="h4" color="#1565c0" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h4"
+                      color="#1565c0"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '1rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.9rem'
+                        }
+                      }}
+                    >
                       {stats.totalInterviews}
                     </Typography>
-                    <Typography variant="body2" color="#2e3d4d">
+                    <Typography
+                      variant="body2"
+                      color="#2e3d4d"
+                      sx={{
+                        fontSize: { xs: '0.75rem', sm: '0.75rem', md: '0.875rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '0.7rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.65rem'
+                        }
+                      }}
+                    >
                       Total Interviews
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid size={{xs:12, md:4}}>
+                <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                   <Paper
                     sx={{
-                      p: 3,
-                      borderRadius: 3,
+                      p: { xs: 1.25, sm: 2, md: 3 },
+                      borderRadius: { xs: 1.5, sm: 2, md: 3 },
                       backdropFilter: "blur(12px)",
                       background:
                         "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                       boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
                       textAlign: "center",
+                      minHeight: { xs: '70px', sm: 'auto' },
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      // Custom breakpoints
+                      '@media (max-width: 600px)': {
+                        p: 1,
+                      },
+                      '@media (max-width: 350px)': {
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                        backdropFilter: "blur(8px)",
+                        p: 0.75
+                      }
                     }}
                   >
-                    <Typography variant="h4" color="info.main" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h4"
+                      color="info.main"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '1rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.9rem'
+                        }
+                      }}
+                    >
                       {stats.upcomingInterviews}
                     </Typography>
-                    <Typography variant="body2" color="#2e3d4d">
+                    <Typography
+                      variant="body2"
+                      color="#2e3d4d"
+                      sx={{
+                        fontSize: { xs: '0.75rem', sm: '0.75rem', md: '0.875rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '0.7rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.65rem'
+                        }
+                      }}
+                    >
                       Upcoming
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid size={{xs:12, md:4}}>
+                <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                   <Paper
                     sx={{
-                      p: 3,
-                      borderRadius: 3,
+                      p: { xs: 1.25, sm: 2, md: 3 },
+                      borderRadius: { xs: 1.5, sm: 2, md: 3 },
                       backdropFilter: "blur(12px)",
                       background:
                         "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                       boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
                       textAlign: "center",
+                      minHeight: { xs: '70px', sm: 'auto' },
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      // Custom breakpoints
+                      '@media (max-width: 600px)': {
+                        p: 1,
+                      },
+                      '@media (max-width: 350px)': {
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                        backdropFilter: "blur(8px)",
+                        p: 0.75
+                      }
                     }}
                   >
-                    <Typography variant="h4" color="success.main" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h4"
+                      color="success.main"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '1rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.9rem'
+                        }
+                      }}
+                    >
                       {stats.completedInterviews}
                     </Typography>
-                    <Typography variant="body2" color="#2e3d4d">
+                    <Typography
+                      variant="body2"
+                      color="#2e3d4d"
+                      sx={{
+                        fontSize: { xs: '0.75rem', sm: '0.75rem', md: '0.875rem' },
+                        // Custom breakpoints
+                        '@media (max-width: 600px)': {
+                          fontSize: '0.7rem'
+                        },
+                        '@media (max-width: 350px)': {
+                          fontSize: '0.65rem'
+                        }
+                      }}
+                    >
                       Completed
                     </Typography>
                   </Paper>
@@ -407,55 +578,86 @@ const AdminInterviewsPage: React.FC = () => {
             {/* Filters */}
             <Paper
               sx={{
-                p: { xs: 2, sm: 3 },
-                mb: 3,
-                borderRadius: 3,
+                p: { xs: 1.25, sm: 2, md: 3 },
+                mb: { xs: 2, sm: 2, md: 3 },
+                borderRadius: { xs: 1.5, sm: 2, md: 3 },
                 backdropFilter: "blur(12px)",
                 background:
                   "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                 boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
+                // Custom breakpoints
+                '@media (max-width: 600px)': {
+                  p: 1,
+                },
+                '@media (max-width: 350px)': {
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                  backdropFilter: "blur(8px)",
+                  p: 0.75
+                }
               }}
             >
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
+                  fontWeight: 600,
+                  // Custom breakpoints
+                  '@media (max-width: 350px)': {
+                    fontSize: '0.8rem',
+                    mb: 1.5
+                  }
+                }}
+              >
+                Filters
+              </Typography>
+
               <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-                <Grid size={{xs:12, sm:6, md:2}}>
+                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Status</InputLabel>
+                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Status</InputLabel>
                     <Select
                       value={filters.status || ""}
                       onChange={(e) => handleFilterChange("status", e.target.value || undefined)}
                       label="Status"
+                      sx={{
+                        fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                      }}
                     >
-                      <MenuItem value="">All</MenuItem>
-                      <MenuItem value="scheduled">Scheduled</MenuItem>
-                      <MenuItem value="confirmed">Confirmed</MenuItem>
-                      <MenuItem value="completed">Completed</MenuItem>
-                      <MenuItem value="cancelled">Cancelled</MenuItem>
-                      <MenuItem value="rescheduled">Rescheduled</MenuItem>
+                      <MenuItem value="" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>All</MenuItem>
+                      <MenuItem value="scheduled" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Scheduled</MenuItem>
+                      <MenuItem value="confirmed" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Confirmed</MenuItem>
+                      <MenuItem value="completed" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Completed</MenuItem>
+                      <MenuItem value="cancelled" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Cancelled</MenuItem>
+                      <MenuItem value="rescheduled" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Rescheduled</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{xs:12, sm:6, md:2}}>
+                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Type</InputLabel>
+                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Type</InputLabel>
                     <Select
                       value={filters.type || ""}
                       onChange={(e) => handleFilterChange("type", e.target.value || undefined)}
                       label="Type"
+                      sx={{
+                        fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                      }}
                     >
-                      <MenuItem value="">All</MenuItem>
-                      <MenuItem value="phone">Phone</MenuItem>
-                      <MenuItem value="video">Video</MenuItem>
-                      <MenuItem value="in-person">In-Person</MenuItem>
-                      <MenuItem value="technical">Technical</MenuItem>
-                      <MenuItem value="panel">Panel</MenuItem>
-                      <MenuItem value="hr">HR</MenuItem>
-                      <MenuItem value="final">Final</MenuItem>
+                      <MenuItem value="" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>All</MenuItem>
+                      <MenuItem value="phone" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Phone</MenuItem>
+                      <MenuItem value="video" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Video</MenuItem>
+                      <MenuItem value="in-person" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>In-Person</MenuItem>
+                      <MenuItem value="technical" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Technical</MenuItem>
+                      <MenuItem value="panel" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Panel</MenuItem>
+                      <MenuItem value="hr" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>HR</MenuItem>
+                      <MenuItem value="final" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Final</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{xs:12, sm:6, md:2}}>
+                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Time</InputLabel>
+                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Time</InputLabel>
                     <Select
                       value={
                         filters.upcoming ? "upcoming" : filters.past ? "past" : ""
@@ -474,37 +676,46 @@ const AdminInterviewsPage: React.FC = () => {
                         }
                       }}
                       label="Time"
+                      sx={{
+                        fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                      }}
                     >
-                      <MenuItem value="">All</MenuItem>
-                      <MenuItem value="upcoming">Upcoming</MenuItem>
-                      <MenuItem value="past">Past</MenuItem>
+                      <MenuItem value="" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>All</MenuItem>
+                      <MenuItem value="upcoming" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Upcoming</MenuItem>
+                      <MenuItem value="past" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Past</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{xs:12, sm:6, md:2}}>
+                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Sort By</InputLabel>
+                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Sort By</InputLabel>
                     <Select
                       value={filters.sortBy || "scheduledDate"}
                       onChange={(e) => handleFilterChange("sortBy", e.target.value)}
                       label="Sort By"
+                      sx={{
+                        fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                      }}
                     >
-                      <MenuItem value="scheduledDate">Date</MenuItem>
-                      <MenuItem value="status">Status</MenuItem>
-                      <MenuItem value="type">Type</MenuItem>
+                      <MenuItem value="scheduledDate" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Date</MenuItem>
+                      <MenuItem value="status" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Status</MenuItem>
+                      <MenuItem value="type" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Type</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid size={{xs:12, sm:6, md:2}}>
+                <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Order</InputLabel>
+                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Order</InputLabel>
                     <Select
                       value={filters.sortOrder || "asc"}
                       onChange={(e) => handleFilterChange("sortOrder", e.target.value)}
                       label="Order"
+                      sx={{
+                        fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                      }}
                     >
-                      <MenuItem value="asc">Earliest</MenuItem>
-                      <MenuItem value="desc">Latest</MenuItem>
+                      <MenuItem value="asc" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Earliest</MenuItem>
+                      <MenuItem value="desc" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Latest</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -514,34 +725,63 @@ const AdminInterviewsPage: React.FC = () => {
             {/* Interviews Table - Desktop */}
             <Paper
               sx={{
-                borderRadius: 3,
+                borderRadius: { xs: 1.5, sm: 2, md: 3 },
                 backdropFilter: "blur(12px)",
                 background:
                   "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                 boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
                 display: { xs: "none", md: "block" },
+                // Custom breakpoints
+                '@media (max-width: 350px)': {
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                  backdropFilter: "blur(8px)"
+                }
               }}
             >
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Candidate
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Position
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Type
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Date & Time
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Status
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600 }}>
+                      <TableCell sx={{
+                        fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                        fontWeight: 600,
+                        p: { xs: 0.5, sm: 1, md: 1.5 }
+                      }}>
                         Actions
                       </TableCell>
                     </TableRow>
@@ -551,12 +791,12 @@ const AdminInterviewsPage: React.FC = () => {
                       <TableRow>
                         <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                           <CalendarIcon
-                            sx={{ fontSize: 64, color: "text.secondary", mb: 2, opacity: 0.5 }}
+                            sx={{ fontSize: { xs: 48, sm: 64 }, color: "text.secondary", mb: 2, opacity: 0.5 }}
                           />
-                          <Typography variant="h6" gutterBottom>
+                          <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' } }}>
                             No interviews found
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' } }}>
                             Schedule an interview to get started
                           </Typography>
                         </TableCell>
@@ -564,39 +804,53 @@ const AdminInterviewsPage: React.FC = () => {
                     ) : (
                       interviews.map((interview) => (
                         <TableRow key={interview._id} hover>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 } }}>
                               <Avatar
                                 src={
                                   interview.user.profilePicture
                                     ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${interview.user.profilePicture}`
                                     : undefined
                                 }
-                                sx={{ width: 40, height: 40 }}
+                                sx={{
+                                  width: { xs: 24, sm: 32, md: 40 },
+                                  height: { xs: 24, sm: 32, md: 40 },
+                                  fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                }}
                               >
                                 {interview.user.firstName[0]}
                               </Avatar>
                               <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                <Typography variant="subtitle2" sx={{
+                                  fontWeight: 600,
+                                  fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                }}>
                                   {interview.user.firstName} {interview.user.lastName}
                                 </Typography>
-                                <Typography variant="caption" color="#2e3d4d">
+                                <Typography variant="caption" color="#2e3d4d" sx={{
+                                  fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' }
+                                }}>
                                   {interview.user.email}
                                 </Typography>
                               </Box>
                             </Box>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                             <Box>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                              <Typography variant="subtitle2" sx={{
+                                fontWeight: 600,
+                                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                              }}>
                                 {interview.job.title}
                               </Typography>
-                              <Typography variant="caption" color="#2e3d4d">
+                              <Typography variant="caption" color="#2e3d4d" sx={{
+                                fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' }
+                              }}>
                                 {interview.company.name} • Round {interview.round}
                               </Typography>
                             </Box>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                             <Chip
                               icon={getTypeIcon(interview.type)}
                               label={
@@ -605,34 +859,51 @@ const AdminInterviewsPage: React.FC = () => {
                               }
                               size="small"
                               variant="outlined"
+                              sx={{
+                                fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                                height: { xs: 20, sm: 24, md: 28 }
+                              }}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                             <Box>
-                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              <Typography variant="body2" sx={{
+                                fontWeight: 500,
+                                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                              }}>
                                 {formatDate(interview.scheduledDate)}
                               </Typography>
-                              <Typography variant="caption" color="#2e3d4d">
+                              <Typography variant="caption" color="#2e3d4d" sx={{
+                                fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' }
+                              }}>
                                 {formatTime(interview.scheduledDate)} ({interview.duration} mins)
                               </Typography>
                             </Box>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                             <Chip
                               label={interview.status.toUpperCase()}
                               color={getStatusColor(interview.status)}
                               size="small"
-                              sx={{ fontWeight: 600 }}
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                                height: { xs: 20, sm: 24, md: 28 }
+                              }}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                          <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                            <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5, md: 0.5 }, flexWrap: "wrap" }}>
                               <Tooltip title="View Details">
                                 <IconButton
                                   size="small"
                                   onClick={() => handleViewInterview(interview)}
+                                  sx={{
+                                    width: { xs: 24, sm: 28, md: 32 },
+                                    height: { xs: 24, sm: 28, md: 32 }
+                                  }}
                                 >
-                                  <ViewIcon fontSize="small" />
+                                  <ViewIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                 </IconButton>
                               </Tooltip>
                               {interview.status === "scheduled" && (
@@ -641,53 +912,73 @@ const AdminInterviewsPage: React.FC = () => {
                                     size="small"
                                     onClick={() => handleConfirmInterview(interview)}
                                     color="success"
+                                    sx={{
+                                      width: { xs: 24, sm: 28, md: 32 },
+                                      height: { xs: 24, sm: 28, md: 32 }
+                                    }}
                                   >
-                                    <CheckCircleIcon fontSize="small" />
+                                    <CheckCircleIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                   </IconButton>
                                 </Tooltip>
                               )}
                               {(interview.status === "scheduled" ||
                                 interview.status === "confirmed") && (
-                                <>
-                                  <Tooltip title="Reschedule">
-                                    <IconButton
-                                      size="small"
-                                      onClick={() => handleRescheduleClick(interview)}
-                                      color="warning"
-                                    >
-                                      <RescheduleIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                  <Tooltip title="Cancel">
-                                    <IconButton
-                                      size="small"
-                                      onClick={() => handleCancelClick(interview)}
-                                      color="error"
-                                    >
-                                      <CancelIcon fontSize="small" />
-                                    </IconButton>
-                                  </Tooltip>
-                                </>
-                              )}
+                                  <>
+                                    <Tooltip title="Reschedule">
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => handleRescheduleClick(interview)}
+                                        color="warning"
+                                        sx={{
+                                          width: { xs: 24, sm: 28, md: 32 },
+                                          height: { xs: 24, sm: 28, md: 32 }
+                                        }}
+                                      >
+                                        <RescheduleIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
+                                      </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Cancel">
+                                      <IconButton
+                                        size="small"
+                                        onClick={() => handleCancelClick(interview)}
+                                        color="error"
+                                        sx={{
+                                          width: { xs: 24, sm: 28, md: 32 },
+                                          height: { xs: 24, sm: 28, md: 32 }
+                                        }}
+                                      >
+                                        <CancelIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
+                                      </IconButton>
+                                    </Tooltip>
+                                  </>
+                                )}
                               {(interview.status === "scheduled" ||
                                 interview.status === "confirmed" ||
                                 interview.status === "rescheduled") && (
-                                <Tooltip title="Mark Complete">
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => handleCompleteClick(interview)}
-                                    color="primary"
-                                  >
-                                    <CompleteIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
+                                  <Tooltip title="Mark Complete">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => handleCompleteClick(interview)}
+                                      color="primary"
+                                      sx={{
+                                        width: { xs: 24, sm: 28, md: 32 },
+                                        height: { xs: 24, sm: 28, md: 32 }
+                                      }}
+                                    >
+                                      <CompleteIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
                               <Tooltip title="Edit">
                                 <IconButton
                                   size="small"
                                   onClick={() => handleEditInterview(interview)}
+                                  sx={{
+                                    width: { xs: 24, sm: 28, md: 32 },
+                                    height: { xs: 24, sm: 28, md: 32 }
+                                  }}
                                 >
-                                  <EditIcon fontSize="small" />
+                                  <EditIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete">
@@ -695,8 +986,12 @@ const AdminInterviewsPage: React.FC = () => {
                                   size="small"
                                   onClick={() => handleDeleteClick(interview)}
                                   color="error"
+                                  sx={{
+                                    width: { xs: 24, sm: 28, md: 32 },
+                                    height: { xs: 24, sm: 28, md: 32 }
+                                  }}
                                 >
-                                  <DeleteIcon fontSize="small" />
+                                  <DeleteIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                 </IconButton>
                               </Tooltip>
                             </Box>
@@ -714,21 +1009,27 @@ const AdminInterviewsPage: React.FC = () => {
               {interviews.length === 0 ? (
                 <Paper
                   sx={{
-                    p: 6,
-                    borderRadius: 3,
+                    p: { xs: 4, sm: 6 },
+                    borderRadius: { xs: 1.5, sm: 2, md: 3 },
                     textAlign: "center",
                     backdropFilter: "blur(12px)",
                     background:
                       "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
+                    // Custom breakpoints
+                    '@media (max-width: 350px)': {
+                      background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                      backdropFilter: "blur(8px)",
+                      p: 3
+                    }
                   }}
                 >
                   <CalendarIcon
-                    sx={{ fontSize: 64, color: "text.secondary", mb: 2, opacity: 0.5 }}
+                    sx={{ fontSize: { xs: 48, sm: 64 }, color: "text.secondary", mb: 2, opacity: 0.5 }}
                   />
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' } }}>
                     No interviews found
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' } }}>
                     Schedule an interview to get started
                   </Typography>
                 </Paper>
@@ -737,32 +1038,53 @@ const AdminInterviewsPage: React.FC = () => {
                   <Card
                     key={interview._id}
                     sx={{
-                      mb: 2,
-                      borderRadius: 3,
+                      mb: { xs: 1.5, sm: 2 },
+                      borderRadius: { xs: 1.5, sm: 2, md: 3 },
                       backdropFilter: "blur(12px)",
                       background:
                         "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                       boxShadow: "0 4px 15px rgba(20,30,60,0.08)",
+                      // Custom breakpoints
+                      '@media (max-width: 350px)': {
+                        background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                        backdropFilter: "blur(8px)"
+                      }
                     }}
                   >
-                    <CardContent>
+                    <CardContent sx={{ p: { xs: 1.25, sm: 1.5, md: 2 } }}>
                       {/* Candidate */}
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 }, mb: { xs: 1.5, sm: 2 } }}>
                         <Avatar
                           src={
                             interview.user.profilePicture
                               ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${interview.user.profilePicture}`
                               : undefined
                           }
-                          sx={{ width: 48, height: 48 }}
+                          sx={{
+                            width: { xs: 32, sm: 40, md: 48 },
+                            height: { xs: 32, sm: 40, md: 48 },
+                            fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' }
+                          }}
                         >
                           {interview.user.firstName[0]}
                         </Avatar>
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="subtitle1" sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
                             {interview.user.firstName} {interview.user.lastName}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" color="text.secondary" sx={{
+                            display: 'block',
+                            fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
                             {interview.user.email}
                           </Typography>
                         </Box>
@@ -770,28 +1092,47 @@ const AdminInterviewsPage: React.FC = () => {
                           label={interview.status.toUpperCase()}
                           color={getStatusColor(interview.status)}
                           size="small"
-                          sx={{ fontWeight: 600 }}
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                            height: { xs: 20, sm: 24, md: 28 }
+                          }}
                         />
                       </Box>
 
-                      <Divider sx={{ my: 2 }} />
+                      <Divider sx={{ my: { xs: 1, sm: 1.5, md: 2 } }} />
 
                       {/* Job Info */}
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+                        <Typography variant="body2" color="text.secondary" sx={{
+                          mb: 0.5,
+                          fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                        }}>
                           Position
                         </Typography>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                        <Typography variant="subtitle2" sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          fontSize: { xs: '0.75rem', sm: '0.85rem', md: '1rem' },
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {interview.job.title}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{
+                          fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }
+                        }}>
                           {interview.company.name} • Round {interview.round}
                         </Typography>
                       </Box>
 
                       {/* Interview Details */}
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+                        <Typography variant="body2" color="text.secondary" sx={{
+                          mb: 0.5,
+                          fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                        }}>
                           Interview Details
                         </Typography>
                         <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
@@ -802,31 +1143,51 @@ const AdminInterviewsPage: React.FC = () => {
                             }
                             size="small"
                             variant="outlined"
+                            sx={{
+                              fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                              height: { xs: 20, sm: 24, md: 28 }
+                            }}
                           />
                         </Stack>
-                        <Typography variant="body2">
+                        <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' } }}>
                           📅 {formatDateTime(interview.scheduledDate)}
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body2" sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' } }}>
                           ⏱️ {interview.duration} minutes
                         </Typography>
                       </Box>
                     </CardContent>
 
-                    <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2, flexWrap: "wrap", gap: 1 }}>
+                    <CardActions sx={{
+                      justifyContent: "flex-end",
+                      px: { xs: 1.25, sm: 1.5, md: 2 },
+                      pb: { xs: 1.25, sm: 1.5, md: 2 },
+                      flexWrap: "wrap",
+                      gap: { xs: 0.5, sm: 1 }
+                    }}>
                       <Button
                         size="small"
-                        startIcon={<ViewIcon />}
+                        startIcon={<ViewIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />}
                         onClick={() => handleViewInterview(interview)}
+                        sx={{
+                          fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' },
+                          minWidth: { xs: 'auto', sm: 'auto' },
+                          px: { xs: 1, sm: 1.5 }
+                        }}
                       >
                         View
                       </Button>
                       {interview.status === "scheduled" && (
                         <Button
                           size="small"
-                          startIcon={<CheckCircleIcon />}
+                          startIcon={<CheckCircleIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />}
                           onClick={() => handleConfirmInterview(interview)}
                           color="success"
+                          sx={{
+                            fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' },
+                            minWidth: { xs: 'auto', sm: 'auto' },
+                            px: { xs: 1, sm: 1.5 }
+                          }}
                         >
                           Confirm
                         </Button>
@@ -834,15 +1195,23 @@ const AdminInterviewsPage: React.FC = () => {
                       <IconButton
                         size="small"
                         onClick={() => handleEditInterview(interview)}
+                        sx={{
+                          width: { xs: 28, sm: 32 },
+                          height: { xs: 28, sm: 32 }
+                        }}
                       >
-                        <EditIcon fontSize="small" />
+                        <EditIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />
                       </IconButton>
                       <IconButton
                         size="small"
                         onClick={() => handleDeleteClick(interview)}
                         color="error"
+                        sx={{
+                          width: { xs: 28, sm: 32 },
+                          height: { xs: 28, sm: 32 }
+                        }}
                       >
-                        <DeleteIcon fontSize="small" />
+                        <DeleteIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />
                       </IconButton>
                     </CardActions>
                   </Card>
@@ -852,12 +1221,20 @@ const AdminInterviewsPage: React.FC = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 2, sm: 2.5, md: 3 } }}>
                 <Pagination
                   count={totalPages}
                   page={filters.page || 1}
                   onChange={(_, page) => handleFilterChange("page", page)}
                   color="primary"
+                  size="small"
+                  sx={{
+                    '& .MuiPaginationItem-root': {
+                      fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' },
+                      minWidth: { xs: 28, sm: 32, md: 40 },
+                      height: { xs: 28, sm: 32, md: 40 }
+                    }
+                  }}
                 />
               </Box>
             )}

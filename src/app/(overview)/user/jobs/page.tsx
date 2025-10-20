@@ -930,21 +930,13 @@ const JobsPageContent = () => {
                     )}
 
                     {/* Stats */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                      <Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
+                    <Box sx={{ textAlign: "left", flex: 1 }}>
+                      <Box display="flex" justifyContent="space-between">
+                        <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           Applications
                         </Typography>
                         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           {job.applicationCount || 0}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
-                          Views
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
-                          {job.viewCount || 0}
                         </Typography>
                       </Box>
                     </Box>

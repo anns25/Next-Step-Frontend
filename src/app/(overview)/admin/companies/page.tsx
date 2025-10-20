@@ -61,6 +61,7 @@ import { Job, JobFormData } from "@/types/Job";
 import { useAuth } from "@/contexts/authContext";
 import { getJobsByCompany } from "@/lib/api/jobAPI";
 import { AxiosError } from "axios";
+import { getApplicationCountsByCompany } from "@/lib/api/applicationAPI";
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -137,7 +138,29 @@ export default function AdminCompanies() {
 
 
             if (response) {
-                setCompanies(response.companies);
+                // Get all company IDs
+                const companyIds = response.companies.map(company => company._id);
+                
+                // Fetch accurate application counts for all companies at once
+                let applicationCounts: { [key: string]: number } = {};
+                if (companyIds.length > 0) {
+                    try {
+                        applicationCounts = await getApplicationCountsByCompany(companyIds);
+                        console.log("app", applicationCounts);
+                    } catch (error) {
+                        console.error('Error fetching application counts:', error);
+                        applicationCounts = {};
+                    }
+                }
+
+                // Update companies with accurate counts
+                const companiesWithCounts = response.companies.map(company => {
+                    return {
+                        ...company,
+                        totalApplications: applicationCounts[company._id] || 0
+                    };
+                });
+                setCompanies(companiesWithCounts);
                 setTotalPages(response.totalPages);
                 setTotal(response.total);
             }

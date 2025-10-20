@@ -136,10 +136,14 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
     }, [selectedUser]);
 
     const validateField = (fieldName: string, value: string | number) => {
-        // Build a partial object for validation
+        // Build a complete object for validation
         const testData = {
-            ...formData,
-            [fieldName]: value,
+            userId: formData.userId,
+            applicationId: formData.applicationId,
+            type: formData.type,
+            round: formData.round,
+            scheduledDate: formData.scheduledDate,
+            duration: formData.duration,
             location: {
                 type: formData.locationType,
                 ...(formData.locationType === "office" && formData.address && { address: formData.address }),
@@ -147,6 +151,8 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 ...(formData.locationType === "phone" && formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
             },
             interviewers: interviewers.filter((i) => i.name.trim() !== ""),
+            nextSteps: formData.nextSteps,
+            [fieldName]: value, // Override with the new value
         };
 
         const result = safeParse(createInterviewSchema, testData);
@@ -157,17 +163,30 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 const path = issue.path?.map(p => p.key).join('.');
                 return path === fieldName || path?.startsWith(`${fieldName}.`);
             });
-            if (fieldError) {          
+
+            if (fieldError) {
                 let errorMessage = fieldError.message;
-                 // Handle NaN/number validation errors for the round field
+                // Handle specific validation errors
                 if (fieldName === 'round' && (
-                    errorMessage.toLowerCase().includes('nan') || 
+                    errorMessage.toLowerCase().includes('nan') ||
                     errorMessage.toLowerCase().includes('expected number') ||
                     errorMessage.toLowerCase().includes('invalid type')
                 )) {
                     errorMessage = 'Please enter a valid number for the interview round';
                 }
-                
+
+                if (fieldName === 'duration' && errorMessage.includes('minimum')) {
+                    errorMessage = 'Duration must be at least 15 minutes';
+                }
+
+                if (fieldName === 'duration' && errorMessage.includes('maximum')) {
+                    errorMessage = 'Duration must not exceed 480 minutes (8 hours)';
+                }
+
+                if (fieldName === 'scheduledDate' && errorMessage.includes('future')) {
+                    errorMessage = 'Interview date must be in the future';
+                }
+
                 setFieldErrors(prev => ({
                     ...prev,
                     [fieldName]: errorMessage
@@ -190,6 +209,65 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
         }
     };
 
+    const validateLocationField = (locationType: string, fieldName: string, value: string) => {
+        const testData = {
+            userId: formData.userId,
+            applicationId: formData.applicationId,
+            type: formData.type,
+            round: formData.round,
+            scheduledDate: formData.scheduledDate,
+            duration: formData.duration,
+            location: {
+                type: locationType,
+                [fieldName]: value,
+            },
+            interviewers: interviewers.filter((i) => i.name.trim() !== ""),
+            nextSteps: formData.nextSteps,
+        };
+
+        const result = safeParse(createInterviewSchema, testData);
+
+        if (!result.success) {
+            const fieldError = result.issues.find((issue) => {
+                const path = issue.path?.map(p => p.key).join('.');
+                return path === `location.${fieldName}`;
+            });
+
+            if (fieldError) {
+                let errorMessage = fieldError.message;
+                // Customize error messages for location fields
+                if (fieldName === 'address' && errorMessage.includes('minimum')) {
+                    errorMessage = 'Address must be at least 3 characters long';
+                }
+
+                if (fieldName === 'meetingLink' && errorMessage.includes('url')) {
+                    errorMessage = 'Please enter a valid meeting link (e.g., https://zoom.us/j/123456789)';
+                }
+
+                if (fieldName === 'phoneNumber' && errorMessage.includes('regex')) {
+                    errorMessage = 'Please enter a valid phone number (e.g., +1 (555) 123-4567)';
+                }
+
+                setFieldErrors(prev => ({
+                    ...prev,
+                    [`location.${fieldName}`]: errorMessage
+                }));
+            } else {
+                setFieldErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[`location.${fieldName}`];
+                    return newErrors;
+                });
+            }
+        } else {
+            setFieldErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[`location.${fieldName}`];
+                return newErrors;
+            });
+        }
+    };
+
     // Handle form field changes with validation
     const handleFieldChange = (field: string, value: string | number) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -200,14 +278,82 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
         }, 300);
     };
 
+    // Add specific handler for location fields
+    const handleLocationFieldChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+
+        // Validate location-specific fields
+        setTimeout(() => {
+            validateLocationField(formData.locationType, field, value);
+        }, 300);
+    };
+
+    // Add validation for interviewers
+    const validateInterviewers = () => {
+        const validInterviewers = interviewers.filter((i) => i.name.trim() !== "");
+
+        if (validInterviewers.length === 0) {
+            setFieldErrors(prev => ({
+                ...prev,
+                interviewers: 'At least one interviewer is required'
+            }));
+            return false;
+        }
+
+        // Validate each interviewer
+        for (let i = 0; i < validInterviewers.length; i++) {
+            const interviewer = validInterviewers[i];
+
+            if (interviewer.name.length < 2) {
+                setFieldErrors(prev => ({
+                    ...prev,
+                    interviewers: `Interviewer ${i + 1}: Name must be at least 2 characters`
+                }));
+                return false;
+            }
+
+            if (interviewer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(interviewer.email)) {
+                setFieldErrors(prev => ({
+                    ...prev,
+                    interviewers: `Interviewer ${i + 1}: Please enter a valid email address`
+                }));
+                return false;
+            }
+        }
+        // Clear interviewer errors if validation passes
+        setFieldErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.interviewers;
+            return newErrors;
+        });
+
+        return true;
+    };
+
 
     const handleSubmit = async () => {
         try {
             setLoading(true);
             setError("");
 
-            if (!formData.applicationId || !formData.scheduledDate) {
-                setError("Please fill in all required fields");
+            // Validate all required fields
+            if (!formData.userId) {
+                setError("Please select a user");
+                return;
+            }
+
+            if (!formData.applicationId) {
+                setError("Please select an application");
+                return;
+            }
+
+            if (!formData.scheduledDate) {
+                setError("Please select a date and time for the interview");
+                return;
+            }
+
+            // Validate interviewers
+            if (!validateInterviewers()) {
                 return;
             }
 
@@ -217,6 +363,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 ...(formData.locationType === "remote" && formData.meetingLink && { meetingLink: formData.meetingLink }),
                 ...(formData.locationType === "phone" && formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
             };
+
 
             const validInterviewers = interviewers.filter((i) => i.name.trim() !== "");
             const dataToValidate = {
@@ -231,7 +378,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 nextSteps: formData.nextSteps,
             };
 
-            // Validate before submitting
+            // Final validation before submitting
             const validationResult = safeParse(createInterviewSchema, dataToValidate);
 
             if (!validationResult.success) {
@@ -258,10 +405,6 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                 });
             } else {
                 // Create new interview
-                console.log("app Id", formData.applicationId);
-                console.log("user Id", formData.userId);
-                console.log("type", formData.type);
-                console.log("Scheduled date", new Date(formData.scheduledDate).toISOString());
                 await createInterviewAdmin({
                     userId: formData.userId,
                     applicationId: formData.applicationId,
@@ -495,7 +638,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                                     multiline
                                     rows={2}
                                     value={formData.address}
-                                    onChange={(e) => handleFieldChange('address', e.target.value)}
+                                    onChange={(e) => handleLocationFieldChange('address', e.target.value)}
                                     placeholder="123 Main St, City, State, ZIP"
                                     error={!!fieldErrors['location.address']}
                                     helperText={fieldErrors['location.address']}
@@ -509,7 +652,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                                     label="Meeting Link"
                                     fullWidth
                                     value={formData.meetingLink}
-                                    onChange={(e) => handleFieldChange('meetingLink', e.target.value)}
+                                    onChange={(e) => handleLocationFieldChange('meetingLink', e.target.value)}
                                     placeholder="https://zoom.us/j/123456789"
                                     error={!!fieldErrors['location.meetingLink']}
                                     helperText={fieldErrors['location.meetingLink']}
@@ -522,7 +665,7 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                                     label="Phone Number"
                                     fullWidth
                                     value={formData.phoneNumber}
-                                    onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
+                                    onChange={(e) => handleLocationFieldChange('phoneNumber', e.target.value)}
                                     placeholder="+1 (555) 123-4567"
                                     error={!!fieldErrors['location.phoneNumber']}
                                     helperText={fieldErrors['location.phoneNumber']}
@@ -598,6 +741,11 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                             >
                                 Add Interviewer
                             </Button>
+                            {fieldErrors.interviewers && (
+                                <Alert severity="error" sx={{ mt: 1 }}>
+                                    {fieldErrors.interviewers}
+                                </Alert>
+                            )}
                         </Grid>
 
                         {/* Next Steps */}

@@ -18,13 +18,13 @@ export async function restoreApplication(id: string): Promise<Application> {
 }
 
 // Get user applications
-export async function getUserApplications (filters: ApplicationFilters = {}): Promise<{
+export async function getUserApplications(filters: ApplicationFilters = {}): Promise<{
     applications: Application[];
     totalPages: number;
     currentPage: number;
     total: number;
     stats: Record<string, number>;
-}>{
+}> {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -37,7 +37,7 @@ export async function getUserApplications (filters: ApplicationFilters = {}): Pr
 };
 
 // Get application by ID
-export async function getApplicationById (id: string): Promise<Application>{
+export async function getApplicationById(id: string): Promise<Application> {
     const response = await api.get(`/application/${id}`);
     return response.data;
 };
@@ -60,13 +60,24 @@ export async function getApplicationStats(): Promise<ApplicationStats> {
     return response.data;
 };
 
+// Add this to your applicationAPI.ts file
+export const getApplicationCountsByCompany = async (companyIds: string[]) => {
+    try {
+        const response = await api.post('/application/counts-by-company', { companyIds });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching application counts by company:', error);
+        throw error;
+    }
+};
+
 // Get job applications (for companies)
 export async function getJobApplications(jobId: string, filters: ApplicationFilters = {}): Promise<{
     applications: Application[];
     totalPages: number;
     currentPage: number;
     total: number;
-}>{
+}> {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined) {
