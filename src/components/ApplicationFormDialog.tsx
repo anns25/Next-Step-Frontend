@@ -268,20 +268,29 @@ const ApplicationFormDialog: React.FC<Props> = ({
             fullScreen={window.innerWidth < 768}
             PaperProps={{
                 sx: {
-                    borderRadius: 3,
+                    borderRadius: { xs: 0, sm: 3 },
                     maxHeight: "90vh",
+                    width: { xs: '100%', sm: 'auto' },
+                    height: { xs: '100%', sm: 'auto' }
                 }
             }}
         >
-            <DialogTitle>
+            <DialogTitle sx={{ p: { xs: 2, sm: 3 } }}>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Box display="flex" alignItems="center" gap={1}>
-                        <WorkIcon />
-                        <Typography variant="h6">
+                    <Box display="flex" alignItems="center" gap={1} sx={{ flex: 1, minWidth: 0 }}>
+                        <WorkIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontSize: { xs: '1rem', sm: '1.25rem' },
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}>
                             Apply for Position
                         </Typography>
                     </Box>
-                    <IconButton onClick={handleClose} disabled={loading}>
+                    <IconButton onClick={handleClose} disabled={loading} sx={{ ml: 1, flexShrink: 0 }}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
@@ -313,18 +322,27 @@ const ApplicationFormDialog: React.FC<Props> = ({
                             The employer has received your information and will review it soon.
                             You can track your application status in your dashboard.
                         </Typography>
-                        <Box sx={{ mt: 1.5 }}>
+                        <Box sx={{
+                            mt: 1.5,
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            gap: 1
+                        }}>
                             <Button
                                 size="small"
                                 variant="outlined"
                                 onClick={() => router.push('/user/applications')}
-                                sx={{ mr: 1 }}
+                                sx={{
+                                    mr: { xs: 0, sm: 1 },
+                                    width: { xs: '100%', sm: 'auto' }
+                                }}
                             >
                                 View My Applications
                             </Button>
                             <Button
                                 size="small"
                                 onClick={handleClose}
+                                sx={{ width: { xs: '100%', sm: 'auto' } }}
                             >
                                 Close
                             </Button>
@@ -338,10 +356,10 @@ const ApplicationFormDialog: React.FC<Props> = ({
                     </Alert>
                 )}
 
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                     {/* Job Information */}
                     <Grid size={{ xs: 12 }}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
                             Job Information
                         </Typography>
                     </Grid>
@@ -350,24 +368,38 @@ const ApplicationFormDialog: React.FC<Props> = ({
                         <Paper
                             elevation={0}
                             sx={{
-                                p: 3,
+                                p: { xs: 2, sm: 3 },
                                 mb: 3,
                                 borderRadius: 2,
                                 background: "rgba(25, 118, 210, 0.05)",
                                 border: "1px solid rgba(25, 118, 210, 0.1)",
                             }}
                         >
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
+                            <Typography
+                                variant="h6"
+                                gutterBottom
+                                sx={{
+                                    fontWeight: 600,
+                                    color: theme.palette.primary.main,
+                                    fontSize: { xs: '1rem', sm: '1.25rem' },
+                                    wordBreak: 'break-word'
+                                }}>
                                 {job.title}
                             </Typography>
 
-                            <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                            <Stack direction={{ xs: 'column', sm: "row" }} spacing={{ xs: 1, sm: 2 }} sx={{ mb: 2 }}>
                                 <Chip
                                     icon={<BusinessIcon />}
                                     label={getCompanyName(job.company)}
                                     color="primary"
                                     variant="outlined"
                                     size="small"
+                                    sx={{
+                                        width: { xs: 'fit-content', sm: 'auto' },
+                                        '& .MuiChip-label': {
+                                            fontSize: { xs: '0.75rem', sm: '0.8125rem' }
+                                        }
+                                    }}
                                 />
                                 <Chip
                                     icon={<WorkIcon />}
@@ -375,6 +407,12 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                     color="secondary"
                                     variant="outlined"
                                     size="small"
+                                    sx={{
+                                        width: { xs: 'fit-content', sm: 'auto' },
+                                        '& .MuiChip-label': {
+                                            fontSize: { xs: '0.75rem', sm: '0.8125rem' }
+                                        }
+                                    }}
                                 />
                                 <Chip
                                     icon={<LocationIcon />}
@@ -382,10 +420,21 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                     color="default"
                                     variant="outlined"
                                     size="small"
+                                    sx={{
+                                        width: { xs: 'fit-content', sm: 'auto' },
+                                        '& .MuiChip-label': {
+                                            fontSize: { xs: '0.75rem', sm: '0.8125rem' }
+                                        }
+                                    }}
                                 />
                             </Stack>
 
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                                sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}
+                            >
                                 💰 {formatSalary(job.salary)}
                             </Typography>
                         </Paper>
@@ -393,7 +442,7 @@ const ApplicationFormDialog: React.FC<Props> = ({
 
                     {/* Application Form */}
                     <Grid size={{ xs: 12 }}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
                             Application Details
                         </Typography>
                     </Grid>
@@ -401,7 +450,7 @@ const ApplicationFormDialog: React.FC<Props> = ({
                     {/* Resume Upload */}
                     <Grid size={{ xs: 12 }}>
                         <FormControl fullWidth error={!!fieldErrors.resume}>
-                            <FormLabel component="legend" sx={{ mb: 1 }}>
+                            <FormLabel component="legend" sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
                                 Resume *
                             </FormLabel>
                             {resumeFile ? (
@@ -414,15 +463,32 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
+                                        flexDirection: { xs: 'column', sm: 'row' },
+                                        gap: { xs: 1, sm: 0 }
                                     }}
                                 >
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                        <AttachFileIcon color="primary" />
-                                        <Box>
-                                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                    <Box sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 2,
+                                        flex: 1,
+                                        minWidth: 0
+                                    }}>
+                                        <AttachFileIcon color="primary" sx={{ fontSize: { xs: 20, sm: 24 } }} />
+                                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontWeight: 500,
+                                                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
                                                 {resumeFile.name}
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary">
+                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}>
                                                 {(resumeFile.size / 1024).toFixed(2)} KB
                                             </Typography>
                                         </Box>
@@ -432,6 +498,7 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                         color="error"
                                         size="small"
                                         disabled={loading}
+                                        sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}
                                     >
                                         <DeleteIcon />
                                     </IconButton>
@@ -441,7 +508,11 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                     variant="outlined"
                                     component="label"
                                     startIcon={<AttachFileIcon />}
-                                    sx={{ width: "100%" }}
+                                    sx={{
+                                        width: "100%",
+                                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                        py: { xs: 1, sm: 1.5 }
+                                    }}
                                     disabled={loading}
                                 >
                                     Upload Resume (PDF, DOC, DOCX)
@@ -454,7 +525,9 @@ const ApplicationFormDialog: React.FC<Props> = ({
                                 </Button>
                             )}
                             {fieldErrors.resume && (
-                                <FormHelperText>{fieldErrors.resume}</FormHelperText>
+                                <FormHelperText sx={{ fontSize: { xs: '0.75rem', sm: '0.75rem' } }}>
+                                    {fieldErrors.resume}
+                                </FormHelperText>
                             )}
                         </FormControl>
                     </Grid>
@@ -466,12 +539,26 @@ const ApplicationFormDialog: React.FC<Props> = ({
                             onChange={(e) => handleInputChange('coverLetter', e.target.value)}
                             label="Cover Letter"
                             multiline
-                            rows={6}
+                            rows={4}
                             error={!!fieldErrors.coverLetter}
                             helperText={fieldErrors.coverLetter || `${formData.coverLetter?.length || 0}/2000 characters`}
                             fullWidth
                             placeholder="Tell us why you're interested in this position and what makes you a great fit..."
                             disabled={loading}
+                            sx={{
+                                '& .MuiInputBase-input': {
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                },
+                                '& .MuiInputLabel-root': {
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                },
+                                '& .MuiFormHelperText-root': {
+                                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                                },
+                                '& .MuiInputBase-root': {
+                                    minHeight: { xs: '120px', sm: '150px' }
+                                }
+                            }}
                         />
                     </Grid>
 
@@ -488,13 +575,37 @@ const ApplicationFormDialog: React.FC<Props> = ({
                             fullWidth
                             placeholder="Any additional information you'd like to share..."
                             disabled={loading}
+                            sx={{
+                                '& .MuiInputBase-input': {
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                },
+                                '& .MuiInputLabel-root': {
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                },
+                                '& .MuiFormHelperText-root': {
+                                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                                },
+                                '& .MuiInputBase-root': {
+                                    minHeight: { xs: '90px', sm: '120px' }
+                                }
+                            }}
                         />
                     </Grid>
                 </Grid>
             </DialogContent>
 
-            <DialogActions sx={{ p: 2 }}>
-                <Button onClick={handleClose} disabled={loading}>
+            <DialogActions sx={{
+                p: { xs: 2, sm: 2 },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 1, sm: 0 }
+            }}>
+                <Button
+                    onClick={handleClose}
+                    disabled={loading}
+                    sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        order: { xs: 2, sm: 1 }
+                    }}>
                     Cancel
                 </Button>
                 <Button
@@ -502,6 +613,10 @@ const ApplicationFormDialog: React.FC<Props> = ({
                     onClick={onSubmit}
                     disabled={loading || !resumeFile}
                     startIcon={loading ? <CircularProgress size={20} /> : <WorkIcon />}
+                    sx={{ 
+                        width: { xs: '100%', sm: 'auto' },
+                        order: { xs: 1, sm: 2 }
+                    }}
                 >
                     {loading ? 'Submitting...' : 'Submit Application'}
                 </Button>

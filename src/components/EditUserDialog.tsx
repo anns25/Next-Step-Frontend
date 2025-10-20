@@ -305,19 +305,52 @@ const EditUserDialog: React.FC<Props> = ({
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        fullScreen={window.innerWidth < 768}
+        PaperProps={{
+          sx: {
+            borderRadius: { xs: 0, sm: 3 },
+            margin: { xs: 0, sm: 2 },
+            width: { xs: '100%', sm: 'auto' },
+            height: { xs: '100%', sm: 'auto' }
+          }
+        }}
+      >
+        <DialogTitle
+          sx=
+          {{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            p: { xs: 2, sm: 3 },
+            fontSize: { xs: '1.1rem', sm: '1.25rem' }
+          }}>
           Edit Profile
         </DialogTitle>
 
-        <DialogContent dividers>
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
           {successMessage && (
             <Alert severity="success" sx={{ mb: 2 }}>
               {successMessage}
             </Alert>
           )}
 
-          <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minWidth: { xs: 'auto', sm: 'auto' },
+                px: { xs: 1, sm: 2 }
+              }
+            }}>
             <Tab label="Basic Info" />
             <Tab label="Experience" disabled={values.workStatus === "fresher"} />
             <Tab label="Education" />
@@ -328,14 +361,14 @@ const EditUserDialog: React.FC<Props> = ({
           {/* BASIC INFO */}
           {tab === 0 && (
             <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-              <Box display="flex" alignItems="center" gap={2}>
+              <Box display="flex" alignItems="center" gap={2} sx={{ flexDirection: { xs: 'column', sm: 'row' } }}>
                 <Avatar
                   src={preview || (values.profilePicture ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${values.profilePicture}` : undefined)}
-                  sx={{ width: 64, height: 64 }}
+                  sx={{ width: { xs: 56, sm: 64 }, height: { xs: 56, sm: 64 } }}
                 />
                 {imageFile ? (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 2, mb: 2 }}>
-                    <Typography variant="body2" color={theme.palette.text.primary}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: { xs: 1, sm: 2 }, mb: { xs: 1, sm: 2 }, flexDirection: { xs: 'column', sm: 'row' } }}>
+                    <Typography variant="body2" color={theme.palette.text.primary} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       {imageFile.name} ({(imageFile.size / 1024).toFixed(2)} KB)
                     </Typography>
                     <IconButton color="error" onClick={handleRemoveImage} size="small">
@@ -343,15 +376,24 @@ const EditUserDialog: React.FC<Props> = ({
                     </IconButton>
                   </Box>
                 ) : (
-                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mt: 2, gap: 1 }}>
-                    <Button variant='outlined' component="label" color="primary" startIcon={<PhotoCamera />} sx={{ minWidth: 200 }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: { xs: 1, sm: 2 }, gap: 1 }}>
+                    <Button
+                      variant='outlined'
+                      component="label"
+                      color="primary"
+                      startIcon={<PhotoCamera />}
+                      sx={{
+                        minWidth: { xs: 160, sm: 200 },
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                      }}
+                    >
                       Change Image
                       <input type="file" hidden accept="image/*" onChange={handleImageChange} />
                     </Button>
                   </Box>
                 )}
                 {errors.image && (
-                  <Typography variant="caption" color="error">
+                  <Typography variant="caption" color="error" sx={{ fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}>
                     {errors.image}
                   </Typography>
                 )}
@@ -365,6 +407,17 @@ const EditUserDialog: React.FC<Props> = ({
                 helperText={errors.firstName}
                 fullWidth
                 required
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiFormHelperText-root': {
+                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                  }
+                }}
               />
 
               <TextField
@@ -375,6 +428,17 @@ const EditUserDialog: React.FC<Props> = ({
                 helperText={errors.lastName}
                 fullWidth
                 required
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiFormHelperText-root': {
+                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                  }
+                }}
               />
 
               <TextField
@@ -382,6 +446,14 @@ const EditUserDialog: React.FC<Props> = ({
                 value={values.email ?? ""}
                 disabled
                 fullWidth
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  }
+                }}
               />
 
               <TextField
@@ -393,14 +465,29 @@ const EditUserDialog: React.FC<Props> = ({
                 multiline
                 rows={3}
                 fullWidth
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiFormHelperText-root': {
+                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                  }
+                }}
               />
 
               {/* Skills with chips */}
               <Box>
-                <Typography variant="subtitle2" gutterBottom>
+                <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                   Skills
                 </Typography>
-                <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap">
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ mb: 2, flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 } }}
+                >
                   {values.skills?.map((skill, index) => (
                     <Chip
                       key={index}
@@ -408,23 +495,44 @@ const EditUserDialog: React.FC<Props> = ({
                       onDelete={() => removeSkill(skill)}
                       color="primary"
                       variant="outlined"
+                      size="small"
+                      sx={{
+                        fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                        height: { xs: 24, sm: 32 }
+                      }}
                     />
                   ))}
                 </Stack>
-                <Stack direction="row" spacing={1}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={1}
+                  sx={{ gap: { xs: 1, sm: 1 } }}
+                >
                   <TextField
                     size="small"
                     placeholder="Add a skill"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                      }
+                    }}
                   />
-                  <Button variant="outlined" onClick={addSkill}>
+                  <Button
+                    variant="outlined"
+                    onClick={addSkill}
+                    sx={{
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      minWidth: { xs: 'auto', sm: 'auto' }
+                    }}
+                  >
                     Add Skill
                   </Button>
                 </Stack>
                 {errors.skills && (
-                  <Typography variant="caption" color="error">
+                  <Typography variant="caption" color="error" sx={{ fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}>
                     {errors.skills}
                   </Typography>
                 )}
@@ -445,6 +553,17 @@ const EditUserDialog: React.FC<Props> = ({
                 helperText={errors.workStatus}
                 fullWidth
                 required
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                  },
+                  '& .MuiFormHelperText-root': {
+                    fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                  }
+                }}
               >
                 <MenuItem value="fresher">Fresher</MenuItem>
                 <MenuItem value="experienced">Experienced</MenuItem>
@@ -452,7 +571,7 @@ const EditUserDialog: React.FC<Props> = ({
               {/* Add visual alert if experienced but no experience */}
               {values.workStatus === "experienced" && (!values.experience || values.experience.length === 0) && (
                 <Alert severity="warning" sx={{ mt: 1 }}>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     You selected &quot;Experienced&quot; but haven&apos;t added any experience entries yet.
                     Please go to the <strong>Experience tab</strong> to add your work history.
                   </Typography>
@@ -696,7 +815,7 @@ const EditUserDialog: React.FC<Props> = ({
                 Salary & Other Preferences
               </Typography>
 
-              <Box sx={{ display: "flex", gap: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
                 <TextField
                   type="number"
                   label="Min Salary"
@@ -705,6 +824,17 @@ const EditUserDialog: React.FC<Props> = ({
                   error={!!errors['preferences.salaryRange.min']}
                   helperText={errors['preferences.salaryRange.min']}
                   fullWidth
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiFormHelperText-root': {
+                      fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                    }
+                  }}
                 />
                 <TextField
                   type="number"
@@ -714,6 +844,17 @@ const EditUserDialog: React.FC<Props> = ({
                   error={!!errors['preferences.salaryRange.max']}
                   helperText={errors['preferences.salaryRange.max']}
                   fullWidth
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiFormHelperText-root': {
+                      fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                    }
+                  }}
                 />
                 <TextField
                   label="Currency"
@@ -722,6 +863,17 @@ const EditUserDialog: React.FC<Props> = ({
                   error={!!errors['preferences.salaryRange.currency']}
                   helperText={errors['preferences.salaryRange.currency']}
                   fullWidth
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiInputLabel-root': {
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    },
+                    '& .MuiFormHelperText-root': {
+                      fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                    }
+                  }}
                 />
               </Box>
 
@@ -730,27 +882,30 @@ const EditUserDialog: React.FC<Props> = ({
                   <Switch
                     checked={values.preferences?.remoteWork ?? false}
                     onChange={(e) => handleNestedChange("preferences.remoteWork", e.target.checked)}
+                    size="small"
                   />
                 }
-                label="Remote Work"
+                label={<Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Remote Work</Typography>}
               />
               <FormControlLabel
                 control={
                   <Switch
                     checked={values.preferences?.notifications?.email ?? false}
                     onChange={(e) => handleNestedChange("preferences.notifications.email", e.target.checked)}
+                    size="small"
                   />
                 }
-                label="Email Notifications"
+                label={<Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Email Notifications</Typography>}
               />
               <FormControlLabel
                 control={
                   <Switch
                     checked={values.preferences?.notifications?.push ?? false}
                     onChange={(e) => handleNestedChange("preferences.notifications.push", e.target.checked)}
+                    size="small"
                   />
                 }
-                label="Push Notifications"
+                label={<Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Push Notifications</Typography>}
               />
             </Box>
           )}
@@ -789,7 +944,15 @@ const EditUserDialog: React.FC<Props> = ({
           )}
         </DialogContent>
 
-        <DialogActions sx={{ justifyContent: "space-between", mt: 3, mb: 3, ml: 3, mr: 3 }}>
+        <DialogActions sx={{
+          justifyContent: "space-between",
+          mt: 3,
+          mb: 3,
+          ml: 3,
+          mr: 3,
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 2, sm: 0 }
+        }}>
           <Button
             onClick={onClose}
             variant="outlined"
@@ -800,17 +963,28 @@ const EditUserDialog: React.FC<Props> = ({
                 backgroundColor: "#455463",
                 color: "#fff",
               },
+              width: { xs: '100%', sm: 'auto' },
+              fontSize: { xs: '0.875rem', sm: '1rem' }
             }}
           >
             Cancel
           </Button>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{
+            display: "flex",
+            gap: 2,
+            flexDirection: { xs: 'column', sm: 'row' },
+            width: { xs: '100%', sm: 'auto' }
+          }}>
             {onDeleteAccount && (
               <Button
                 color="error"
                 variant="outlined"
                 onClick={() => setDeleteDialogOpen(true)}
+                sx={{
+                  width: { xs: '100%', sm: 'auto' },
+                  fontSize: { xs: '0.875rem', sm: '1rem' }
+                }}
               >
                 Delete Account
               </Button>
@@ -820,6 +994,10 @@ const EditUserDialog: React.FC<Props> = ({
               variant="contained"
               color="primary"
               disabled={values.workStatus === "experienced" && (!values.experience || values.experience.length === 0)}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }}
             >
               Save Changes
             </Button>

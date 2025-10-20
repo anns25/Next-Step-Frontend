@@ -230,87 +230,151 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
         <Box>
             {/* Stats Cards */}
             {stats && (
-                <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: { xs: 2, sm: 3 } }}>
+                    <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                         <Paper
                             sx={{
-                                p: { xs: 1.5, sm: 2, md: 3 },
-                                mb: { xs: 2, sm: 3 },
-                                borderRadius: 3,
+                                p: { xs: 1, sm: 2, md: 3 },
+                                borderRadius: { xs: 2, sm: 3 },
                                 backdropFilter: "blur(12px)",
                                 background:
                                     "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                 boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                textAlign: "center"
+                                textAlign: "center",
+                                height: { xs: '80px', sm: 'auto' },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
                             }}
                         >
-                            <Typography variant="h4" color="primary" sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="h4"
+                                color="primary"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                                }}
+                            >
                                 {stats.totalApplications}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' }
+                                }}
+                            >
                                 Total Applications
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                         <Paper
                             sx={{
-                                p: { xs: 1.5, sm: 2, md: 3 },
-                                mb: { xs: 2, sm: 3 },
-                                borderRadius: 3,
+                                p: { xs: 1, sm: 2, md: 3 },
+                                borderRadius: { xs: 2, sm: 3 },
                                 backdropFilter: "blur(12px)",
                                 background:
                                     "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                 boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                textAlign: "center"
+                                textAlign: "center",
+                                height: { xs: '80px', sm: 'auto' },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
                             }}
                         >
-                            <Typography variant="h4" color="success.main" sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="h4"
+                                color="success.main"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                                }}
+                            >
                                 {stats.accepted}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' }
+                                }}
+                            >
                                 Accepted
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                         <Paper
                             sx={{
-                                p: { xs: 1.5, sm: 2, md: 3 },
-                                mb: { xs: 2, sm: 3 },
-                                borderRadius: 3,
+                                p: { xs: 1, sm: 2, md: 3 },
+                                borderRadius: { xs: 2, sm: 3 },
                                 backdropFilter: "blur(12px)",
                                 background:
                                     "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                 boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                textAlign: "center"
+                                textAlign: "center",
+                                height: { xs: '80px', sm: 'auto' },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
                             }}
                         >
-                            <Typography variant="h4" color="warning.main" sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="h4"
+                                color="warning.main"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                                }}
+                            >
                                 {stats.underReview + stats.shortlisted}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' }
+                                }}
+                            >
                                 In Progress
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                         <Paper
                             sx={{
-                                p: { xs: 1.5, sm: 2, md: 3 },
-                                mb: { xs: 2, sm: 3 },
-                                borderRadius: 3,
+                                p: { xs: 1, sm: 2, md: 3 },
+                                borderRadius: { xs: 2, sm: 3 },
                                 backdropFilter: "blur(12px)",
                                 background:
                                     "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                 boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                textAlign: "center"
+                                textAlign: "center",
+                                height: { xs: '80px', sm: 'auto' },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
                             }}
                         >
-                            <Typography variant="h4" color="info.main" sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="h4"
+                                color="info.main"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                                }}
+                            >
                                 {stats.recentApplications}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' }
+                                }}
+                            >
                                 This Month
                             </Typography>
                         </Paper>
@@ -321,17 +385,21 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
             {/* Filters */}
             <Paper
                 sx={{
-                    p: { xs: 1.5, sm: 2, md: 3 },
+                    p: { xs: 1, sm: 2, md: 3 },
                     mb: { xs: 2, sm: 3 },
-                    borderRadius: 3,
+                    borderRadius: { xs: 2, sm: 3 },
                     backdropFilter: "blur(12px)",
                     background:
                         "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                     boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
                 }}
             >
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={{ xs: 1, sm: 2 }}
+                    alignItems={{ xs: 'stretch', sm: 'center' }}
+                >
+                    <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                         <InputLabel>Status</InputLabel>
                         <Select
                             value={filters.status || ""}
@@ -353,7 +421,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         </Select>
                     </FormControl>
 
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                         <InputLabel>Sort By</InputLabel>
                         <Select
                             value={filters.sortBy || "applicationDate"}
@@ -366,7 +434,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         </Select>
                     </FormControl>
 
-                    <FormControl size="small" sx={{ minWidth: 100 }}>
+                    <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 100 } }}>
                         <InputLabel>Order</InputLabel>
                         <Select
                             value={filters.sortOrder || "desc"}
@@ -385,8 +453,7 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 <Paper
                     sx={{
                         p: { xs: 1.5, sm: 2, md: 3 },
-                        mb: { xs: 2, sm: 3 },
-                        borderRadius: 3,
+                        borderRadius: { xs: 2, sm: 3 },
                         backdropFilter: "blur(12px)",
                         background:
                             "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
@@ -394,16 +461,33 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         textAlign: "center"
                     }}
                 >
-                    <WorkIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2, opacity: 0.5 }} />
-                    <Typography variant="h6" gutterBottom>
+                    <WorkIcon sx={{
+                        fontSize: { xs: 48, sm: 64 },
+                        color: "text.secondary",
+                        mb: 2,
+                        opacity: 0.5
+                    }} />
+                    <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{
+                            fontSize: { xs: '1rem', sm: '1.25rem' }
+                        }}
+                    >
                         No applications found
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                        }}
+                    >
                         You haven&apos;t applied to any jobs yet
                     </Typography>
                 </Paper>
             ) : (
-                <Grid container spacing={2}>
+                <Grid container spacing={{ xs: 1, sm: 2 }}>
                     {applications.map((application) => (
                         <Grid size={{ xs: 12 }} key={application._id}>
                             <Card
@@ -411,25 +495,47 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                     height: "100%",
                                     display: "flex",
                                     flexDirection: "column",
-                                    borderRadius: 3,
+                                    borderRadius: { xs: 2, sm: 3 },
                                     backdropFilter: "blur(12px)",
                                     background:
                                         "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                                     boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
                                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                                     "&:hover": {
-                                        transform: "translateY(-4px)",
+                                        transform: { xs: "none", sm: "translateY(-4px)" },
                                         boxShadow: "0 12px 40px rgba(20,30,60,0.2)",
                                     },
                                 }}
                             >
-                                <CardContent>
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                                <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+                                    <Box sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "flex-start",
+                                        mb: 2,
+                                        flexDirection: { xs: 'column', sm: 'row' },
+                                        gap: { xs: 1, sm: 0 }
+                                    }}>
+                                        <Box sx={{ flex: 1, width: { xs: '100%', sm: 'auto' } }}>
+                                            <Typography
+                                                variant="h6"
+                                                gutterBottom
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                                                }}
+                                            >
                                                 {application.job.title}
                                             </Typography>
-                                            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                                            <Stack
+                                                direction={{ xs: 'column', sm: 'row' }}
+                                                spacing={{ xs: 0.5, sm: 1 }}
+                                                sx={{
+                                                    mb: 2,
+                                                    flexWrap: 'wrap',
+                                                    gap: { xs: 0.5, sm: 1 }
+                                                }}
+                                            >
                                                 <Chip
                                                     icon={<BusinessIcon />}
                                                     label={application.company.name}
@@ -437,6 +543,8 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                         fontWeight: 400,
                                                         borderColor: theme.palette.text.primary,
                                                         color: theme.palette.text.primary,
+                                                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                                        height: { xs: 24, sm: 32 }
                                                     }}
                                                     variant="outlined"
                                                     size="small"
@@ -450,6 +558,8 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                         fontWeight: 400,
                                                         bgcolor: "#495866",
                                                         color: "#fff",
+                                                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                                        height: { xs: 24, sm: 32 },
                                                         "& .MuiChip-icon": {
                                                             color: "#fff",
                                                         },
@@ -465,36 +575,74 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                                         fontWeight: 400,
                                                         bgcolor: theme.palette.primary.main,
                                                         color: "#fff",
+                                                        fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                                        height: { xs: 24, sm: 32 }
                                                     }}
                                                 />
                                             </Stack>
                                         </Box>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 1,
+                                            alignSelf: { xs: 'flex-start', sm: 'center' }
+                                        }}>
                                             <Chip
                                                 label={application.status.replace("-", " ").toUpperCase()}
                                                 color={getStatusColor(application.status)}
                                                 size="small"
-                                                sx={{ fontWeight: 600 }}
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                                    height: { xs: 24, sm: 32 }
+                                                }}
                                             />
                                         </Box>
                                     </Box>
 
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                        }}
+                                    >
                                         💰 {formatSalary(application.job.salary)}
                                     </Typography>
 
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                        }}
+                                    >
                                         📅 Applied on {formatDate(application.applicationDate)}
                                     </Typography>
 
                                     {application.coverLetter && (
-                                        <Typography variant="body2" sx={{ mt: 2, fontStyle: "italic" }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                mt: 2,
+                                                fontStyle: "italic",
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                            }}
+                                        >
                                             &quot;{application.coverLetter.substring(0, 150)}...&quot;
                                         </Typography>
                                     )}
                                 </CardContent>
 
-                                <CardActions sx={{ px: 2, pb: 2, gap: 1, flexWrap: 'wrap' }}>
+                                <CardActions sx={{
+                                    px: { xs: 1.5, sm: 2 },
+                                    pb: { xs: 1.5, sm: 2 },
+                                    gap: { xs: 0.5, sm: 1 },
+                                    flexWrap: 'wrap',
+                                    flexDirection: { xs: 'column', sm: 'row' }
+                                }}>
                                     {/* View Details Button */}
                                     <Button
                                         variant="outlined"
@@ -504,9 +652,11 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                             setViewDialogOpen(true);
                                         }}
                                         size="small"
+                                        fullWidth={isMobile}
                                         sx={{
                                             borderColor: theme.palette.info.main,
                                             color: theme.palette.info.main,
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                         }}
                                     >
                                         View Details
@@ -519,9 +669,11 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                             startIcon={<DownloadIcon />}
                                             onClick={() => handleViewResume(application)}
                                             size="small"
+                                            fullWidth={isMobile}
                                             sx={{
                                                 borderColor: theme.palette.success.main,
                                                 color: theme.palette.success.main,
+                                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                             }}
                                         >
                                             View Resume
@@ -539,8 +691,10 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                             setEditDialogOpen(true);
                                         }}
                                         size="small"
+                                        fullWidth={isMobile}
                                         sx={{
                                             backgroundColor: theme.palette.primary.main,
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
                                             '&:hover': {
                                                 backgroundColor: theme.palette.primary.dark,
                                             },
@@ -555,9 +709,11 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                                         startIcon={<WithdrawIcon />}
                                         onClick={() => handleWithdrawClick(application)}
                                         size="small"
+                                        fullWidth={isMobile}
                                         sx={{
                                             borderColor: theme.palette.error.main,
                                             color: theme.palette.error.main,
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
                                         }}
                                     >
                                         Withdraw Application
@@ -571,12 +727,20 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Box sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    mt: { xs: 2, sm: 3 },
+                    px: { xs: 1, sm: 0 }
+                }}>
                     <Pagination
                         count={totalPages}
                         page={filters.page || 1}
                         onChange={(_, page) => handleFilterChange("page", page)}
                         color="primary"
+                        size={isMobile ? "small" : "medium"}
+                        siblingCount={isMobile ? 0 : 1}
+                        boundaryCount={1}
                     />
                 </Box>
             )}
@@ -587,52 +751,123 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 onClose={() => setViewDialogOpen(false)}
                 maxWidth="md"
                 fullWidth
+                fullScreen={isMobile}
+                PaperProps={{
+                    sx: {
+                        borderRadius: { xs: 0, sm: 3 },
+                        margin: { xs: 0, sm: 2 },
+                        width: { xs: '100%', sm: 'auto' },
+                        height: { xs: '100%', sm: 'auto' }
+                    }
+                }}
             >
-                <DialogTitle>
+                <DialogTitle sx={{
+                    fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    p: { xs: 2, sm: 3 }
+                }}>
                     Application Details
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
                     {selectedApplication && (
                         <Box>
-                            <Typography variant="h6" gutterBottom>
+                            <Typography
+                                variant="h6"
+                                gutterBottom
+                                sx={{
+                                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                                }}
+                            >
                                 {selectedApplication.job.title}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                                sx={{
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                }}
+                            >
                                 {selectedApplication.company.name} • {selectedApplication.job.jobType}
                             </Typography>
                             <Divider sx={{ my: 2 }} />
 
-                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="subtitle1"
+                                gutterBottom
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                }}
+                            >
                                 Cover Letter
                             </Typography>
-                            <Typography variant="body2" paragraph>
+                            <Typography
+                                variant="body2"
+                                paragraph
+                                sx={{
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                }}
+                            >
                                 {selectedApplication.coverLetter || "No cover letter provided"}
                             </Typography>
 
                             {selectedApplication.notes && (
                                 <>
-                                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                                    <Typography
+                                        variant="subtitle1"
+                                        gutterBottom
+                                        sx={{
+                                            fontWeight: 600,
+                                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                                        }}
+                                    >
                                         Notes
                                     </Typography>
-                                    <Typography variant="body2" paragraph>
+                                    <Typography
+                                        variant="body2"
+                                        paragraph
+                                        sx={{
+                                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                        }}
+                                    >
                                         {selectedApplication.notes}
                                     </Typography>
                                 </>
                             )}
 
-                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                            <Typography
+                                variant="subtitle1"
+                                gutterBottom
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                                }}
+                            >
                                 Application Status
                             </Typography>
                             <Chip
                                 label={selectedApplication.status.replace("-", " ").toUpperCase()}
                                 color={getStatusColor(selectedApplication.status)}
-                                sx={{ fontWeight: 600 }}
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                                }}
                             />
                         </Box>
                     )}
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setViewDialogOpen(false)}>
+                <DialogActions sx={{
+                    p: { xs: 2, sm: 3 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                }}>
+                    <Button
+                        onClick={() => setViewDialogOpen(false)}
+                        fullWidth={isMobile}
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
                         Close
                     </Button>
                 </DialogActions>
@@ -644,23 +879,44 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 onClose={() => setEditDialogOpen(false)}
                 maxWidth="sm"
                 fullWidth
+                fullScreen={isMobile}
+                PaperProps={{
+                    sx: {
+                        borderRadius: { xs: 0, sm: 3 },
+                        margin: { xs: 0, sm: 2 },
+                        width: { xs: '100%', sm: 'auto' },
+                        height: { xs: '100%', sm: 'auto' }
+                    }
+                }}
             >
-                <DialogTitle>
+                <DialogTitle sx={{
+                    fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    p: { xs: 2, sm: 3 }
+                }}>
                     Edit Application
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <TextField
-                        label="Notes"
+                        label="Cover Letter"
                         multiline
                         rows={4}
                         value={coverLetter}
                         onChange={(e) => setCoverLetter(e.target.value)}
                         fullWidth
-                        sx={{ mt: 2 }}
+                        sx={{
+                            mt: 2,
+                            '& .MuiInputBase-input': {
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            },
+                            '& .MuiFormHelperText-root': {
+                                fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                            }
+                        }}
                         helperText={`${coverLetter.length}/500 characters`}
                     />
-                </DialogContent>
-                <DialogContent>
                     <TextField
                         label="Notes"
                         multiline
@@ -668,15 +924,43 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         value={editNotes}
                         onChange={(e) => setEditNotes(e.target.value)}
                         fullWidth
-                        sx={{ mt: 2 }}
+                        sx={{
+                            mt: 2,
+                            '& .MuiInputBase-input': {
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                            },
+                            '& .MuiFormHelperText-root': {
+                                fontSize: { xs: '0.75rem', sm: '0.75rem' }
+                            }
+                        }}
                         helperText={`${editNotes.length}/500 characters`}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditDialogOpen(false)}>
+                <DialogActions sx={{
+                    p: { xs: 2, sm: 3 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                }}>
+                    <Button
+                        onClick={() => setEditDialogOpen(false)}
+                        fullWidth={isMobile}
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={handleUpdateApplication} variant="contained">
+                    <Button
+                        onClick={handleUpdateApplication}
+                        variant="contained"
+                        fullWidth={isMobile}
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
                         Save Changes
                     </Button>
                 </DialogActions>
@@ -688,13 +972,34 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                 onClose={() => setWithdrawDialogOpen(false)}
                 maxWidth="sm"
                 fullWidth
+                fullScreen={isMobile}
+                PaperProps={{
+                    sx: {
+                        borderRadius: { xs: 0, sm: 3 },
+                        margin: { xs: 0, sm: 2 },
+                        width: { xs: '100%', sm: 'auto' },
+                        height: { xs: '100%', sm: 'auto' }
+                    }
+                }}
             >
-                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <DialogTitle sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    p: { xs: 2, sm: 3 }
+                }}>
                     <WarningIcon color="error" />
                     Confirm Withdrawal
                 </DialogTitle>
-                <DialogContent>
-                    <Typography variant="body1" gutterBottom>
+                <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
+                    <Typography
+                        variant="body1"
+                        gutterBottom
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
                         Are you sure you want to withdraw your application for:
                     </Typography>
                     {selectedApplication && (
@@ -705,24 +1010,51 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                             border: '1px solid rgba(244, 67, 54, 0.3)',
                             mt: 2
                         }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'error.main' }}>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'error.main',
+                                    fontSize: { xs: '1rem', sm: '1.25rem' }
+                                }}
+                            >
                                 {selectedApplication.job.title}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                                }}
+                            >
                                 {selectedApplication.company.name}
                             </Typography>
                         </Box>
                     )}
                     <Alert severity="warning" sx={{ mt: 2 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontWeight: 600,
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                            }}
+                        >
                             This action cannot be undone. Once withdrawn, you will not be able to reapply for this position.
                         </Typography>
                     </Alert>
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{
+                    p: { xs: 2, sm: 3 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                }}>
                     <Button
                         onClick={() => setWithdrawDialogOpen(false)}
                         disabled={withdrawLoading}
+                        fullWidth={isMobile}
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
                     >
                         Cancel
                     </Button>
@@ -732,6 +1064,10 @@ const ApplicationList: React.FC<Props> = ({ onRefresh }) => {
                         color="error"
                         startIcon={withdrawLoading ? <CircularProgress size={20} /> : <WithdrawIcon />}
                         disabled={withdrawLoading}
+                        fullWidth={isMobile}
+                        sx={{
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
                     >
                         {withdrawLoading ? 'Withdrawing...' : 'Yes, Withdraw Application'}
                     </Button>

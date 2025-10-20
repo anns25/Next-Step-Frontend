@@ -281,7 +281,7 @@ const JobsPageContent = () => {
     }
   };
 
-  const locationTypes = ["remote", "on-site", "hybrid"];
+  const locationTypes = ["on-site", "hybrid"];
 
   // Create SWR key based on current filters
   const swrKey = useMemo(() => {
@@ -950,13 +950,23 @@ const JobsPageContent = () => {
                     </Box>
                   </CardContent>
 
-                  <CardActions sx={{ p: { xs: 1, sm: 1.5, md: 2 }, pt: 0, flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 0.5, sm: 0 } }}>
+                  <Box sx={{
+                    p: { xs: 1, sm: 1.5, md: 2 },
+                    pt: 0,
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 1 },
+                    alignItems: 'center',
+                    justifyContent: { xs: 'center', sm: 'space-between' },
+                    width: '100%'
+                  }}>
                     <Button
                       variant="contained"
                       fullWidth
                       startIcon={!isSmall ? <ViewIcon /> : null}
                       onClick={() => handleViewJob(job)}
                       size="small"
+                      sx={{ width: '100%' }}
                     >
                       {isXSmall ? "View" : "View Details"}
                     </Button>
@@ -966,10 +976,11 @@ const JobsPageContent = () => {
                       startIcon={!isSmall ? <SendIcon /> : null}
                       onClick={() => applyToJob(job)}
                       size="small"
+                      sx={{ width: '100%' }}
                     >
                       {isXSmall ? "Apply" : "Apply Now"}
                     </Button>
-                  </CardActions>
+                  </Box>
                 </Card>
               </Grid>
             ))}

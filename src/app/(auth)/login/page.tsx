@@ -311,11 +311,7 @@ const Login = () => {
                                     Sign Up
                                 </Link>
                             </Typography>
-                            <Typography variant="body2" mt={2}>
-                                <Link href="/company/login" underline="hover">
-                                    Company Login
-                                </Link>
-                            </Typography>
+                           
                         </Box>
                     </Box>
                 </Paper>

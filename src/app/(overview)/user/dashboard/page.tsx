@@ -295,10 +295,10 @@ function DashboardContent() {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Applied
               </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={progressData.applied} 
-                sx={{ height: 8, borderRadius: 4, mb: 1 }} 
+              <LinearProgress
+                variant="determinate"
+                value={progressData.applied}
+                sx={{ height: 8, borderRadius: 4, mb: 1 }}
               />
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {stats?.totalApplications || 0} applications
@@ -308,11 +308,11 @@ function DashboardContent() {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Under Review
               </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={progressData.underReview} 
-                sx={{ height: 8, borderRadius: 4, mb: 1 }} 
-                color="warning" 
+              <LinearProgress
+                variant="determinate"
+                value={progressData.underReview}
+                sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                color="warning"
               />
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {stats?.underReview || 0} applications
@@ -322,11 +322,11 @@ function DashboardContent() {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Interview
               </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={progressData.interview} 
-                sx={{ height: 8, borderRadius: 4, mb: 1 }} 
-                color="info" 
+              <LinearProgress
+                variant="determinate"
+                value={progressData.interview}
+                sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                color="info"
               />
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {(stats?.interviewScheduled || 0) + (stats?.interviewed || 0)} applications
@@ -336,11 +336,11 @@ function DashboardContent() {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Offers
               </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={progressData.offers} 
-                sx={{ height: 8, borderRadius: 4, mb: 1 }} 
-                color="success" 
+              <LinearProgress
+                variant="determinate"
+                value={progressData.offers}
+                sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                color="success"
               />
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {stats?.accepted || 0} offers
@@ -367,7 +367,16 @@ function DashboardContent() {
             </Typography>
             <Stack spacing={2}>
               {recentApplications.slice(0, 3).map((application) => (
-                <Box key={application._id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2 }}>
+                <Box key={application._id} sx={{
+                  display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'flex-start', sm: 'space-between' }, alignItems: { xs: 'f;ex-start', sm: 'center' }, p: 2, bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, gap: { xs: 1, sm: 0 },
+                  //Custom breakpoint fro 490 px
+                  '@media (max-width: 490px)': {
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    gap: 1
+                  }
+                }}>
                   <Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {application.job.title}
@@ -376,10 +385,17 @@ function DashboardContent() {
                       {application.company.name} • Applied {new Date(application.applicationDate).toLocaleDateString()}
                     </Typography>
                   </Box>
-                  <Chip 
-                    label={application.status.replace('-', ' ').toUpperCase()} 
-                    size="small" 
+                  <Chip
+                    label={application.status.replace('-', ' ').toUpperCase()}
+                    size="small"
                     color={application.status === 'accepted' ? 'success' : application.status === 'rejected' ? 'error' : 'primary'}
+                    sx={{
+                      alignSelf: { xs: 'flex-start', sm: 'center' },
+                      // Custom breakpoint for 490px
+                      '@media (max-width: 490px)': {
+                        alignSelf: 'flex-start'
+                      }
+                    }}
                   />
                 </Box>
               ))}
