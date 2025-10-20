@@ -67,6 +67,7 @@ export default function UserCompanies() {
     const industries = [
         "Technology",
         "Healthcare",
+        "Construction",
         "Finance",
         "Education",
         "Manufacturing",

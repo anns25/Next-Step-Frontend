@@ -289,13 +289,14 @@ const AdminApplicationsList: React.FC = () => {
                 <Paper
                     elevation={6}
                     sx={{
-                        p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
-                        borderRadius: { xs: 2, md: 3 },
+                        p: { xs: 1.5, sm: 2, md: 2, lg: 3 },
+                        borderRadius: { xs: 2, sm: 2, md: 3 },
                         backdropFilter: "blur(12px)",
                         background:
                             "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                         boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
-                        mx: { xs: 1, sm: 2, md: 0 },
+                        mx: { xs: 0, sm: 1, md: 2 },
+                        minHeight: { xs: '100vh', sm: 'auto' },
                     }}
                 >
                     {/* Header */}
@@ -304,15 +305,44 @@ const AdminApplicationsList: React.FC = () => {
                         flexDirection: { xs: "column", sm: "row" },
                         justifyContent: "space-between",
                         alignItems: { xs: "flex-start", sm: "center" },
-                        mb: { xs: 2, sm: 3 },
-                        gap: { xs: 2, sm: 0 }
+                        mb: { xs: 1, sm: 2, md: 3 },
+                        gap: { xs: 1, sm: 0 },
+                        p: { xs: 1, sm: 0 },
+                        // Custom breakpoints
+                        '@media (max-width: 480px)': {
+                            mb: 0.75,
+                            p: 0.75
+                        },
+                        '@media (max-width: 350px)': {
+                            mb: 0.5,
+                            p: 0.5
+                        },
+                        '@media (max-width: 240px)': {
+                            mb: 0.25,
+                            p: 0.25
+                        }
                     }}>
                         <Typography
                             variant="h4"
                             sx={{
                                 fontWeight: 700,
-                                fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem", lg: "2.125rem" },
+                                fontSize: {
+                                    xs: "1rem",
+                                    sm: "1.25rem",
+                                    md: "1.5rem",
+                                    lg: "1.75rem"
+                                },
                                 lineHeight: 1.2,
+                                // Custom breakpoints
+                                '@media (max-width: 480px)': {
+                                    fontSize: '0.9rem'
+                                },
+                                '@media (max-width: 350px)': {
+                                    fontSize: '0.8rem'
+                                },
+                                '@media (max-width: 240px)': {
+                                    fontSize: '0.75rem'
+                                }
                             }}
                         >
                             Applications
@@ -321,83 +351,251 @@ const AdminApplicationsList: React.FC = () => {
                     <Box>
                         {/* Stats Cards */}
                         {stats && (
-                            <Grid container spacing={2} sx={{ mb: 3 }}>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                            <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: { xs: 1.5, sm: 2, md: 3 } }}>
+                                <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                                     <Paper
                                         sx={{
-                                            p: 3,
-                                            borderRadius: 3,
+                                            p: { xs: 1, sm: 2, md: 3 },
+                                            borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                             backdropFilter: "blur(12px)",
                                             background:
                                                 "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                             boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                            textAlign: "center"
+                                            textAlign: "center",
+                                            minHeight: { xs: '60px', sm: 'auto' },
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'center',
+                                            // Custom breakpoints
+                                            '@media (max-width: 350px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                                backdropFilter: "blur(8px)",
+                                                p: 0.75
+                                            },
+                                            '@media (max-width: 240px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                                backdropFilter: "blur(6px)",
+                                                p: 0.5
+                                            }
                                         }}
                                     >
-                                        <Typography variant="h4" color="#1565c0" sx={{ fontWeight: 600 }}>
+                                        <Typography
+                                            variant="h4"
+                                            color="#1565c0"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.9rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.8rem'
+                                                }
+                                            }}
+                                        >
                                             {stats.totalApplications || 0}
                                         </Typography>
-                                        <Typography variant="body2" color="#2e3d4d">
+                                        <Typography
+                                            variant="body2"
+                                            color="#2e3d4d"
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.65rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.6rem'
+                                                }
+                                            }}
+                                        >
                                             Total Applications
                                         </Typography>
                                     </Paper>
                                 </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                                     <Paper
                                         sx={{
-                                            p: 3,
-                                            borderRadius: 3,
+                                            p: { xs: 1, sm: 2, md: 3 },
+                                            borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                             backdropFilter: "blur(12px)",
                                             background:
                                                 "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                             boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                            textAlign: "center"
+                                            textAlign: "center",
+                                            minHeight: { xs: '60px', sm: 'auto' },
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'center',
+                                            // Custom breakpoints
+                                            '@media (max-width: 350px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                                backdropFilter: "blur(8px)",
+                                                p: 0.75
+                                            },
+                                            '@media (max-width: 240px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                                backdropFilter: "blur(6px)",
+                                                p: 0.5
+                                            }
                                         }}
                                     >
-                                        <Typography variant="h4" color="warning.main" sx={{ fontWeight: 600 }}>
+                                        <Typography
+                                            variant="h4"
+                                            color="warning.main"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.9rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.8rem'
+                                                }
+                                            }}
+                                        >
                                             {stats.underReview || 0}
                                         </Typography>
-                                        <Typography variant="body2" color="#2e3d4d">
+                                        <Typography
+                                            variant="body2"
+                                            color="#2e3d4d"
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.65rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.6rem'
+                                                }
+                                            }}
+                                        >
                                             Under Review
                                         </Typography>
                                     </Paper>
                                 </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                                     <Paper
                                         sx={{
-                                            p: 3,
-                                            borderRadius: 3,
+                                            p: { xs: 1, sm: 2, md: 3 },
+                                            borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                             backdropFilter: "blur(12px)",
                                             background:
                                                 "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                             boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                            textAlign: "center"
+                                            textAlign: "center",
+                                            minHeight: { xs: '60px', sm: 'auto' },
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'center',
+                                            // Custom breakpoints
+                                            '@media (max-width: 350px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                                backdropFilter: "blur(8px)",
+                                                p: 0.75
+                                            },
+                                            '@media (max-width: 240px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                                backdropFilter: "blur(6px)",
+                                                p: 0.5
+                                            }
                                         }}
                                     >
-                                        <Typography variant="h4" color="success.main" sx={{ fontWeight: 600 }}>
+                                        <Typography
+                                            variant="h4"
+                                            color="success.main"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.9rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.8rem'
+                                                }
+                                            }}
+                                        >
                                             {stats.accepted || 0}
                                         </Typography>
-                                        <Typography variant="body2" color="#2e3d4d">
+                                        <Typography
+                                            variant="body2"
+                                            color="#2e3d4d"
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.65rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.6rem'
+                                                }
+                                            }}
+                                        >
                                             Accepted
                                         </Typography>
                                     </Paper>
                                 </Grid>
-                                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <Grid size={{ xs: 6, sm: 6, md: 3 }}>
                                     <Paper
                                         sx={{
-                                            p: 3,
-                                            borderRadius: 3,
+                                            p: { xs: 1, sm: 2, md: 3 },
+                                            borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                             backdropFilter: "blur(12px)",
                                             background:
                                                 "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
                                             boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                                            textAlign: "center"
+                                            textAlign: "center",
+                                            minHeight: { xs: '60px', sm: 'auto' },
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'center',
+                                            // Custom breakpoints
+                                            '@media (max-width: 350px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                                backdropFilter: "blur(8px)",
+                                                p: 0.75
+                                            },
+                                            '@media (max-width: 240px)': {
+                                                background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                                backdropFilter: "blur(6px)",
+                                                p: 0.5
+                                            }
                                         }}
                                     >
-                                        <Typography variant="h4" color="error.main" sx={{ fontWeight: 600 }}>
+                                        <Typography
+                                            variant="h4"
+                                            color="error.main"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.9rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.8rem'
+                                                }
+                                            }}
+                                        >
                                             {stats.rejected || 0}
                                         </Typography>
-                                        <Typography variant="body2" color="#2e3d4d">
+                                        <Typography
+                                            variant="body2"
+                                            color="#2e3d4d"
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
+                                                // Custom breakpoints
+                                                '@media (max-width: 350px)': {
+                                                    fontSize: '0.65rem'
+                                                },
+                                                '@media (max-width: 240px)': {
+                                                    fontSize: '0.6rem'
+                                                }
+                                            }}
+                                        >
                                             Rejected
                                         </Typography>
                                     </Paper>
@@ -406,110 +604,170 @@ const AdminApplicationsList: React.FC = () => {
                         )}
 
 
-                        {/* Filters */}
-                        <Paper
-                            sx={{
-                                p: { xs: 2, sm: 3 },
-                                mb: 3,
-                                borderRadius: 3,
-                                backdropFilter: "blur(12px)",
-                                background:
-                                    "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(245,250,255,0.1) 100%)",
-                                boxShadow: "0 6px 20px rgba(20,30,60,0.1)",
-                            }}
-                        >
-                            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-                                {/* ... existing filter controls ... */}
-                            </Grid>
-                        </Paper>
-
-
                         {/* Applications Table - Desktop */}
                         <Paper
                             sx={{
-                                borderRadius: 3,
+                                borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                 backdropFilter: "blur(12px)",
                                 background:
                                     "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                                 boxShadow: "0 8px 30px rgba(20,30,60,0.12)",
-                                display: { xs: 'none', md: 'block' }
+                                display: { xs: 'none', md: 'block' },
+                                // Custom breakpoints
+                                '@media (max-width: 350px)': {
+                                    background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                    backdropFilter: "blur(8px)"
+                                },
+                                '@media (max-width: 240px)': {
+                                    background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                    backdropFilter: "blur(6px)"
+                                }
                             }}
                         >
                             <TableContainer>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Applicant</TableCell>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Job</TableCell>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Company</TableCell>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Status</TableCell>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Applied Date</TableCell>
-                                            <TableCell sx={{ fontSize: "1.2rem", fontWeight: 600, }}>Actions</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Applicant</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Job</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Company</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Status</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Applied Date</TableCell>
+                                            <TableCell sx={{
+                                                fontSize: { xs: "0.75rem", sm: "1rem", md: "1.2rem" },
+                                                fontWeight: 600,
+                                                p: { xs: 0.5, sm: 1, md: 1.5 }
+                                            }}>Actions</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {applications.map((application) => (
                                             <TableRow key={application._id} hover>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
                                                         <Avatar
                                                             src={application.user.profilePicture ?
                                                                 `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.user.profilePicture}` :
                                                                 undefined
                                                             }
-                                                            sx={{ width: 40, height: 40 }}
+                                                            sx={{
+                                                                width: { xs: 24, sm: 32, md: 40 },
+                                                                height: { xs: 24, sm: 32, md: 40 },
+                                                                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                                            }}
                                                         >
                                                             {application.user.firstName}
                                                         </Avatar>
                                                         <Box>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                                            <Typography
+                                                                variant="subtitle2"
+                                                                sx={{
+                                                                    fontWeight: 600,
+                                                                    fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                                                }}
+                                                            >
                                                                 {application.user.firstName} {application.user.lastName}
                                                             </Typography>
-                                                            <Typography variant="caption" color="#2e3d4d">
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="#2e3d4d"
+                                                                sx={{
+                                                                    fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' }
+                                                                }}
+                                                            >
                                                                 {application.user.email}
                                                             </Typography>
                                                         </Box>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                                                     <Box>
-                                                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                                        <Typography
+                                                            variant="subtitle2"
+                                                            sx={{
+                                                                fontWeight: 600,
+                                                                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                                            }}
+                                                        >
                                                             {application.job.title}
                                                         </Typography>
-                                                        <Typography variant="caption" color="#2e3d4d">
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="#2e3d4d"
+                                                            sx={{
+                                                                fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' }
+                                                            }}
+                                                        >
                                                             {application.job.jobType} • {application.job.experienceLevel}
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                                                         {application.company.logo && (
                                                             <Avatar
                                                                 src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.company.logo}`}
-                                                                sx={{ width: 24, height: 24 }}
+                                                                sx={{
+                                                                    width: { xs: 16, sm: 20, md: 24 },
+                                                                    height: { xs: 16, sm: 20, md: 24 }
+                                                                }}
                                                             />
                                                         )}
-                                                        <Typography variant="body2">
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                                            }}
+                                                        >
                                                             {application.company.name}
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
                                                     <Chip
                                                         icon={getStatusIcon(application.status)}
                                                         label={application.status.replace("-", " ").toUpperCase()}
                                                         color={getStatusColor(application.status)}
                                                         size="small"
-                                                        sx={{ fontWeight: 600 }}
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                                                            height: { xs: 20, sm: 24, md: 28 }
+                                                        }}
                                                     />
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            fontSize: { xs: '0.7rem', sm: '0.875rem', md: '1rem' }
+                                                        }}
+                                                    >
                                                         {formatDate(application.applicationDate)}
                                                     </Typography>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <TableCell sx={{ p: { xs: 0.5, sm: 1, md: 1.5 } }}>
+                                                    <Box sx={{ display: 'flex', gap: { xs: 0.25, sm: 0.5, md: 1 } }}>
                                                         <Tooltip title="View Details">
                                                             <IconButton
                                                                 size="small"
@@ -517,8 +775,12 @@ const AdminApplicationsList: React.FC = () => {
                                                                     setSelectedApplication(application);
                                                                     setViewDialogOpen(true);
                                                                 }}
+                                                                sx={{
+                                                                    width: { xs: 24, sm: 28, md: 32 },
+                                                                    height: { xs: 24, sm: 28, md: 32 }
+                                                                }}
                                                             >
-                                                                <ViewIcon />
+                                                                <ViewIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Update Status">
@@ -530,26 +792,26 @@ const AdminApplicationsList: React.FC = () => {
                                                                     setAdminNotes(application.notes || "");
                                                                     setEditDialogOpen(true);
                                                                 }}
+                                                                sx={{
+                                                                    width: { xs: 24, sm: 28, md: 32 },
+                                                                    height: { xs: 24, sm: 28, md: 32 }
+                                                                }}
                                                             >
-                                                                <EditIcon />
+                                                                <EditIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="View Resume">
                                                             <IconButton
                                                                 size="small"
                                                                 onClick={() => handleViewResume(application)}
+                                                                sx={{
+                                                                    width: { xs: 24, sm: 28, md: 32 },
+                                                                    height: { xs: 24, sm: 28, md: 32 }
+                                                                }}
                                                             >
-                                                                <DownloadIcon />
+                                                                <DownloadIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' } }} />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        {/* <Tooltip title="More Actions">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={(e) => handleMenuClick(e, application)}
-                                                >
-                                                    <MoreVertIcon />
-                                                </IconButton>
-                                            </Tooltip> */}
                                                     </Box>
                                                 </TableCell>
                                             </TableRow>
@@ -565,31 +827,63 @@ const AdminApplicationsList: React.FC = () => {
                                 <Card
                                     key={application._id}
                                     sx={{
-                                        mb: 2,
-                                        borderRadius: 3,
+                                        mb: { xs: 1, sm: 1.5, md: 2 },
+                                        borderRadius: { xs: 1.5, sm: 2, md: 3 },
                                         backdropFilter: "blur(12px)",
                                         background:
                                             "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(245,250,255,0.15) 100%)",
                                         boxShadow: "0 4px 15px rgba(20,30,60,0.08)",
+                                        // Custom breakpoints
+                                        '@media (max-width: 350px)': {
+                                            background: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(245,250,255,0.08) 100%)",
+                                            backdropFilter: "blur(8px)"
+                                        },
+                                        '@media (max-width: 240px)': {
+                                            background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(245,250,255,0.05) 100%)",
+                                            backdropFilter: "blur(6px)"
+                                        }
                                     }}
                                 >
-                                    <CardContent>
+                                    <CardContent sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
                                         {/* Applicant */}
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, mb: { xs: 1, sm: 2 } }}>
                                             <Avatar
                                                 src={application.user.profilePicture ?
                                                     `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.user.profilePicture}` :
                                                     undefined
                                                 }
-                                                sx={{ width: 48, height: 48 }}
+                                                sx={{
+                                                    width: { xs: 32, sm: 40, md: 48 },
+                                                    height: { xs: 32, sm: 40, md: 48 },
+                                                    fontSize: { xs: '0.8rem', sm: '1rem', md: '1.2rem' }
+                                                }}
                                             >
                                                 {application.user.firstName[0]}
                                             </Avatar>
-                                            <Box sx={{ flex: 1 }}>
-                                                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                <Typography
+                                                    variant="subtitle1"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
                                                     {application.user.firstName} {application.user.lastName}
                                                 </Typography>
-                                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        display: 'block',
+                                                        fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
                                                     {application.user.email}
                                                 </Typography>
                                             </Box>
@@ -598,73 +892,146 @@ const AdminApplicationsList: React.FC = () => {
                                                 label={application.status.replace("-", " ").toUpperCase()}
                                                 color={getStatusColor(application.status)}
                                                 size="small"
-                                                sx={{ fontWeight: 600 }}
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem' },
+                                                    height: { xs: 20, sm: 24, md: 28 }
+                                                }}
                                             />
                                         </Box>
 
-                                        <Divider sx={{ my: 2 }} />
+                                        <Divider sx={{ my: { xs: 1, sm: 1.5, md: 2 } }} />
 
                                         {/* Job Info */}
-                                        <Box sx={{ mb: 2 }}>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        <Box sx={{ mb: { xs: 1, sm: 1.5, md: 2 } }}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{
+                                                    mb: 0.5,
+                                                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                                                }}
+                                            >
                                                 Position
                                             </Typography>
-                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    mb: 0.5,
+                                                    fontSize: { xs: '0.75rem', sm: '0.85rem', md: '1rem' },
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
                                                 {application.job.title}
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary">
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                                sx={{
+                                                    fontSize: { xs: '0.6rem', sm: '0.65rem', md: '0.75rem' }
+                                                }}
+                                            >
                                                 {application.job.jobType} • {application.job.experienceLevel}
                                             </Typography>
                                         </Box>
 
                                         {/* Company */}
-                                        <Box sx={{ mb: 2 }}>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        <Box sx={{ mb: { xs: 1, sm: 1.5, md: 2 } }}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{
+                                                    mb: 0.5,
+                                                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                                                }}
+                                            >
                                                 Company
                                             </Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                                                 {application.company.logo && (
                                                     <Avatar
                                                         src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${application.company.logo}`}
-                                                        sx={{ width: 24, height: 24 }}
+                                                        sx={{
+                                                            width: { xs: 16, sm: 20, md: 24 },
+                                                            height: { xs: 16, sm: 20, md: 24 }
+                                                        }}
                                                     />
                                                 )}
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                                                <Typography
+                                                    variant="subtitle2"
+                                                    sx={{
+                                                        fontWeight: 500,
+                                                        fontSize: { xs: '0.75rem', sm: '0.85rem', md: '1rem' },
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
                                                     {application.company.name}
                                                 </Typography>
                                             </Box>
                                         </Box>
 
                                         {/* Date */}
-                                        <Box sx={{ mb: 2 }}>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        <Box sx={{ mb: { xs: 1, sm: 1.5, md: 2 } }}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{
+                                                    mb: 0.5,
+                                                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' }
+                                                }}
+                                            >
                                                 Applied Date
                                             </Typography>
-                                            <Typography variant="subtitle2">
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{
+                                                    fontSize: { xs: '0.75rem', sm: '0.85rem', md: '1rem' }
+                                                }}
+                                            >
                                                 {formatDate(application.applicationDate)}
                                             </Typography>
                                         </Box>
                                     </CardContent>
 
-                                    <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2 }}>
+                                    <CardActions sx={{
+                                        justifyContent: 'flex-end',
+                                        px: { xs: 1, sm: 1.5, md: 2 },
+                                        pb: { xs: 1, sm: 1.5, md: 2 },
+                                        gap: { xs: 0.5, sm: 1 }
+                                    }}>
                                         <Button
                                             size="small"
-                                            startIcon={<ViewIcon />}
+                                            startIcon={<ViewIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />}
                                             onClick={() => {
                                                 setSelectedApplication(application);
                                                 setViewDialogOpen(true);
+                                            }}
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' },
+                                                minWidth: { xs: 'auto', sm: 'auto' },
+                                                px: { xs: 1, sm: 1.5 }
                                             }}
                                         >
                                             View
                                         </Button>
                                         <Button
                                             size="small"
-                                            startIcon={<EditIcon />}
+                                            startIcon={<EditIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />}
                                             onClick={() => {
                                                 setSelectedApplication(application);
                                                 setStatusUpdate(application.status);
                                                 setAdminNotes(application.notes || "");
                                                 setEditDialogOpen(true);
+                                            }}
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' },
+                                                minWidth: { xs: 'auto', sm: 'auto' },
+                                                px: { xs: 1, sm: 1.5 }
                                             }}
                                         >
                                             Update
@@ -672,8 +1039,12 @@ const AdminApplicationsList: React.FC = () => {
                                         <IconButton
                                             size="small"
                                             onClick={() => handleViewResume(application)}
+                                            sx={{
+                                                width: { xs: 28, sm: 32 },
+                                                height: { xs: 28, sm: 32 }
+                                            }}
                                         >
-                                            <DownloadIcon />
+                                            <DownloadIcon sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }} />
                                         </IconButton>
                                     </CardActions>
                                 </Card>
@@ -699,88 +1070,182 @@ const AdminApplicationsList: React.FC = () => {
                             maxWidth="md"
                             fullWidth
                             fullScreen={isMobile}
+                            PaperProps={{
+                                sx: {
+                                    borderRadius: { xs: 0, sm: 2, md: 3 },
+                                    margin: { xs: 0, sm: 2 },
+                                    width: { xs: '100%', sm: 'auto' },
+                                    height: { xs: '100%', sm: 'auto' },
+                                    maxHeight: { xs: '100vh', sm: '90vh' }
+                                }
+                            }}
                         >
-                            <DialogTitle>
+                            <DialogTitle sx={{
+                                p: { xs: 1.5, sm: 2, md: 3 },
+                                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' }
+                            }}>
                                 Application Details
                             </DialogTitle>
-                            <DialogContent>
+                            <DialogContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
                                 {selectedApplication && (
                                     <Box>
-                                        <Grid container spacing={3}>
+                                        <Grid container spacing={{ xs: 2, sm: 3 }}>
                                             <Grid size={{ xs: 12, md: 6 }}>
-                                                <Typography variant="h6" gutterBottom>
+                                                <Typography
+                                                    variant="h6"
+                                                    gutterBottom
+                                                    sx={{
+                                                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                                    }}
+                                                >
                                                     Applicant Information
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, mb: { xs: 1, sm: 2 } }}>
                                                     <Avatar
                                                         src={selectedApplication.user.profilePicture ?
                                                             `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${selectedApplication.user.profilePicture}` :
                                                             undefined
                                                         }
-                                                        sx={{ width: 60, height: 60 }}
+                                                        sx={{
+                                                            width: { xs: 40, sm: 50, md: 60 },
+                                                            height: { xs: 40, sm: 50, md: 60 }
+                                                        }}
                                                     >
                                                         {selectedApplication.user.firstName}
                                                     </Avatar>
                                                     <Box>
-                                                        <Typography variant="h6">
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{
+                                                                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                                            }}
+                                                        >
                                                             {selectedApplication.user.firstName} {selectedApplication.user.lastName}
                                                         </Typography>
-                                                        <Typography variant="body2" color="text.secondary">
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            sx={{
+                                                                fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                                            }}
+                                                        >
                                                             {selectedApplication.user.email}
                                                         </Typography>
                                                     </Box>
                                                 </Box>
                                             </Grid>
                                             <Grid size={{ xs: 12, md: 6 }}>
-                                                <Typography variant="h6" gutterBottom>
+                                                <Typography
+                                                    variant="h6"
+                                                    gutterBottom
+                                                    sx={{
+                                                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                                    }}
+                                                >
                                                     Job Information
                                                 </Typography>
-                                                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                                <Typography
+                                                    variant="subtitle1"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }
+                                                    }}
+                                                >
                                                     {selectedApplication.job.title}
                                                 </Typography>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                                    }}
+                                                >
                                                     {selectedApplication.company.name}
                                                 </Typography>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                                    }}
+                                                >
                                                     {selectedApplication.job.jobType} • {selectedApplication.job.experienceLevel}
                                                 </Typography>
                                             </Grid>
                                         </Grid>
 
-                                        <Divider sx={{ my: 2 }} />
+                                        <Divider sx={{ my: { xs: 1.5, sm: 2 } }} />
 
-                                        <Typography variant="h6" gutterBottom>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{
+                                                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                            }}
+                                        >
                                             Cover Letter
                                         </Typography>
-                                        <Typography variant="body2" paragraph>
+                                        <Typography
+                                            variant="body2"
+                                            paragraph
+                                            sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                            }}
+                                        >
                                             {selectedApplication.coverLetter || "No cover letter provided"}
                                         </Typography>
 
                                         {selectedApplication.notes && (
                                             <>
-                                                <Typography variant="h6" gutterBottom>
+                                                <Typography
+                                                    variant="h6"
+                                                    gutterBottom
+                                                    sx={{
+                                                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                                    }}
+                                                >
                                                     Admin Notes
                                                 </Typography>
-                                                <Typography variant="body2" paragraph>
+                                                <Typography
+                                                    variant="body2"
+                                                    paragraph
+                                                    sx={{
+                                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                                    }}
+                                                >
                                                     {selectedApplication.notes}
                                                 </Typography>
                                             </>
                                         )}
 
-                                        <Typography variant="h6" gutterBottom>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{
+                                                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                                            }}
+                                        >
                                             Application Status
                                         </Typography>
                                         <Chip
                                             icon={getStatusIcon(selectedApplication.status)}
                                             label={selectedApplication.status.replace("-", " ").toUpperCase()}
                                             color={getStatusColor(selectedApplication.status)}
-                                            sx={{ fontWeight: 600 }}
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                            }}
                                         />
                                     </Box>
                                 )}
                             </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setViewDialogOpen(false)}>
+                            <DialogActions sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+                                <Button
+                                    onClick={() => setViewDialogOpen(false)}
+                                    sx={{
+                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                    }}
+                                >
                                     Close
                                 </Button>
                             </DialogActions>
@@ -793,26 +1258,40 @@ const AdminApplicationsList: React.FC = () => {
                             maxWidth="sm"
                             fullWidth
                             fullScreen={isMobile}
+                            PaperProps={{
+                                sx: {
+                                    borderRadius: { xs: 0, sm: 2, md: 3 },
+                                    margin: { xs: 0, sm: 2 },
+                                    width: { xs: '100%', sm: 'auto' },
+                                    height: { xs: '100%', sm: 'auto' },
+                                    maxHeight: { xs: '100vh', sm: '90vh' }
+                                }
+                            }}
                         >
-                            <DialogTitle>
+                            <DialogTitle sx={{
+                                p: { xs: 1.5, sm: 2, md: 3 },
+                                fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' }
+                            }}>
                                 Update Application Status
                             </DialogTitle>
-                            <DialogContent>
-                                <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
-                                    <InputLabel>Status</InputLabel>
+                            <DialogContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+                                <FormControl fullWidth sx={{ mt: { xs: 1, sm: 2 }, mb: { xs: 1, sm: 2 } }}>
+                                    <InputLabel sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Status</InputLabel>
                                     <Select
                                         value={statusUpdate}
                                         onChange={(e) => setStatusUpdate(e.target.value)}
                                         label="Status"
+                                        sx={{
+                                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                                        }}
                                     >
-                                        <MenuItem value="applied">Applied</MenuItem>
-                                        <MenuItem value="under-review">Under Review</MenuItem>
-                                        <MenuItem value="shortlisted">Shortlisted</MenuItem>
-                                        <MenuItem value="interview-scheduled">Interview Scheduled</MenuItem>
-                                        <MenuItem value="interviewed">Interviewed</MenuItem>
-                                        <MenuItem value="rejected">Rejected</MenuItem>
-                                        <MenuItem value="accepted">Accepted</MenuItem>
-
+                                        <MenuItem value="applied" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Applied</MenuItem>
+                                        <MenuItem value="under-review" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Under Review</MenuItem>
+                                        <MenuItem value="shortlisted" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Shortlisted</MenuItem>
+                                        <MenuItem value="interview-scheduled" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Interview Scheduled</MenuItem>
+                                        <MenuItem value="interviewed" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Interviewed</MenuItem>
+                                        <MenuItem value="rejected" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Rejected</MenuItem>
+                                        <MenuItem value="accepted" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>Accepted</MenuItem>
                                     </Select>
                                 </FormControl>
 
@@ -824,10 +1303,26 @@ const AdminApplicationsList: React.FC = () => {
                                     onChange={(e) => setAdminNotes(e.target.value)}
                                     fullWidth
                                     helperText="Add internal notes about this application"
+                                    sx={{
+                                        '& .MuiInputLabel-root': {
+                                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                                        },
+                                        '& .MuiFormHelperText-root': {
+                                            fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' }
+                                        }
+                                    }}
                                 />
                             </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setEditDialogOpen(false)}>
+                            <DialogActions sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+                                <Button
+                                    onClick={() => setEditDialogOpen(false)}
+                                    sx={{
+                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                    }}
+                                >
                                     Cancel
                                 </Button>
                                 <Button
@@ -835,6 +1330,9 @@ const AdminApplicationsList: React.FC = () => {
                                     variant="contained"
                                     disabled={actionLoading}
                                     startIcon={actionLoading ? <CircularProgress size={20} /> : null}
+                                    sx={{
+                                        fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.875rem' }
+                                    }}
                                 >
                                     {actionLoading ? 'Updating...' : 'Update Status'}
                                 </Button>

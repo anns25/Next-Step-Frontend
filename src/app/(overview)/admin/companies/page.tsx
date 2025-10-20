@@ -97,6 +97,7 @@ export default function AdminCompanies() {
     const industries = [
         "Technology",
         "Healthcare",
+        "Construction",
         "Finance",
         "Education",
         "Manufacturing",

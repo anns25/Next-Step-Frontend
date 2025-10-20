@@ -225,7 +225,7 @@ const AdminProfilePage = () => {
               </Grid>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
+            {/* <Grid size={{ xs: 12, md: 4 }}>
               <Box display="flex" alignItems="center" justifyContent="flex-end" gap={2}>
                 <Button
                   variant="outlined"
@@ -236,7 +236,7 @@ const AdminProfilePage = () => {
                   Delete Account
                 </Button>
               </Box>
-            </Grid>
+            </Grid> */}
           </Grid>
 
           <Divider sx={{ my: 4 }} />

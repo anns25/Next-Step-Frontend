@@ -677,18 +677,27 @@ export default function AdminJobs() {
                                             mb: { xs: 1.5, sm: 2 },
                                             gap: 1
                                         }}>
-                                            <Box sx={{ textAlign: "center", flex: 1 }}>
-                                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
-                                                    Applications
-                                                </Typography>
-                                                <Typography variant="h6" sx={{
-                                                    fontWeight: 600,
-                                                    fontSize: { xs: "0.875rem", sm: "1rem" }
-                                                }}>
-                                                    {job.applicationCount || 0}
-                                                </Typography>
+                                            <Box sx={{ textAlign: "left", flex: 1 }}>
+                                                <Box display="flex" justifyContent="space-between">
+                                                    <Typography
+                                                        variant="h6"
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            fontSize: { xs: "0.875rem", sm: "1rem" }
+                                                        }}>
+                                                        Applications
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="h6"
+                                                        sx={{
+                                                            fontWeight: 600,
+                                                            fontSize: { xs: "0.875rem", sm: "1rem" }
+                                                        }}>
+                                                        {job.applicationCount || 0}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
-                                            <Box sx={{ textAlign: "center", flex: 1 }}>
+                                            {/* <Box sx={{ textAlign: "center", flex: 1 }}>
                                                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.625rem", sm: "0.75rem" } }}>
                                                     Views
                                                 </Typography>
@@ -698,7 +707,7 @@ export default function AdminJobs() {
                                                 }}>
                                                     {job.viewCount || 0}
                                                 </Typography>
-                                            </Box>
+                                            </Box> */}
                                         </Box>
                                     </CardContent>
 

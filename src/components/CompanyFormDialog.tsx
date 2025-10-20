@@ -59,6 +59,7 @@ const isFieldValidationSchema = (value: unknown): value is FieldValidationSchema
 const industries = [
   'Technology',
   'Healthcare',
+  'Construction',
   'Finance',
   'Education',
   'Manufacturing',

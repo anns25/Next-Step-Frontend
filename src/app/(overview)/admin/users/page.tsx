@@ -272,7 +272,7 @@ export default function AdminUsers() {
                                     size={isMobile ? "small" : "medium"}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                            {/* <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <FormControl fullWidth size={isMobile ? "small" : "medium"}>
                                     <InputLabel>Role</InputLabel>
                                     <Select
@@ -288,8 +288,8 @@ export default function AdminUsers() {
                                         ))}
                                     </Select>
                                 </FormControl>
-                            </Grid>
-                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                            </Grid> */}
+                            {/* <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <FormControl fullWidth size={isMobile ? "small" : "medium"}>
                                     <InputLabel>Verification</InputLabel>
                                     <Select
@@ -305,7 +305,7 @@ export default function AdminUsers() {
                                         ))}
                                     </Select>
                                 </FormControl>
-                            </Grid>
+                            </Grid> */}
 
                             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Button
