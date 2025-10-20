@@ -1,7 +1,8 @@
 import {
     object, string, minLength, nonEmpty, pipe, email,
     custom, literal, union, number, boolean, array,
-    regex, maxLength, InferOutput, optional
+    regex, maxLength, InferOutput, optional,
+    instance
 } from 'valibot';
 
 // --- LOGIN ---
@@ -17,7 +18,7 @@ export const signupSchema = object({
     email: pipe(string(), email('Please enter a valid email'), nonEmpty('Email is required')),
     password: pipe(string(), minLength(6, 'Password must be at least 6 characters'), nonEmpty('Password is required')),
     role: optional(literal('user')), // must equal "user" if provided
-    image: optional(string()), // handled by controller (file upload)
+    image: optional(instance(File, 'Please upload a valid image file')), // handled by controller (file upload)
 });
 
 // --- SIGNUP (ADMIN) ---
