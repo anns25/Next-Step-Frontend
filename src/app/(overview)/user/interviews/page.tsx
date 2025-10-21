@@ -956,105 +956,97 @@ const InterviewsPage: React.FC = () => {
                         </Stack>
                       </CardContent>
 
-                      <CardActions sx={{
+                      <Box sx={{
+                        display: "flex", 
                         px: { xs: 1.5, sm: 2 },
                         pb: { xs: 1.5, sm: 2 },
-                        gap: { xs: 1, sm: 1 },
+                        gap: { xs: 1, sm: 1.5 }, 
                         flexWrap: "wrap",
-                        flexDirection: { xs: 'column', sm: 'row' }
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: { xs: "stretch", sm: "flex-start" },
                       }}>
-                        <Button
-                          variant="outlined"
-                          startIcon={<ViewIcon />}
-                          onClick={() => handleViewInterview(interview)}
-                          size="small"
-                          fullWidth
-                          sx={{
-                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                            // Custom breakpoints
-                            '@media (max-width: 360px)': {
-                              fontSize: '0.7rem'
-                            },
-                            '@media (max-width: 240px)': {
-                              fontSize: '0.65rem'
-                            }
-                          }}
-                        >
-                          View Details
-                        </Button>
-                        {isUpcoming(interview.scheduledDate) &&
-                          interview.status !== 'cancelled' &&
-                          interview.status !== 'completed' && (
-                            <Button
-                              variant="contained"
-                              startIcon={<NotesIcon />}
-                              onClick={() => handlePreparation(interview)}
-                              size="small"
-                              fullWidth
-                              sx={{
-                                backgroundColor: theme.palette.success.main,
-                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                                '&:hover': {
-                                  backgroundColor: theme.palette.success.dark,
-                                },
-                                // Custom breakpoints
-                                '@media (max-width: 360px)': {
-                                  fontSize: '0.7rem'
-                                },
-                                '@media (max-width: 240px)': {
-                                  fontSize: '0.65rem'
-                                }
-                              }}
-                            >
-                              Preparation Notes
-                            </Button>
-                          )}
-                      </CardActions>
-                    </Card>
+                      <Button
+                        variant="outlined"
+                        startIcon={<ViewIcon />}
+                        onClick={() => handleViewInterview(interview)}
+                        size="small"
+                        sx={{
+                          width: { xs: '100%', sm: 'auto' }, // 👈 replaces fullWidth responsiveness
+                          fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                          minWidth: { sm: 130, md: 150 },
+                          '@media (max-width: 360px)': { fontSize: '0.7rem' },
+                          '@media (max-width: 240px)': { fontSize: '0.65rem' },
+                        }}
+                      >
+                        View Details
+                      </Button>
+                      {isUpcoming(interview.scheduledDate) &&
+                        interview.status !== 'cancelled' &&
+                        interview.status !== 'completed' && (
+                          <Button
+                            variant="contained"
+                            startIcon={<NotesIcon />}
+                            onClick={() => handlePreparation(interview)}
+                            size="small"
+                            sx={{
+                              width: { xs: '100%', sm: 'auto' }, // 👈 replaces fullWidth responsiveness
+                              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                              minWidth: { sm: 130, md: 150 },
+                              '@media (max-width: 360px)': { fontSize: '0.7rem' },
+                              '@media (max-width: 240px)': { fontSize: '0.65rem' },
+                            }}
+                          >
+                            Preparation Notes
+                          </Button>
+                        )}
+                    </Box>
+                  </Card>
                   </Grid>
-                ))}
-              </Grid>
+            ))}
+          </Grid>
             )}
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Box sx={{
-                display: "flex",
-                justifyContent: "center",
-                mt: { xs: 2, sm: 3 },
-                px: { xs: 1, sm: 0 }
-              }}>
-                <Pagination
-                  count={totalPages}
-                  page={filters.page || 1}
-                  onChange={(_, page) => handleFilterChange("page", page)}
-                  color="primary"
-                  size="small"
-                  siblingCount={0}
-                  boundaryCount={1}
-                />
-              </Box>
-            )}
-          </Box>
-        </Paper>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Box sx={{
+              display: "flex",
+              justifyContent: "center",
+              mt: { xs: 2, sm: 3 },
+              px: { xs: 1, sm: 0 }
+            }}>
+              <Pagination
+                count={totalPages}
+                page={filters.page || 1}
+                onChange={(_, page) => handleFilterChange("page", page)}
+                color="primary"
+                size="small"
+                siblingCount={0}
+                boundaryCount={1}
+              />
+            </Box>
+          )}
       </Box>
+    </Paper >
+      </Box >
 
-      {/* Dialogs */}
-      {selectedInterview && (
-        <>
-          <InterviewDetailDialog
-            open={detailDialogOpen}
-            onClose={() => setDetailDialogOpen(false)}
-            interview={selectedInterview}
-            isAdmin={false}
-          />
-          <PreparationDialog
-            open={preparationDialogOpen}
-            onClose={() => setPreparationDialogOpen(false)}
-            interview={selectedInterview}
-            onSuccess={handleSuccess}
-          />
-        </>
-      )}
+  {/* Dialogs */ }
+{
+  selectedInterview && (
+    <>
+      <InterviewDetailDialog
+        open={detailDialogOpen}
+        onClose={() => setDetailDialogOpen(false)}
+        interview={selectedInterview}
+        isAdmin={false}
+      />
+      <PreparationDialog
+        open={preparationDialogOpen}
+        onClose={() => setPreparationDialogOpen(false)}
+        interview={selectedInterview}
+        onSuccess={handleSuccess}
+      />
+    </>
+  )
+}
     </>
   );
 };
