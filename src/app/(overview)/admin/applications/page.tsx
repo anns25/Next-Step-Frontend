@@ -202,7 +202,7 @@ const AdminApplicationsList: React.FC = () => {
 
     const handleViewResume = (application: Application) => {
         if (application.resume) {
-            const resumeUrl = `${process.env.NEXT_PUBLIC_API_URL}/${application.resume}`;
+            const resumeUrl = `${process.env.NEXT_PUBLIC_API_URL}/uploads/${application.resume}`;
             window.open(resumeUrl, '_blank');
         }
     };

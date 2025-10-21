@@ -38,6 +38,7 @@ import { getAllCompanies } from "@/lib/api/companyAPI";
 import { getJobsByCompany } from "@/lib/api/jobAPI";
 import UserCompanyViewDialog from "@/components/UserCompanyView";
 import { Job } from "@/types/Job";
+import { getApplicationCountsByCompany } from "@/lib/api/applicationAPI";
 
 
 export default function UserCompanies() {
@@ -53,6 +54,7 @@ export default function UserCompanies() {
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [companyJobs, setCompanyJobs] = useState<Job[]>([]);
     const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
+    const [applicationCounts, setApplicationCounts] = useState<Record<string, number>>({});
     const [loadingJobs, setLoadingJobs] = useState(false)
     const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
     const router = useRouter();
@@ -96,6 +98,9 @@ export default function UserCompanies() {
                 setCompanies(response.companies);
                 setTotalPages(response.totalPages);
                 setTotal(response.total);
+
+                // Fetch applications count for all companies
+                await fetchApplicationCounts(response.companies);
             }
         } catch (error) {
             console.error("Error fetching companies:", error);
@@ -106,6 +111,20 @@ export default function UserCompanies() {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Add this new function to fetch application counts
+    const fetchApplicationCounts = async (companiesList: Company[]) => {
+        try {
+            const companyIds = companiesList.map(company => company._id);
+            if (companyIds.length > 0) {
+                const countsResponse = await getApplicationCountsByCompany(companyIds);
+                setApplicationCounts(countsResponse || {});
+            }
+        } catch (error) {
+            console.error("Error fetching application counts:", error);
+        
         }
     };
 
@@ -375,7 +394,7 @@ export default function UserCompanies() {
                                                     Applicants
                                                 </Typography>
                                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                                    {company.totalApplications || 0}
+                                                    {applicationCounts[company._id] || 0}
                                                 </Typography>
                                             </Box>
                                         </Box>
