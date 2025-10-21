@@ -183,6 +183,14 @@ const AdminInterviewFormDialog: React.FC<Props> = ({ open, onClose, interview, o
                     errorMessage = 'Duration must not exceed 480 minutes (8 hours)';
                 }
 
+                if (fieldName === 'address' && errorMessage.includes('minimum')) {
+                    errorMessage = 'Address must be at least 3 characters long';
+                }
+
+                if (fieldName === 'meetingLink' && errorMessage.includes('url')) {
+                    errorMessage = 'Please enter a valid meeting link (e.g., https://zoom.us/j/123456789)';
+                }
+
                 if (fieldName === 'scheduledDate' && errorMessage.includes('future')) {
                     errorMessage = 'Interview date must be in the future';
                 }
